@@ -1,0 +1,2 @@
+model_checkpoint_path: "BunDLeNet_model_worm_4"
+all_model_checkpoint_paths: "BunDLeNet_model_worm_4"
