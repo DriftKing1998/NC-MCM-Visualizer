@@ -18,8 +18,8 @@ data = Database(worm_num, verbose=0)
 data.exclude_neurons(b_neurons)
 loaded_vs = data.loadBundleVisualizer()
 
+loaded_vs.plot3D_mapping(show_legend=True, quivers=True)
 
-loaded_vs.plot3D_mapping(show_legend=True)
 weights_T_Y = loaded_vs.model.T_Y.get_weights()
 weights_predictor = loaded_vs.model.predictor.get_weights()
 
@@ -29,8 +29,6 @@ for worm_num in range(5):
     data = Database(worm_num, verbose=0)
     data.exclude_neurons(b_neurons)
     vs = data.loadBundleVisualizer()
-    #vs = data.createVisualizer()
-    #vs.attachBundleNet(train=False)
 
     ### Set weights of T_Y and predictor
     vs.model.T_Y.set_weights(weights_T_Y)

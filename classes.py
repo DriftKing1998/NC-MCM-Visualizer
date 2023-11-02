@@ -226,7 +226,7 @@ class Visualizer():
 
         self.x, self.y, self.z = transformed_points.T
 
-    def plot3D_mapping(self, use_tau=True, show_legend=False):
+    def plot3D_mapping(self, use_tau=True, show_legend=False, grid_off=True, quivers=False):
         if use_tau and self.tau_model is not None:
             self.tau_model = self.model.tau
         else:
@@ -244,24 +244,38 @@ class Visualizer():
         else:
             colors = self.colors
 
-        ax.scatter(self.x, self.y, self.z, label=self.blabs, s=2, alpha=0.5, color=colors)
+        if quivers:
+            dx = np.diff(self.x)  # Differences between x coordinates
+            dy = np.diff(self.y)  # Differences between y coordinates
+            dz = np.diff(self.z)  # Differences between z coordinates
+            lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+            for idx in range(len(dx)):
+                ax.quiver(self.x[idx], self.y[idx], self.z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
+                          arrow_length_ratio=0.1/lengths[idx], alpha=0.5, linewidths=0.2)
+        else:
+            ax.scatter(self.x, self.y, self.z, label=self.blabs, s=1, alpha=0.5, color=colors)
+
         ax.set_xlabel('Axes 1')
         ax.set_ylabel('Axes 2')
         ax.set_zlabel('Axes 3')
 
         # plot the legend if wanted
         if show_legend:
-            legend_elements, y_labels = self._generate_legend(self.blabs)
-            ax.legend(legend_elements, y_labels, loc='upper left', fontsize='x-small')
+            legend_elements = self._generate_legend(self.blabs)
+            ax.legend(handles=legend_elements)
 
-        ax.grid(False)
+        if grid_off:
+            ax.grid(False)
+            ax.set_axis_off()
+
         plt.show()
 
     ################## A
     def _generate_legend(self, classifier, diff=False):
         # Create custom legend handles
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.colordict[idx],
-                                      markersize=10) for idx, lab in enumerate(self.blabs)]
+                                      markersize=10, label=r'$\mathbf{' + lab + '}$' + f' ({list(self.B).count(idx)})')
+                           for idx, lab in enumerate(self.blabs)]
 
         # if the legend for the difference plot is requested
         if diff:
@@ -278,11 +292,7 @@ class Visualizer():
             ]
             return legend_elements, y_labels_list
 
-        # if a normal legend is requested
-        y_labels = [r'$\mathbf{' + behavior + '}$' + f' ({list(self.B).count(idx)})' for
-                    idx, behavior in enumerate(self.blabs)]
-
-        return legend_elements, y_labels
+        return legend_elements
 
     ### HELP
     def _generate_label_counts(self):

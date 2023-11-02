@@ -29,7 +29,7 @@ for worm_num in range(5):
 	data.exclude_neurons(b_neurons)
 	vs = data.createVisualizer()
 	#vs.plotting_neuronal_behavioural()
-	#vs.plot3D_mapping(show_legend=True)
+	vs.plot3D_mapping(show_legend=True, grid_off=True)
 
 	### Preprocess and prepare data for BundLe Net
 	bundle_model = vs.attachBundleNet(epochs=2000)
