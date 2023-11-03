@@ -8,6 +8,8 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from typing import Optional, List, Union
 import mat73
+from sklearn.decomposition import NMF
+from sklearn.preprocessing import MinMaxScaler
 
 
 class Database:
@@ -81,7 +83,7 @@ class Database:
         print(f'{amount} neurons have been removed.')
 
     def createVisualizer(self):
-        vs = Visualizer(self.neuron_traces, self.B, xlabs=self.neuron_names, blabs=self.states, fps=self.fps)
+        vs = Visualizer(self.neuron_traces.T, self.B, xlabs=self.neuron_names, blabs=self.states, fps=self.fps)
         return vs
 
     def loadBundleVisualizer(self, l_dim=3):
@@ -92,6 +94,7 @@ class Database:
         vs.model.build(input_shape=vs.X_.shape)
         vs.model.load_weights('data/generated/BunDLeNet_model_worm_' + str(self.data_set_no))
         vs.tau_model = vs.model.tau
+        vs.bundle_tau = True
         return vs
 
 
@@ -145,6 +148,7 @@ class Visualizer():
         self.xlabs = xlabs
         self.blabs = blabs
         self.tau_model = None
+        self.bundle_tau = False
         self.model = None
         self.fps = fps
 
@@ -191,7 +195,7 @@ class Visualizer():
             show = True
             fig, ax = plt.subplots(figsize=(10, 2))
 
-        im0 = ax.imshow(self.X, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
+        im0 = ax.imshow(self.X.T, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
         # tell the colorbar to tick at integers
         # plt.colorbar(im0)
         ax.get_figure().colorbar(im0)
@@ -201,38 +205,47 @@ class Visualizer():
         if show:
             plt.show()
 
-    def _transform_points(self):
-        if self.tau_model is None:
-            print('CREATE PCA MODEL')
+    def _transform_points(self, dim_red):
+        if dim_red is None:
+            print('No mapping present. CREATING PCA MODEL ...')
             pca = PCA(n_components=3)
-            pca.fit(self.X.T)
             self.tau_model = pca
-            transformed_points = pca.transform(self.X.T)
-            print(transformed_points.shape)
+            transformed_points = self.tau_model.fit_transform(self.X)
         else:
-            if isinstance(self.model, BunDLeNet):
+            if self.bundle_tau:#isinstance(self.model, BunDLeNet):
                 print('HAVE BUNDLE MODEL')
-                print(self.tau_model.input_shape, ' is input shape, we have: ', self.X_[:, 0].shape)
-
-                transformed_points = self.tau_model.predict(self.X_[:, 0])
-                print(transformed_points.shape)
+                #self.tau_model = self.model.tau
+                transformed_points = self.tau_model(self.X_[:, 0])
 
             else:
-                print('HAVE PCA MODEL')
-                print(self.X.T.shape, ' is input shape, we have: ', self.X.T.shape)
-
-                transformed_points = self.tau_model.transform(self.X.T)
-                print(transformed_points.shape)
+                if hasattr(dim_red, 'fit_transform'):
+                    if dim_red.get_params()['n_components'] == 3:
+                        print('HAVE different mapping MODEL')
+                        if isinstance(dim_red, NMF):
+                            scaler = MinMaxScaler(feature_range=(0, np.max(self.X)))
+                            X_scaled = scaler.fit_transform(self.X)
+                            transformed_points = dim_red.fit_transform(X_scaled)
+                        else:
+                            transformed_points = dim_red.fit_transform(self.X)
+                    else:
+                        print('The selected model does not project to a 3 dimensional space.')
+                        return False
+                else:
+                    print('The selected model has no attribute \'fit_transform\'. (SKLEARN models are recommended)')
+                    return False
 
         self.x, self.y, self.z = transformed_points.T
+        return True
 
-    def plot3D_mapping(self, use_tau=True, show_legend=False, grid_off=True, quivers=False):
-        if use_tau and self.tau_model is not None:
-            self.tau_model = self.model.tau
+    def plot3D_mapping(self, dim_red=None, show_legend=False, grid_off=True, quivers=False):
+        if dim_red is None:
+            dim_red = self.tau_model
+            print('The current latent dimension mapping (tau) is used for plotting.')
         else:
-            self.tau_model = None
+            self.tau_model = dim_red
 
-        self._transform_points()
+        if not self._transform_points(dim_red):
+            return False
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -245,13 +258,7 @@ class Visualizer():
             colors = self.colors
 
         if quivers:
-            dx = np.diff(self.x)  # Differences between x coordinates
-            dy = np.diff(self.y)  # Differences between y coordinates
-            dz = np.diff(self.z)  # Differences between z coordinates
-            lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
-            for idx in range(len(dx)):
-                ax.quiver(self.x[idx], self.y[idx], self.z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
-                          arrow_length_ratio=0.1/lengths[idx], alpha=0.5, linewidths=0.2)
+            ax = self._add_quivers(ax, colors)
         else:
             ax.scatter(self.x, self.y, self.z, label=self.blabs, s=1, alpha=0.5, color=colors)
 
@@ -324,7 +331,7 @@ class Visualizer():
                 self.true_label_counts[true_label][True] += 1
 
     def attachBundleNet(self, l_dim=3, train=True, epochs=2000):
-        time, newX = preprocess_data(self.X.T, self.fps)
+        time, newX = preprocess_data(self.X, self.fps)
         self.X_, self.B_ = prep_data(newX, self.B, win=15)
 
         self.model = BunDLeNet(latent_dim=l_dim)
@@ -342,6 +349,7 @@ class Visualizer():
             )
 
             self.tau_model = self.model.tau
+            self.bundle_tau = True
 
         return self.model
 
@@ -367,3 +375,14 @@ class Visualizer():
             n_epochs=epochs
         )
         self.tau_model = self.model.tau
+        self.bundle_tau = True
+
+    def _add_quivers(self, ax, colors):
+        dx = np.diff(self.x)  # Differences between x coordinates
+        dy = np.diff(self.y)  # Differences between y coordinates
+        dz = np.diff(self.z)  # Differences between z coordinates
+        lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+        for idx in range(len(dx)):
+            ax.quiver(self.x[idx], self.y[idx], self.z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
+                      arrow_length_ratio=0.1 / lengths[idx], alpha=0.5, linewidths=0.5)
+        return ax

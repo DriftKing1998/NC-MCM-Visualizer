@@ -1,38 +1,38 @@
-import matplotlib.pyplot as plt
-import numpy as np
+from collections import Counter
+from classes import *
+import random
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.manifold import TSNE
+from sklearn.decomposition import NMF
+from sklearn.random_projection import johnson_lindenstrauss_min_dim, SparseRandomProjection
 
-# Create a 3D plot
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
 
-# Sample data points
-x = np.asarray([1, 2, 3, 4, 5, 5, 6]).astype(float)
-y = np.asarray([2, 3, 4, 5, 6, 9, 14]).astype(float)
-z = np.asarray([1, 2, 3, 4, 5, 7, 8]).astype(float)
+b_neurons = [
+		'AVAR',
+		'AVAL',
+		'SMDVR',
+		'SMDVL',
+		'SMDDR',
+		'SMDDL',
+		'RIBR',
+		'RIBL'
+	]
 
-print(np.arctan2(x, y))
+worm_num = 0
 
-# Calculate the direction vectors for the quivers
-dx = np.diff(x)  # Differences between x coordinates
-dy = np.diff(y)  # Differences between y coordinates
-dz = np.diff(z)  # Differences between z coordinates
+data = Database(worm_num, verbose=1)
+data.exclude_neurons(b_neurons)
+#vs = data.loadBundleVisualizer()
+vs = data.createVisualizer()
 
-# Normalize the direction vectors
-length = np.sqrt(dx**2 + dy**2 + dz**2)
-dx /= length
-dy /= length
-dz /= length
+#svm_model = SVC()
+#logistic_model = LogisticRegression()
 
-# Create the quiver plot
-ax.quiver(x[:-1], y[:-1], z[:-1], dx, dy, dz, length=1, normalize=True, color=['red', 'red', 'red', 'blue', 'red', 'blue', 'red', 'blue'])
+#dim_red = PCA(n_components=2)
+#dim_red = TSNE(n_components=3)
+#dim_red = SparseRandomProjection(n_components=3)
+#dim_red = NMF(n_components=3)
 
-# Scatterplot the points
-#ax.scatter(x, y, z, c='r', marker='o', s=50, label='Points')
-
-# Customize the plot as needed
-ax.set_xlabel('X Label')
-ax.set_ylabel('Y Label')
-ax.set_zlabel('Z Label')
-
-plt.legend()
-plt.show()
+vs.plotting_neuronal_behavioural()
+vs.plot3D_mapping(show_legend=True, grid_off=True, quivers=False)
