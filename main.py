@@ -1,6 +1,4 @@
-from collections import Counter
-from classes import *
-import random
+from scripts.classes import *
 
 b_neurons = [
 		'AVAR',

@@ -1,15 +1,15 @@
 # import MyBundle
-from functions import *
+from scripts.functions import *
 # from BunDLeNet import *
-from MyBundle import *
+from scripts.MyBundle import *
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.decomposition import PCA
 from typing import Optional, List, Union
 import mat73
 from sklearn.decomposition import NMF
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.animation as anim# FuncAnimation
 
 
 class Database:
@@ -19,23 +19,32 @@ class Database:
         Reads in the data from the all files corresponding to the selected dataset.
         It stores all values into numpy arrays.
 
-        Args:
-            dataset_name (string): Defines which CSV-files will be read.
-            sep (string): Seperator to split the CSV-files.
-            verbose (int): Defines what will be printed out.
+        :param data_set_no: Defines which CSV files will be read.
+        :type data_set_no: string
 
-        Returns:
-            None
+        :param sep: Separator to split the CSV files.
+        :type sep: string
 
+        :param verbose: Defines the verbosity level (0 for minimal output).
+        :type verbose: int
         """
+
         self.data_set_no = data_set_no
-        data_dict = mat73.loadmat('data/NoStim_Data.mat')
+        data_dict = mat73.loadmat('/Users/michaelhofer/Documents/GitHub/NeuronVisualizer2.0/data/NoStim_Data.mat')
         data = data_dict['NoStim_Data']
         deltaFOverF_bc = data['deltaFOverF_bc'][self.data_set_no]
         derivatives = data['derivs'][self.data_set_no]
         NeuronNames = data['NeuronNames'][self.data_set_no]
         fps = data['fps'][self.data_set_no]
         States = data['States'][self.data_set_no]
+
+        #for i in range(5):
+        #    print(f'Worm no {i}')
+        #    print(np.array(data['deltaFOverF_bc'][i]).shape)
+        #    print(data['fps'][i])
+         #   print(data['tv'][i][-1], np.array(data['deltaFOverF_bc'][i]).shape[0]/data['fps'][i])
+         #   print()
+
 
         self.B = np.sum([n * States[s] for n, s in enumerate(States)], axis=0).astype(
             int)  # making a single states array in which each number corresponds to a behaviour
@@ -64,13 +73,10 @@ class Database:
         """
         Excludes specified neurons from the database.
 
-        Args:
-            exclude_neurons (list): List of neuron names to exclude.
-
-        Returns:
-            None
-
+        :param exclude_neurons: List of neuron names to exclude.
+        :type exclude_neurons: list
         """
+
         neuron_names = self.neuron_names
         mask = np.zeros_like(self.neuron_names, dtype='bool')
         for exclude_neuron in exclude_neurons:
@@ -107,21 +113,30 @@ class Visualizer():
                  blabs: Optional[Union[List[str], np.ndarray]] = None,
                  fps: float = None):
         """
-        Takes values for features(neurons), labels(behaviors) and their corresponding names. If B is a list of strings,
-        those are taken as blabs and blabs is ignored.
+        Takes values for features (neurons), labels (behaviors), and their corresponding names. If B is a list of strings,
+        those are taken as blabs, and blabs is ignored.
 
-        Args:
-            X (ndarray): 2D array with each row corresponding to a neuron and each column is a timeframe
-            B (ndarray): 1D array with behavior encoded as integer.
-            xlabs (ndarray): 1D array with the names of the neurons.
-            blabs (ndarray): 1D array with translation for behavior.
-            fps (float): gives the recording fps.
+        :param X: ndarray
+        :type X: 2D array with each row corresponding to a neuron and each column is a timeframe.
+
+        :param B: ndarray
+        :type B: 1D array with behavior encoded as integers.
+
+        :param xlabs: ndarray
+        :type xlabs: 1D array with the names of the neurons.
+
+        :param blabs: ndarray
+        :type blabs: 1D array with translation for behavior.
+
+        :param fps: float
+        :type fps: gives the recording fps.
 
         Returns:
             None
-
         """
+
         # Input Preprocessing
+        self.scatter = None
         X = np.asarray(X)
         B = np.asarray(B)
 
@@ -155,6 +170,7 @@ class Visualizer():
         # generate a color-dictionary for all states and generate the colors
         self.colordict = dict(zip(np.unique(self.B), generate_equidistant_colors(len(self.blabs))))
         self.colors = [self.colordict[val] for val in self.B]
+        self.trimmed_colors = None
 
     def plotting_neuronal_behavioural(self, vmin=0, vmax=2):
         fig, axs = plt.subplots(2, 1, figsize=(10, 4))
@@ -209,13 +225,13 @@ class Visualizer():
         if dim_red is None:
             print('No mapping present. CREATING PCA MODEL ...')
             pca = PCA(n_components=3)
-            self.tau_model = pca
-            transformed_points = self.tau_model.fit_transform(self.X)
+            dim_red = pca
+            transformed_points = dim_red.fit_transform(self.X)
         else:
             if self.bundle_tau:#isinstance(self.model, BunDLeNet):
                 print('HAVE BUNDLE MODEL')
                 #self.tau_model = self.model.tau
-                transformed_points = self.tau_model(self.X_[:, 0])
+                transformed_points = np.asarray(self.tau_model(self.X_[:, 0]))
 
             else:
                 if hasattr(dim_red, 'fit_transform'):
@@ -234,6 +250,7 @@ class Visualizer():
                     print('The selected model has no attribute \'fit_transform\'. (SKLEARN models are recommended)')
                     return False
 
+        print(transformed_points.T.shape)
         self.x, self.y, self.z = transformed_points.T
         return True
 
@@ -241,8 +258,6 @@ class Visualizer():
         if dim_red is None:
             dim_red = self.tau_model
             print('The current latent dimension mapping (tau) is used for plotting.')
-        else:
-            self.tau_model = dim_red
 
         if not self._transform_points(dim_red):
             return False
@@ -277,7 +292,6 @@ class Visualizer():
 
         plt.show()
 
-    ################## A
     def _generate_legend(self, classifier, diff=False):
         # Create custom legend handles
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.colordict[idx],
@@ -301,7 +315,6 @@ class Visualizer():
 
         return legend_elements
 
-    ### HELP
     def _generate_label_counts(self):
         merged_list = [False if self.B[i] == self.Y_pred[i] else self.B[i] for i in range(len(self.B))]
         self.diff_colors_pred = [self.colordict[val] if val else "lightgrey" for val in merged_list]
@@ -386,3 +399,92 @@ class Visualizer():
             ax.quiver(self.x[idx], self.y[idx], self.z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
                       arrow_length_ratio=0.1 / lengths[idx], alpha=0.5, linewidths=0.5)
         return ax
+
+    def make_movie(self, interval=None, dim_red=None, save=False, show_legend=False, grid_off=True, quivers=False):
+        """
+        Makes a movie out of each frame in the imaging data. It uses the tau model or a model given as a parameter to
+        map the data to a 3-dimensional space.
+
+        :param interval :  Interval between frames in milliseconds.
+        :type interval : int
+
+        :param dim_red : Specifies the latent dimension mapping used for the 3D plot.
+        :type dim_red : tf.keras.Sequential() with 3-dimensional output or any scikit learn dimensionality reduction
+
+        :param save : If the movie should be saved.
+        :type save : boolean
+
+        :param show_legend : If the legend is visible.
+        :type show_legend : boolean
+
+        :param grid_off : If the grid and axes are visible.
+        :type grid_off : boolean
+
+        :param quivers : If quivers are used instead of scatters.
+        :type quivers : boolean
+
+        :return : Boolean if it got executed successfully.
+        """
+
+        if dim_red is None:
+            dim_red = self.tau_model
+            print('Try using current latent dimension mapping (tau) for plotting.')
+
+        if not self._transform_points(dim_red):
+            return False
+
+        if interval is None:
+            print('The movie is played in real time.')
+            interval = 1000 / self.fps
+
+            # We need to trim labs and colors if we have a Bundle
+        if len(self.x) < len(self.colors):
+            window = len(self.colors) - len(self.x)
+            self.trimmed_colors = self.colors[window:]
+        else:
+            self.trimmed_colors = self.colors
+
+        fig, self.movie_ax = plt.subplots(subplot_kw={'projection': '3d'})
+
+        if quivers:
+            self.movie_ax = self._add_quivers(self.movie_ax, self.trimmed_colors)
+        else:
+            self.movie_ax.scatter(self.x, self.y, self.z, color=self.trimmed_colors, label=self.blabs, s=2, alpha=0.2)
+
+        if grid_off:
+            self.movie_ax.grid(False)
+            self.movie_ax.set_axis_off()
+
+        self.scatter = None
+        animation = anim.FuncAnimation(fig, self._update, fargs=(grid_off, show_legend,), frames=len(self.x), interval=interval)
+        plt.show()
+
+        if save:
+            name = str(input('Type the name of the movie (n/N to skip): '))
+            if name.upper() != 'N':
+                name = name + '.gif'
+            else:
+                return True
+            gif_writer = anim.PillowWriter(fps=50, metadata=dict(artist='Me'), bitrate=1800)
+            animation.save(name, writer=gif_writer, dpi=30)
+        return True
+
+    def _update(self, frame, grid_off, show_legend):
+        if self.scatter is not None:
+            self.scatter.remove()
+        self.scatter = self.movie_ax.scatter(self.x[frame], self.y[frame], self.z[frame], s=20, alpha=0.8, color='red')
+        self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.blabs[self.B[frame]]}')
+
+        if show_legend:
+            legend_elements = self._generate_legend(self.blabs)
+            self.movie_ax.legend(handles=legend_elements)
+
+        if grid_off:
+            self.movie_ax.grid(False)
+            self.movie_ax.set_axis_off()
+        else:
+            self.movie_ax.set_xlabel('PC 1')
+            self.movie_ax.set_ylabel('PC 2')
+            self.movie_ax.set_zlabel('PC 3')
+
+        return self.movie_ax
