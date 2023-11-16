@@ -9,7 +9,12 @@ from typing import Optional, List, Union
 import mat73
 from sklearn.decomposition import NMF
 from sklearn.preprocessing import MinMaxScaler
-import matplotlib.animation as anim# FuncAnimation
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.cluster import KMeans
+import matplotlib.animation as anim  # FuncAnimation
+
+import networkx as nx
 
 
 class Database:
@@ -20,7 +25,7 @@ class Database:
         It stores all values into numpy arrays.
 
         :param data_set_no: Defines which CSV files will be read.
-        :type data_set_no: string
+        :type data_set_no: int
 
         :param sep: Separator to split the CSV files.
         :type sep: string
@@ -28,6 +33,7 @@ class Database:
         :param verbose: Defines the verbosity level (0 for minimal output).
         :type verbose: int
         """
+
 
         self.data_set_no = data_set_no
         data_dict = mat73.loadmat('/Users/michaelhofer/Documents/GitHub/NeuronVisualizer2.0/data/NoStim_Data.mat')
@@ -38,30 +44,15 @@ class Database:
         fps = data['fps'][self.data_set_no]
         States = data['States'][self.data_set_no]
 
-        #for i in range(5):
-        #    print(f'Worm no {i}')
-        #    print(np.array(data['deltaFOverF_bc'][i]).shape)
-        #    print(data['fps'][i])
-         #   print(data['tv'][i][-1], np.array(data['deltaFOverF_bc'][i]).shape[0]/data['fps'][i])
-         #   print()
-
-
         self.B = np.sum([n * States[s] for n, s in enumerate(States)], axis=0).astype(
             int)  # making a single states array in which each number corresponds to a behaviour
         self.states = [*States.keys()]
         self.neuron_traces = np.array(deltaFOverF_bc).T
         self.neuron_names = np.array(NeuronNames, dtype=object)
         self.fps = fps
-
-        # with open(f'data/worm_{data_set_no}_neurons.csv', 'r') as neuronfile:
-        #    self.neuron_names = np.asarray(neuronfile.read().strip().split(sep))
-        # with open(f'data/worm_{data_set_no}_x.csv', 'r') as featurefile:
-        #    all_neuron_traces = featurefile.read().strip().split('\n')
-        #    self.neuron_traces = np.asarray([x.split(sep) for x in all_neuron_traces]).T.astype(float)
-        # with open(f'data/worm_{data_set_no}_y.csv', 'r') as labelfile:
-        #    self.B = np.asarray(labelfile.read().strip().split(sep)).astype(int)
-        # with open(f'data/worm_{data_set_no}_states.csv', 'r') as statesfile:
-        #    self.states = np.asarray(statesfile.read().strip().split(sep))
+        self.pred_model = None
+        self.yp_map = None
+        self.xc = None
 
         if len(self.B) != self.neuron_traces.shape[1] or len(self.neuron_names) != self.neuron_traces.shape[0]:
             print('Error')
@@ -102,6 +93,54 @@ class Database:
         vs.tau_model = vs.model.tau
         vs.bundle_tau = True
         return vs
+
+    def fit_model(self, model, prob_map=True, markov_test=False, nrep=200, max_clusters=20, sim_markov=200):
+        if not hasattr(model, 'fit'):
+            print('Model has no method \'fit\'.')
+            return None
+
+        self.pred_model = model.fit(self.neuron_traces.T, self.B)
+        self.B_pred = self.pred_model.predict(self.neuron_traces.T)
+        print("Accuracy:", accuracy_score(self.B, self.B_pred))
+
+        if prob_map:
+            # get probabilities and weights
+            self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
+            W = self.pred_model.coef_.T
+            #ypall.append(yp)
+            #Wall.append(W)
+
+        if markov_test:
+            self.p_markov = np.zeros((max_clusters, nrep))
+            M = self.yp_map.shape[0]
+            self.xc = np.zeros((M, max_clusters, nrep))
+
+            for reps in range(nrep):
+                print("Testing markovianity - repetition ", reps+1)
+                for nrclusters in range(max_clusters):
+                    # k-means
+                    clusters = KMeans(n_clusters=nrclusters + 1, random_state=0, n_init="auto").fit(self.yp_map)
+                    xctmp = clusters.labels_
+                    p, _ = markovian(xctmp, K=sim_markov)
+                    self.p_markov[nrclusters, reps] = p
+                    self.xc[:, nrclusters, reps] = xctmp
+
+        return self.pred_model
+
+    def plot_markov(self):
+        fig, ax = plt.subplots()
+        data = self.p_markov[:, :].T
+        print(data.shape)
+        # Create boxplots
+        ax.boxplot(data)
+        ax.set_title(f'Probability of being a Markov process for worm {self.data_set_no+1}')
+        ax.set_xlabel('Number of States/Clusters')
+        ax.set_ylabel('Probability')
+        # Adjust layout to prevent overlapping
+        plt.tight_layout()
+        plt.show()
+
+
 
 
 class Visualizer():
@@ -166,6 +205,8 @@ class Visualizer():
         self.bundle_tau = False
         self.model = None
         self.fps = fps
+        self.animation = None
+        self.interval = None
 
         # generate a color-dictionary for all states and generate the colors
         self.colordict = dict(zip(np.unique(self.B), generate_equidistant_colors(len(self.blabs))))
@@ -228,9 +269,9 @@ class Visualizer():
             dim_red = pca
             transformed_points = dim_red.fit_transform(self.X)
         else:
-            if self.bundle_tau:#isinstance(self.model, BunDLeNet):
+            if self.bundle_tau:  # isinstance(self.model, BunDLeNet):
                 print('HAVE BUNDLE MODEL')
-                #self.tau_model = self.model.tau
+                # self.tau_model = self.model.tau
                 transformed_points = np.asarray(self.tau_model(self.X_[:, 0]))
 
             else:
@@ -434,10 +475,11 @@ class Visualizer():
             return False
 
         if interval is None:
-            print('The movie is played in real time.')
+            print('The movie well be played in real time.')
             interval = 1000 / self.fps
+        self.interval = interval
 
-            # We need to trim labs and colors if we have a Bundle
+        # We need to trim labs and colors if we have a Bundle
         if len(self.x) < len(self.colors):
             window = len(self.colors) - len(self.x)
             self.trimmed_colors = self.colors[window:]
@@ -456,17 +498,9 @@ class Visualizer():
             self.movie_ax.set_axis_off()
 
         self.scatter = None
-        animation = anim.FuncAnimation(fig, self._update, fargs=(grid_off, show_legend,), frames=len(self.x), interval=interval)
+        self.animation = anim.FuncAnimation(fig, self._update, fargs=(grid_off, show_legend,), frames=len(self.x),
+                                            interval=self.interval)
         plt.show()
-
-        if save:
-            name = str(input('Type the name of the movie (n/N to skip): '))
-            if name.upper() != 'N':
-                name = name + '.gif'
-            else:
-                return True
-            gif_writer = anim.PillowWriter(fps=50, metadata=dict(artist='Me'), bitrate=1800)
-            animation.save(name, writer=gif_writer, dpi=30)
         return True
 
     def _update(self, frame, grid_off, show_legend):
@@ -483,8 +517,250 @@ class Visualizer():
             self.movie_ax.grid(False)
             self.movie_ax.set_axis_off()
         else:
-            self.movie_ax.set_xlabel('PC 1')
-            self.movie_ax.set_ylabel('PC 2')
-            self.movie_ax.set_zlabel('PC 3')
+            self.movie_ax.set_xlabel('Axes 1')
+            self.movie_ax.set_ylabel('Axes 2')
+            self.movie_ax.set_zlabel('Axes 3')
 
         return self.movie_ax
+
+    def save_gif(self, name):
+        if self.animation is None:
+            print('No animation created yet.\nTo create one use \'.make_movie()\'.')
+        else:
+            print('This may take a while...')
+            path = 'movies/' + name + '.gif'
+            gif_writer = anim.PillowWriter(fps=int(1000 / self.interval), metadata=dict(artist='Me'), bitrate=1800)
+            self.animation.save(path, writer=gif_writer, dpi=144)
+
+    def behavioral_state_diagram(self):
+        # make the graph
+        G = nx.DiGraph()
+        G.add_nodes_from(self.blabs)
+        node_colors = list(self.colordict.values())
+
+        cog_states = [1] * (len(self.B))
+        T = adj_matrix_ncmcm(self.B, cog_states)
+
+        # adding edges
+        for n1 in range(len(self.blabs)):
+            for n2 in range(len(self.blabs)):
+                if n1 != n2:
+                    G.add_edge(self.blabs[n1], self.blabs[n2], weight=T[n1, n2] * 1000, color=node_colors[n1])
+
+        node_sizes = np.diag(T) * 1000
+
+        pos = nx.circular_layout(G)
+
+        # Plot graph
+        edges = G.edges()
+        weights = [G[u][v]['weight'] for u, v in edges]
+        nx.draw(G, pos,
+                with_labels=True,
+                connectionstyle="arc3,rad=-0.2",
+                node_color=node_colors,
+                node_size=node_sizes,
+                width=weights,
+                arrows=True,
+                arrowsize=10)
+        # nx.draw(G, pos, with_labels=True, arrows=True)
+        plt.title("Behavioral State Diagram")
+        plt.show()
+
+    def make_comparison(self, show_legend=False):
+        if not hasattr(self, 'true_label_counts'):
+            self._generate_label_counts()
+
+        fig = plt.figure(figsize=(12, 5))
+
+        # First subplot
+        ax1 = fig.add_subplot(131, projection='3d')
+        ax2 = fig.add_subplot(132, projection='3d')
+        ax3 = fig.add_subplot(133, projection='3d')
+
+        ax1.scatter(self.x, self.y, self.z, color=self.colors, label=self.ylabs, s=2, alpha=0.5)
+        ax1.set_xlabel('PC 1')
+        ax1.set_ylabel('PC 2')
+        ax1.set_zlabel('PC 3')
+        ax1.set_title(f'True Label')
+
+        ax2.scatter(self.x, self.y, self.z, color=self.diff_colors_pred, label=self.ylabs, s=2, alpha=0.5)
+        ax2.set_xlabel('PC 1')
+        ax2.set_ylabel('PC 2')
+        ax2.set_zlabel('PC 3')
+        ax2.set_title(
+            f'Model: {type(self.untrained_model)}\n\nAccuracy at {round(accuracy_score(self.Y, self.Y_pred), 2)}\n')
+
+        ax3.scatter(self.x, self.y, self.z, color=self.colors_pred, label=self.ylabs, s=2, alpha=0.5)
+        ax3.set_xlabel('PC 1')
+        ax3.set_ylabel('PC 2')
+        ax3.set_zlabel('PC 3')
+        ax3.set_title(f'Predicted Label')
+
+        # plot the legend if wanted
+        if show_legend:
+            pred_legend_elements, pred_y_labels = self._generate_legend(self.pred_label_counts)
+            l1 = fig.legend(pred_legend_elements, pred_y_labels, ncol=2, loc='lower right', fontsize='x-small')
+            l1.set_title('Label - (wrong/correct)', prop={'weight': 'bold'})
+
+            true_legend_elements, true_y_labels = self._generate_legend(self.true_label_counts)
+            l2 = fig.legend(true_legend_elements, true_y_labels, ncol=2, loc='lower left', fontsize='x-small')
+            l2.set_title('Label - (wrong/correct)', prop={'weight': 'bold'})
+
+            diff_legend_elements, diff_y_labels = self._generate_legend(self.diff_label_counts, True)
+            l3 = fig.legend(diff_legend_elements, diff_y_labels, ncol=2, loc='lower center', fontsize='x-small')
+            l3.set_title(f'predicted incorrect as (amount)', prop={'weight': 'bold'})
+
+        fig.suptitle(f'{len(self.x)} Frames', fontsize='x-large', fontweight='bold')
+        plt.show()
+
+
+### FUNCTIONS MARKOV ###
+
+def markovian(sequence, K=1000):
+    P, states, M, N = compute_transition_matrix_lag2(sequence)
+
+    # P(z[t]|z[t-1]) = P(z[t],z[t-1]) / P(z[t-1])
+    Pz0z1 = np.sum(P, axis=0)
+    Pz1 = np.sum(P, axis=(2, 0))
+    # This gives us the probability to be at x (=column) given that we came from at y (=row)
+    P1 = (Pz0z1 / Pz1.reshape(-1, 1))
+
+    # P(z[t]|z[t-1],z[t-2]) = P(z[t],z[t-1],z[t-2]) / P(z[t-1],z[t-2])
+    Pz1z2 = np.sum(P, axis=2)
+
+    # I am replacing zeros in Pz1z2 with epsilon, so we do not encounter RuntimeWarnings
+    epsilon = 1e-8
+    Pz1z2 = np.where(Pz1z2 == 0, epsilon, Pz1z2)
+    Pz1z2 = Pz1z2 / np.sum(Pz1z2)  # here I normalize it so the sum is 1 again
+
+    P2 = P / np.tile(Pz1z2, (N, 1, 1))
+    P2 = np.nan_to_num(P2)
+
+    # Testing
+    TH0 = np.zeros(K)
+    for kperm in range(K):
+        zH0, _ = simulate_markovian(M, P1)
+        PH0 = np.zeros((N, N, N))
+
+        for m in range(2, M):
+            i = zH0[m]
+            j = zH0[m - 1]
+            k = zH0[m - 2]
+            PH0[k, j, i] += 1
+
+        PH0 = PH0 / (M - 2)
+        Pz1z2H0 = np.sum(PH0, axis=2)
+
+        # I am replacing zeros in Pz1z2H0 with epsilon, so we do not encounter RuntimeWarnings
+        epsilon = 1e-8
+        Pz1z2H0 = np.where(Pz1z2H0 == 0, epsilon, Pz1z2H0)
+        Pz1z2H0 = Pz1z2H0 / np.sum(Pz1z2H0)  # here I normalize it so the sum is 1 again
+
+        P2H0 = PH0 / np.tile(Pz1z2H0, (N, 1, 1))
+        P2H0 = np.nan_to_num(P2H0)
+
+        TH0[kperm] = sum(np.var(P2H0, axis=0).flatten())
+
+    # compute p-value
+    T = np.sum(np.var(P2, axis=2), axis=(0, 1))
+    p = 1 - np.mean(T >= TH0)
+    # I think the P1 should be returned since it is already the empirical transition matrix
+    return p, P1
+
+
+def compute_transition_matrix_lag2(sequence, normalize=True):
+    states = sorted(np.unique(sequence))
+    M = len(sequence)
+    N = len(states)
+    # sequence is translated into 0-N
+    x = np.zeros(M, dtype=int)
+    for i, state in enumerate(states):
+        j = np.where([state == s for s in sequence])
+        x[j] = i
+    # tensor is created
+    P = np.zeros((N, N, N))
+    for m in range(2, M):
+        # col
+        i = x[m]
+        # row
+        j = x[m - 1]
+        # depth
+        k = x[m - 2]
+        # from k to j to i
+        P[k, j, i] += 1
+    if normalize:
+        P = P / (M - 2)
+    return P, states, M, N
+
+
+def simulate_markovian(M, P=np.array([]), N=1):
+    if not len(P):
+        P = np.random.rand(N, N)
+        P = P / np.repeat(np.sum(P, axis=1)[np.newaxis, :], N, axis=0).T
+    else:
+        N = P.shape[0]
+
+    # cumulative probabilities
+    CP = np.cumsum(P, axis=1, dtype=float)
+    # generate lots of data
+    z = np.zeros(M, dtype=int)
+    z[0] = np.random.randint(N)
+
+    for m in range(1, M):
+        prob = np.random.rand(1)
+        z[m] = np.where(CP[z[m - 1], :] >= prob)[0][0]
+
+    return z, P
+
+
+def adj_matrix_ncmcm(B, cog_states):
+    T = np.zeros((8, 8))
+    b = np.unique(B)
+    c = np.unique(cog_states)
+    states = [cs * 10 + bs for cs in c for bs in b]
+
+    for m in range(len(B) - 1):
+        cur_sample = m
+        next_sample = m + 1
+
+        cur_state = np.where(cog_states[cur_sample] * 10 + B[cur_sample] == states)[0][0]
+        next_state = np.where(cog_states[next_sample] * 10 + B[next_sample] == states)[0][0]
+        T[next_state, cur_state] += 1
+
+    # normalize T
+    T = T / (len(B) - 1)
+    T = T.T
+    return T
+
+
+def cart2pol(cartcord):
+    theta = np.arctan2(cartcord[1], cartcord[0])
+    rho = np.hypot(cartcord[0], cartcord[1])
+
+    return theta, rho
+
+
+def pol2cart(polcoord):
+    x = polcoord[1] * np.cos(polcoord[0])
+    y = polcoord[1] * np.sin(polcoord[0])
+
+    return x, y
+
+
+def average_markov_plot(markov_array):
+    # Scatter plot each row with the index as x-values and the values as y-values
+    for i in range(markov_array.shape[0]):
+        plt.scatter(np.arange(markov_array.shape[1]), markov_array[i], label=f'Worm {i + 1}')
+
+    mean_trendline = np.mean(markov_array, axis=0)
+    plt.plot(np.arange(markov_array.shape[1]), mean_trendline, color='black', linestyle='--', label='Mean Trendline')
+
+    # Add labels and legend
+    plt.xlabel('Clusters/States')
+    plt.ylabel('Probability')
+    plt.xticks(ticks=np.arange(0, markov_array.shape[1], 3), labels=np.arange(1, markov_array.shape[1]+1, 3))
+    plt.title('Markov Probability for Cognitive States')
+    plt.legend()
+
+    # Show the plot
+    plt.show()
