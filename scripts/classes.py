@@ -36,7 +36,7 @@ class Database:
 
 
         self.data_set_no = data_set_no
-        data_dict = mat73.loadmat('/Users/michaelhofer/Documents/GitHub/NeuronVisualizer2.0/data/NoStim_Data.mat')
+        data_dict = mat73.loadmat('D:/Github/NeuronVisualizer2.0/data/NoStim_Data.mat')
         data = data_dict['NoStim_Data']
         deltaFOverF_bc = data['deltaFOverF_bc'][self.data_set_no]
         derivatives = data['derivs'][self.data_set_no]
@@ -106,6 +106,7 @@ class Database:
         if prob_map:
             # get probabilities and weights
             self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
+            print(f'Probability map has shape: {self.yp_map.shape}')
             W = self.pred_model.coef_.T
             #ypall.append(yp)
             #Wall.append(W)
@@ -119,7 +120,7 @@ class Database:
                 print("Testing markovianity - repetition ", reps+1)
                 for nrclusters in range(max_clusters):
                     # k-means
-                    clusters = KMeans(n_clusters=nrclusters + 1, random_state=0, n_init="auto").fit(self.yp_map)
+                    clusters = KMeans(n_clusters=nrclusters + 1, n_init="auto").fit(self.yp_map)
                     xctmp = clusters.labels_
                     p, _ = markovian(xctmp, K=sim_markov)
                     self.p_markov[nrclusters, reps] = p
@@ -136,6 +137,7 @@ class Database:
         ax.set_title(f'Probability of being a Markov process for worm {self.data_set_no+1}')
         ax.set_xlabel('Number of States/Clusters')
         ax.set_ylabel('Probability')
+        ax.axhline(0.05)
         # Adjust layout to prevent overlapping
         plt.tight_layout()
         plt.show()
@@ -758,6 +760,7 @@ def average_markov_plot(markov_array):
     # Add labels and legend
     plt.xlabel('Clusters/States')
     plt.ylabel('Probability')
+    plt.axhline(0.05)
     plt.xticks(ticks=np.arange(0, markov_array.shape[1], 3), labels=np.arange(1, markov_array.shape[1]+1, 3))
     plt.title('Markov Probability for Cognitive States')
     plt.legend()
