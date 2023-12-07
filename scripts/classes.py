@@ -115,27 +115,12 @@ class Database:
 
         # For a binary regression by hand
         if binary:
-            combinatorics = list(combinations(np.unique(self.B), 2))
-            ensemble_models = []
-            results = np.zeros((self.neuron_traces.shape[1], len(combinatorics))).astype(int)
-            print('Latent Space will have dimension: ', len(combinatorics))
-
-            for idx, class_mapping in enumerate(combinatorics):
-                b_model = clone(base_model)
-                b_model = self._multiclasstrain(b_model, class_mapping)
-                ensemble_models.append(b_model)
-                results[:, idx] = b_model.predict(self.neuron_traces.T)
-
-            # This takes a majority vote, which I am not sure if it is the best method
-            self.B_pred = [np.bincount(results[row, :]).argmax() for row in range(results.shape[0])]
+            self.pred_model = CustomEnsembleModel(base_model).fit(self.neuron_traces.T, self.B)
+            self.B_pred = self.pred_model.predict(self.neuron_traces.T)
             print("Accuracy:", accuracy_score(self.B, self.B_pred))
-
             if prob_map:
                 # It should not make a difference if we use 28 or 56 dimensions
-                self.yp_map = np.zeros((self.neuron_traces.shape[1], len(combinatorics)))
-                for idx, model in enumerate(ensemble_models):
-                    proba = model.predict_proba(self.neuron_traces.T)[:, 0]
-                    self.yp_map[:, idx] = proba
+                self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
                 print(f'Probability map has shape: {self.yp_map.shape}')
 
         # For a multiclass regression
@@ -160,7 +145,6 @@ class Database:
         # We train the logistic regression model to differentiate 'A' vs. 'B'
         b_model.fit(X_train_filtered, mapped_B_filtered)
         return b_model
-
 
     def cluster_BPT(self, nrep=200, max_clusters=20, sim_markov=200, plot_markov=True):
         if self.yp_map is None:
@@ -221,8 +205,8 @@ class Database:
         plot_values = pca.fit_transform(self.yp_map)
         x_bpt, y_bpt = plot_values.T
         colordict_cog = dict(zip(list(range(clusters)), generate_equidistant_colors(clusters)))
-        best_clustering_idx = np.argmax(self.p_markov[clusters-1, :]) # according to mr.markov himself
-        best_clustering = self.xc[:, clusters-1, best_clustering_idx].astype(int)
+        best_clustering_idx = np.argmax(self.p_markov[clusters - 1, :])  # according to mr.markov himself
+        best_clustering = self.xc[:, clusters - 1, best_clustering_idx].astype(int)
         cog_colors = [colordict_cog[l] for l in best_clustering]
         handles_cog = []
         for idx in range(clusters):
@@ -250,10 +234,9 @@ class Database:
         # GENERAL
         fig.suptitle(f'Worm #{self.data_set_no + 1} with {clusters} cognitive states')
         if save:
-            plt.savefig(f'data/plots/step_plot_worm_{self.data_set_no+1}.png', format='png')
+            plt.savefig(f'data/plots/step_plot_worm_{self.data_set_no + 1}.png', format='png')
         if show:
             plt.show()
-
 
     def _add_quivers2D(self, ax, x, y, colors=None):
         if colors is None:
@@ -264,17 +247,16 @@ class Database:
         return ax
 
 
-
 class Visualizer():
 
     def __init__(self,
-                 #X: Union[List[List[float]], np.ndarray],
-                 #B: Union[List[int], List[str], np.ndarray],
+                 # X: Union[List[List[float]], np.ndarray],
+                 # B: Union[List[int], List[str], np.ndarray],
                  Data: Database):
-                 # B_pred: Union[List[int], List[str], np.ndarray],
-                 #xlabs: Optional[Union[List[str], np.ndarray]] = None,
-                 #blabs: Optional[Union[List[str], np.ndarray]] = None,
-                 #fps: float = None):
+        # B_pred: Union[List[int], List[str], np.ndarray],
+        # xlabs: Optional[Union[List[str], np.ndarray]] = None,
+        # blabs: Optional[Union[List[str], np.ndarray]] = None,
+        # fps: float = None):
         """
         Takes values for features (neurons), labels (behaviors), and their corresponding names. If B is a list of strings,
         those are taken as blabs, and blabs is ignored.
@@ -310,7 +292,7 @@ class Visualizer():
 
         # If no Neuron Names / State Names are given, they are generated
         if self.data.neuron_names is None:
-            self.data.neuron_names = np.asarray(range(self.data.neuron_traces.shape[0])).astype(str)
+            self.data.neuron_names = np.asarray(range(self.data.neuron_traces.shape[1])).astype(str)
         else:
             self.data.neuron_names = np.asarray(self.data.neuron_names)
         if self.data.states is None:
@@ -347,7 +329,8 @@ class Visualizer():
             fig, ax = plt.subplots(figsize=(10, 2))
 
         cmap = plt.get_cmap('Pastel1', np.max(self.data.B) - np.min(self.data.B) + 1)
-        im1 = ax.imshow([self.data.B], cmap=cmap, vmin=np.min(self.data.B) - 0.5, vmax=np.max(self.data.B) + 0.5, aspect='auto')
+        im1 = ax.imshow([self.data.B], cmap=cmap, vmin=np.min(self.data.B) - 0.5, vmax=np.max(self.data.B) + 0.5,
+                        aspect='auto')
         # tell the colorbar to tick at integers
         cax = ax.get_figure().colorbar(im1, ticks=np.arange(np.min(self.data.B), np.max(self.data.B) + 1))
         if len(np.unique(self.data.B)) == len(self.data.states):
@@ -355,7 +338,7 @@ class Visualizer():
         ax.set_xlabel("time $t$")
         ax.set_ylabel("Behaviour")
         ax.set_yticks([])
-        ax.set_title(f'Sample no#{self.data.data_set_no+1}')
+        ax.set_title(f'Sample no#{self.data.data_set_no + 1}')
 
         if show:
             plt.show()
@@ -366,7 +349,7 @@ class Visualizer():
             show = True
             fig, ax = plt.subplots(figsize=(10, 2))
 
-        im0 = ax.imshow(self.data.neuron_traces.T, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
+        im0 = ax.imshow(self.data.neuron_traces, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
         # tell the colorbar to tick at integers
         # plt.colorbar(im0)
         ax.get_figure().colorbar(im0)
@@ -378,9 +361,13 @@ class Visualizer():
 
     def plot3D_mapping(self, dim_red=None, show_legend=False, grid_off=True, quivers=False):
 
-        if dim_red is None and self.bundle_tau:
-            dim_red = self.tau_model
-            print('We use the tau model from the BunDLeNet to project into 3D space.')
+        if dim_red is None:
+            if self.bundle_tau:
+                dim_red = self.tau_model
+                print('We use the tau model from the BunDLeNet to project into 3D space.')
+            else:
+                dim_red = PCA(n_components=3)
+                print('No mapping present. CREATING PCA MODEL ...')
 
         if not self._transform_points(dim_red):
             return False
@@ -406,8 +393,9 @@ class Visualizer():
 
         # plot the legend if wanted
         if show_legend:
-            legend_elements = self._generate_legend(self.data.states)
-            ax.legend(handles=legend_elements)
+            print('HEHEEH')
+            legend_elements = self._generate_legend(self.data.B)
+            ax.legend(handles=legend_elements, loc='best')
 
         if grid_off:
             ax.grid(False)
@@ -419,38 +407,35 @@ class Visualizer():
         if dim_red is None:
             print('No mapping present. CREATING PCA MODEL ...')
             dim_red = PCA(n_components=3)
-            transformed_points = dim_red.fit_transform(self.data.neuron_traces)
+            transformed_points = dim_red.fit_transform(self.data.neuron_traces.T)
         # If we are using the TAU model to map into 3D space
         elif isinstance(dim_red, tf.keras.Sequential):
-            transformed_points = np.asarray(self.tau_model(self.X_[:, 0]))
-            # This happens if we give some mapping which is not a NN
+            if dim_red.input_shape[1] == self.X_.shape[2]:
+                transformed_points = np.asarray(dim_red(self.X_[:, 0]))
+            else:
+                transformed_points = np.asarray(dim_red(self.data.neuron_traces.T))
+        # This happens if we give some mapping which is not a NN
         elif hasattr(dim_red, 'fit_transform'):
             if dim_red.get_params()['n_components'] == 3:
-                print('HAVE different mapping MODEL')
+                print('HAVE mapping MODEL')
                 if isinstance(dim_red, NMF):
-                    scaler = MinMaxScaler(feature_range=(0, np.max(self.data.neuron_traces)))
-                    X_scaled = scaler.fit_transform(self.data.neuron_traces)
+                    scaler = MinMaxScaler(feature_range=(0, np.max(self.data.neuron_traces.T)))
+                    X_scaled = scaler.fit_transform(self.data.neuron_traces.T)
                     transformed_points = dim_red.fit_transform(X_scaled)
                 else:
-                    transformed_points = dim_red.fit_transform(self.data.neuron_traces)
+                    transformed_points = dim_red.fit_transform(self.data.neuron_traces.T)
             else:
                 print('The selected model does not project to a 3 dimensional space.')
                 return False
         else:
-            print('The selected model has no attribute \'fit_transform\'. (SKLEARN models are recommended)')
+            print('The selected mapping has no attribute \'fit_transform\'. (SKLEARN models are recommended)')
             return False
 
         print('Points have coordinate shape: ', transformed_points.shape)
-        print(transformed_points.T.shape)
         self.x, self.y, self.z = transformed_points.T
         return True
 
-    def _generate_legend(self, classifier, diff=False):
-        # Create custom legend handles
-        legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.colordict[idx],
-                                      markersize=10, label=r'$\mathbf{' + lab + '}$' + f' ({list(self.data.B).count(idx)})')
-                           for idx, lab in enumerate(self.data.states)]
-
+    def _generate_legend(self, blabs, diff=False):
         # if the legend for the difference plot is requested
         if diff:
             y_labels_diff = {
@@ -458,13 +443,23 @@ class Visualizer():
                 for c_idx, label in enumerate(self.data.states)
             }
 
-            y_labels_list = [
-                (r'$\mathbf{' + c_behav + '}$' +
-                 (' to ' + '; '.join([r'$\mathbf{' + w_behav + '}$' + f'({amount})' for w_behav, amount in
-                                      val.items()]) if val else ' always correct'))
-                for c_behav, val in y_labels_diff.items()
-            ]
-            return legend_elements, y_labels_list
+            legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.colordict[idx],
+                                          markersize=10,
+                                          label=r'$\mathbf{' + keyval[0] + '}$' + ' to ' +
+                                                "; ".join(
+                                                    [r"$\mathbf{" + w_behav + "}$" + f"({amount})"
+                                                     for w_behav, amount in keyval[1].items()]
+                                                )
+                                          if keyval[1] else r'$\mathbf{' + keyval[0] + '}$' + " predictions were always correct")
+                               for idx, keyval in enumerate(y_labels_diff.items())]
+
+            return legend_elements
+
+        # Create custom legend handles
+        legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.colordict[idx],
+                                      markersize=10,
+                                      label=r'$\mathbf{' + lab + '}$' + f' ({list(blabs).count(idx)})')
+                           for idx, lab in enumerate(self.data.states)]
 
         return legend_elements
 
@@ -474,7 +469,8 @@ class Visualizer():
             window = len(self.colors) - len(self.x)
             self.trimmed_colors = self.colors[window:]
 
-            merged_list = [False if self.data.B[i] == self.data.B_pred[i] else self.data.B[i] for i in range(len(self.data.B))]
+            merged_list = [False if self.data.B[i] == self.data.B_pred[i] else self.data.B[i] for i in
+                           range(len(self.data.B))]
             self.diff_colors_pred = [self.colordict[val] if val else (0.8, 0.8, 0.8) for val in merged_list[window:]]
             self.colors_pred = [self.colordict[val] for val in self.data.B_pred[window:]]
             print(
@@ -482,46 +478,29 @@ class Visualizer():
         else:
             self.trimmed_colors = self.colors
 
-            merged_list = [False if self.data.B[i] == self.data.B_pred[i] else self.data.B[i] for i in range(len(self.data.B))]
+            merged_list = [False if self.data.B[i] == self.data.B_pred[i] else self.data.B[i] for i in
+                           range(len(self.data.B))]
             self.diff_colors_pred = [self.colordict[val] if val else (0.8, 0.8, 0.8) for val in merged_list]
             self.colors_pred = [self.colordict[val] for val in self.data.B_pred]
 
-        # merged_list = [False if self.B[i] == self.B_pred[i] else self.B[i] for i in range(len(self.B))]
-        # self.diff_colors_pred = [self.colordict[val] if val else "lightgrey" for val in merged_list]
-        # self.colors_pred = [self.colordict[val] for val in self.B_pred]
-
-        print(len(self.diff_colors_pred))
-        print(len(self.colors))
-
         # Initialize a dictionary to store and count correct and false predictions for each label
-        self.pred_label_counts = {}
-        self.true_label_counts = {}
         self.diff_label_counts = {}
         for idx, wrong_predict in enumerate(merged_list):
             pred_label = self.data.B_pred[idx]
             true_label = self.data.B[idx]
 
-            if pred_label not in self.pred_label_counts:
-                self.pred_label_counts[pred_label] = {True: 0, False: 0}
-            if true_label not in self.true_label_counts:
-                self.true_label_counts[true_label] = {True: 0, False: 0}
             if true_label not in self.diff_label_counts:
                 self.diff_label_counts[true_label] = {lab: 0 for lab in self.data.states}
-
             if wrong_predict:
-                self.pred_label_counts[pred_label][False] += 1
-                self.true_label_counts[true_label][False] += 1
                 self.diff_label_counts[true_label][self.data.states[pred_label]] += 1
-            else:
-                self.pred_label_counts[pred_label][True] += 1
-                self.true_label_counts[true_label][True] += 1
+
 
     def attachBundleNet(self, l_dim=3, train=True, epochs=2000):
         if self.data.fps is None:
             print('In order to attach the BundleNet \'self.data.fps\' has to have a value!')
             return False
 
-        time, newX = preprocess_data(self.data.neuron_traces, self.data.fps)
+        time, newX = preprocess_data(self.data.neuron_traces.T, self.data.fps)
         self.X_, self.B_ = prep_data(newX, self.data.B, win=15)
 
         self.model = BunDLeNet(latent_dim=l_dim)
@@ -576,7 +555,7 @@ class Visualizer():
         dz = np.diff(z)  # Differences between z coordinates
         # we do this so each arrowhead has the same size independent of the size of the arrow
         lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
-        lengths = 0.05/lengths
+        lengths = 0.05 / lengths
         for idx in range(len(dx)):
             ax.quiver(x[idx], y[idx], z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
                       arrow_length_ratio=lengths[idx], alpha=0.8, linewidths=0.8)
@@ -609,9 +588,13 @@ class Visualizer():
         :return : Boolean if it got executed successfully.
         """
 
-        if dim_red is None and self.bundle_tau:
-            dim_red = self.tau_model
-            print('We use the tau model from the BunDLeNet to project into 3D space.')
+        if dim_red is None:
+            if self.bundle_tau:
+                dim_red = self.tau_model
+                print('We use the tau model from the BunDLeNet to project into 3D space.')
+            else:
+                dim_red = PCA(n_components=3)
+                print('No mapping present. CREATING PCA MODEL ...')
 
         if not self._transform_points(dim_red):
             return False
@@ -636,7 +619,8 @@ class Visualizer():
         if quivers:
             self.movie_ax = self._add_quivers3D(self.movie_ax, self.x, self.y, self.z, colors=self.trimmed_colors)
         else:
-            self.movie_ax.scatter(self.x, self.y, self.z, color=self.trimmed_colors, label=self.data.states, s=2, alpha=0.2)
+            self.movie_ax.scatter(self.x, self.y, self.z, color=self.trimmed_colors, label=self.data.states, s=2,
+                                  alpha=0.2)
 
         if grid_off:
             self.movie_ax.grid(False)
@@ -660,8 +644,8 @@ class Visualizer():
         self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.data.states[self.data.B[frame]]}')
 
         if show_legend:
-            legend_elements = self._generate_legend(self.data.states)
-            self.movie_ax.legend(handles=legend_elements)
+            legend_elements = self._generate_legend(self.data.B)
+            self.movie_ax.legend(handles=legend_elements, loc='best')
 
         if grid_off:
             self.movie_ax.grid(False)
@@ -682,13 +666,14 @@ class Visualizer():
             gif_writer = anim.PillowWriter(fps=int(1000 / self.interval), metadata=dict(artist='Me'), bitrate=1800)
             self.animation.save(path, writer=gif_writer, dpi=144)
 
-    def behavioral_state_diagram(self, cog_stat_num=3, threshold=0.001, offset=2.5, save=True, show=True, adj_matrix=True):
+    def behavioral_state_diagram(self, cog_stat_num=3, threshold=0.001, offset=2.5, save=True, show=True,
+                                 adj_matrix=True):
         if self.data.p_markov is None:
             print('You need to run the behavioral probability trajectory clustering first (\'.cluster_BPT\').')
             return False
         # make the graph
         G = nx.DiGraph()
-        node_colors = list(self.colordict.values())*cog_stat_num
+        node_colors = list(self.colordict.values()) * cog_stat_num
 
         T, states = adj_matrix_ncmcm(self.data.B, self.data, cog_stat_num=cog_stat_num)
         G.add_nodes_from(states)
@@ -702,7 +687,7 @@ class Visualizer():
 
         edge_colors = [node_colors[np.where(states == u)[0][0]] for u, v in G.edges()]
 
-        node_sizes = np.diag(T) * 500 * (np.sqrt(T.shape[0])/offset)
+        node_sizes = np.diag(T) * 500 * (np.sqrt(T.shape[0]) / offset)
 
         mapping = {node: self.map_names(str(node)) for node in G.nodes()}
 
@@ -720,26 +705,21 @@ class Visualizer():
             plt.ylabel('Nodes')
             plt.show()
 
-        #pos = nx.circular_layout(G)
+        # pos = nx.circular_layout(G)
 
         c_nodes = []
         for c_num in range(cog_stat_num):
-            c_nodes.append([n for n in G.nodes if n.split(':')[0] == 'C'+str(c_num+1)])
-
+            c_nodes.append([n for n in G.nodes if n.split(':')[0] == 'C' + str(c_num + 1)])
 
         all_pos = []
         for c_node_group in c_nodes:
             all_pos.append(nx.circular_layout(G.subgraph(c_node_group)))
-
 
         adjusted_pos = {}
         degrees_list = np.linspace(0, 360, num=cog_stat_num, endpoint=False)
         print(f'DEGREES: {degrees_list}')
         for idx, p in enumerate(all_pos):
             adjusted_pos = circle_pos(p, adjusted_pos, degrees_list[idx], offset)
-
-
-
 
         # Plot graph
         edges = G.edges()
@@ -757,34 +737,34 @@ class Visualizer():
         plt.title("Behavioral State Diagram")
         if save:
             name = str(input('File name for the plot? '))
-            #plt.savefig(f'data/plots/state_diagram_worm_{self.data.data_set_no+1}.png', format='png')
+            # plt.savefig(f'data/plots/state_diagram_worm_{self.data.data_set_no+1}.png', format='png')
             plt.savefig(f'data/plots/' + name + '.png', format='png')
         if show:
             plt.show()
 
-        #net = Network()
-        #net.from_nx(G)
-        #net.show('test.html', notebook=False)
-
-
-
-
+        # net = Network()
+        # net.from_nx(G)
+        # net.show('test.html', notebook=False)
 
     def map_names(self, name):
         new_name = f'C{name[:-1]}:{self.data.states[int(name[-1])]}'
         return new_name
 
     def make_comparison(self, show_legend=False, dim_red=None):
-        if dim_red is None and self.bundle_tau:
-            dim_red = self.tau_model
-            print('We use the tau model from the BunDLeNet to project into 3D space.')
+        if dim_red is None:
+            if self.bundle_tau:
+                dim_red = self.tau_model
+                print('We use the tau model from the BunDLeNet to project into 3D space.')
+            else:
+                dim_red = PCA(n_components=3)
+                print('No mapping present. CREATING PCA MODEL ...')
 
         if not self._transform_points(dim_red):
             return False
 
         self._generate_label_counts()
 
-        fig = plt.figure(figsize=(12, 5))
+        fig = plt.figure(figsize=(12, 8))
 
         # First subplot
         ax1 = fig.add_subplot(131, projection='3d')
@@ -811,14 +791,14 @@ class Visualizer():
 
         # plot the legend if wanted
         if show_legend:
-            legend_elements1 = self._generate_legend(self.pred_label_counts)
-            ax1.legend(handles=legend_elements1)
+            legend_elements1 = self._generate_legend(self.data.B)
+            ax1.legend(title='True Labels', handles=legend_elements1, loc='upper center', bbox_to_anchor=(0.5, 0.))
 
-            legend_elements2 = self._generate_legend(self.true_label_counts)
-            ax2.legend(handles=legend_elements2)
+            legend_elements2 = self._generate_legend(None, diff=True)
+            ax2.legend(title='Wrongly Predicted Labels',handles=legend_elements2, loc='upper center', bbox_to_anchor=(0.5, 0.))
 
-            legend_elements3 = self._generate_legend(self.diff_label_counts)
-            ax3.legend(handles=legend_elements3)
+            legend_elements3 = self._generate_legend(self.data.B_pred)
+            ax3.legend(title='Predicted Labels',handles=legend_elements3, loc='upper center', bbox_to_anchor=(0.5, 0.))
 
         fig.suptitle(f'{len(self.x)} Frames', fontsize='x-large', fontweight='bold')
         plt.show()
@@ -942,7 +922,7 @@ def simulate_markovian(M, P=np.array([]), N=1):
     return z, P
 
 
-def adj_matrix_ncmcm(B, data, cog_stat_num = 3):
+def adj_matrix_ncmcm(B, data, cog_stat_num=3):
     """
     :param data: data from database
     :param B: all behaviors at each frame (e.g.: slow, rev ...)
@@ -958,16 +938,16 @@ def adj_matrix_ncmcm(B, data, cog_stat_num = 3):
 
     b = np.unique(B)
     c = np.unique(cog_states)
-    T = np.zeros((len(c)*len(b), len(c)*len(b)))
+    T = np.zeros((len(c) * len(b), len(c) * len(b)))
 
-    states = [(cs+1) * 10 + bs for cs in c for bs in b]
+    states = [(cs + 1) * 10 + bs for cs in c for bs in b]
 
     for m in range(len(B) - 1):
         cur_sample = m
         next_sample = m + 1
 
-        cur_state = np.where((cog_states[cur_sample]+1) * 10 + B[cur_sample] == states)[0][0]
-        next_state = np.where((cog_states[next_sample]+1) * 10 + B[next_sample] == states)[0][0]
+        cur_state = np.where((cog_states[cur_sample] + 1) * 10 + B[cur_sample] == states)[0][0]
+        next_state = np.where((cog_states[next_sample] + 1) * 10 + B[next_sample] == states)[0][0]
         T[next_state, cur_state] += 1
 
     # normalize T
@@ -1017,3 +997,41 @@ def circle_pos(old_pos, new_pos, degree, offset):
                          coords[1] + offset * np.sin(np.radians(degree)))
     return new_pos
 
+
+class CustomEnsembleModel():
+    """
+    This ensemble takes a model and creates binary predictors for each label-combination.
+    As a prediction for each instance it gives the most abundant prediction from its sub-models.
+    """
+
+    def __init__(self, base_model):
+        self.base_model = base_model
+        self.combinatorics = []
+        self.ensemble_models = []
+
+    def fit(self, neuron_traces, labels):
+        self.ensemble_models = []
+        self.combinatorics = list(combinations(np.unique(labels), 2))
+        for idx, class_mapping in enumerate(self.combinatorics):
+            b_model = clone(self.base_model)
+            mapped_labels = np.array([label if label in class_mapping else -1 for label in labels])
+            mask = mapped_labels != -1
+            # apply mask to the dataset and only use instances of 'A' or 'B' to train
+            neuron_traces_filtered = neuron_traces[mask]
+            mapped_labels_filtered = mapped_labels[mask]
+            b_model.fit(neuron_traces_filtered, mapped_labels_filtered)
+            self.ensemble_models.append(b_model)
+        return self
+
+    def predict(self, neuron_traces):
+        results = np.zeros((neuron_traces.shape[0], len(self.combinatorics))).astype(int)
+        for idx, b_model in enumerate(self.ensemble_models):
+            results[:, idx] = b_model.predict(neuron_traces)
+        return [np.bincount(results[row, :]).argmax() for row in range(results.shape[0])]
+
+    def predict_proba(self, neuron_traces):
+        y_prob_map = np.zeros((neuron_traces.shape[0], len(self.combinatorics)))
+        for idx, model in enumerate(self.ensemble_models):
+            prob = model.predict_proba(neuron_traces)[:, 0]
+            y_prob_map[:, idx] = prob
+        return y_prob_map

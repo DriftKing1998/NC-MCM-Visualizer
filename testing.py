@@ -22,11 +22,17 @@ data.exclude_neurons(b_neurons)
 
 logreg = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=1000)
 data.fit_model(logreg, binary=True)
-exit()
-data.cluster_BPT(nrep=30, max_clusters=7, plot_markov=False)
+#data.cluster_BPT(nrep=3, max_clusters=5, plot_markov=False)
 
 vs = data.createVisualizer()
+vs.attachBundleNet(epochs=300)
+#vs.make_comparison()
 #vs.plot3D_mapping(quivers=True)
+#vs.plot3D_mapping(quivers=True, show_legend=True)
+#vs.make_comparison(show_legend=False)
+vs.make_comparison(show_legend=True)
+exit()
+
 #vs.make_movie(quivers=True)
 vs.behavioral_state_diagram(cog_stat_num=3, adj_matrix=False)
 
