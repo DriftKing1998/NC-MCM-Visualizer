@@ -21,6 +21,7 @@ from sklearn.manifold import TSNE
 
 import networkx as nx
 from itertools import combinations
+from pyvis.network import Network
 
 
 class Database:
@@ -90,17 +91,19 @@ class Database:
         print(f'{amount} neurons have been removed.')
 
     def createVisualizer(self):
-        vs = Visualizer(self.neuron_traces.T, self.B, Data=self, xlabs=self.neuron_names, blabs=self.states,
-                        fps=self.fps)
+        vs = Visualizer(Data=self)
         return vs
 
-    def loadBundleVisualizer(self, l_dim=3):
-        vs = Visualizer(self.neuron_traces, self.B, Data=self, xlabs=self.neuron_names, blabs=self.states, fps=self.fps)
-        time, newX = preprocess_data(vs.X.T, vs.fps)
-        vs.X_, vs.B_ = prep_data(newX, vs.B, win=15)
+    def loadBundleVisualizer(self, weights_path=None, l_dim=3):
+        vs = Visualizer(Data=self)
+        time, newX = preprocess_data(vs.data.neuron_traces.T, vs.data.fps)
+        vs.X_, vs.B_ = prep_data(newX, vs.data.B, win=15)
         vs.model = BunDLeNet(latent_dim=l_dim)
         vs.model.build(input_shape=vs.X_.shape)
-        vs.model.load_weights('data/generated/BunDLeNet_model_worm_' + str(self.data_set_no))
+        if weights_path is None:
+            vs.model.load_weights('data/generated/BunDLeNet_model_worm_' + str(self.data_set_no))
+        else:
+            vs.model.load_weights(weights_path)
         vs.tau_model = vs.model.tau
         vs.bundle_tau = True
         return vs
@@ -109,66 +112,63 @@ class Database:
         if not hasattr(base_model, 'fit'):
             print('Model has no method \'fit\'.')
             return None
-        # for a binary regression by hand
+
+        # For a binary regression by hand
         if binary:
             combinatorics = list(combinations(np.unique(self.B), 2))
             ensemble_models = []
-            results = np.zeros((self.neuron_traces.shape[1], len(combinatorics)))
-            print('Latent Space has dimension: ', len(combinatorics))
+            results = np.zeros((self.neuron_traces.shape[1], len(combinatorics))).astype(int)
+            print('Latent Space will have dimension: ', len(combinatorics))
 
             for idx, class_mapping in enumerate(combinatorics):
-                print(f'We train a model to differentiate: {class_mapping}')
-                # make a mask using the current combination ('A' vs 'B')
-                mapped_B = np.array([b if b in class_mapping else -1 for b in self.B])
-                mask = mapped_B != -1
-                # apply mask to the dataset and only use instances of 'A' or 'B' to train
-                X_train_filtered = self.neuron_traces.T[mask]
-                mapped_B_filtered = mapped_B[mask]
-                # We train the logistic regression model to differentiate 'A' vs. 'B'
                 b_model = clone(base_model)
-                b_model.fit(X_train_filtered, mapped_B_filtered)
+                b_model = self._multiclasstrain(b_model, class_mapping)
                 ensemble_models.append(b_model)
-                # Predict for complete data
-                pred = b_model.predict(self.neuron_traces.T)
-                print('PRED has shape: ', pred.shape)
-                results[:, idx] = pred
+                results[:, idx] = b_model.predict(self.neuron_traces.T)
 
-            results = results.astype(int)
+            # This takes a majority vote, which I am not sure if it is the best method
             self.B_pred = [np.bincount(results[row, :]).argmax() for row in range(results.shape[0])]
             print("Accuracy:", accuracy_score(self.B, self.B_pred))
 
             if prob_map:
-                # It should not make a difference if we use 28 or 56 dimensions since they have the same info!?
-                # get probabilities
-                # proba_map = np.zeros((self.neuron_traces.shape[1], len(combinatorics)*2))
+                # It should not make a difference if we use 28 or 56 dimensions
                 self.yp_map = np.zeros((self.neuron_traces.shape[1], len(combinatorics)))
                 for idx, model in enumerate(ensemble_models):
-                    # proba = model.predict_proba(self.neuron_traces.T)[:]#,0]
-                    proba = model.predict_proba(self.neuron_traces.T)[:, 1]
-                    # proba_map[:, idx:idx+2] = proba
+                    proba = model.predict_proba(self.neuron_traces.T)[:, 0]
                     self.yp_map[:, idx] = proba
                 print(f'Probability map has shape: {self.yp_map.shape}')
+
         # For a multiclass regression
         else:
             self.pred_model = base_model.fit(self.neuron_traces.T, self.B)
             self.B_pred = self.pred_model.predict(self.neuron_traces.T)
-            print(list(self.B_pred))
             print("Accuracy:", accuracy_score(self.B, self.B_pred))
             if prob_map:
                 # get probabilities and weights
                 self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
                 print(f'Probability map has shape: {self.yp_map.shape}')
-                W = self.pred_model.coef_.T
-                # ypall.append(yp)
-                # Wall.append(W)
+
         return True
 
-    def test_markov(self, nrep=200, max_clusters=20, sim_markov=200, plot=True):
+    def _multiclasstrain(self, b_model, class_mapping):
+        # make a mask using the current combination ('A' vs 'B')
+        mapped_B = np.array([b if b in class_mapping else -1 for b in self.B])
+        mask = mapped_B != -1
+        # apply mask to the dataset and only use instances of 'A' or 'B' to train
+        X_train_filtered = self.neuron_traces.T[mask]
+        mapped_B_filtered = mapped_B[mask]
+        # We train the logistic regression model to differentiate 'A' vs. 'B'
+        b_model.fit(X_train_filtered, mapped_B_filtered)
+        return b_model
+
+
+    def cluster_BPT(self, nrep=200, max_clusters=20, sim_markov=200, plot_markov=True):
         if self.yp_map is None:
             print(f'You first need to fit a model (eg. Logistic Regression), '
                   f'which will be used to map to behavioral probability trajectories.\n'
                   f'Use \'.fit_model(<your_model>)\' on this instance before.')
             return False
+
         self.p_markov = np.zeros((max_clusters, nrep))
         M = self.yp_map.shape[0]
         self.xc = np.zeros((M, max_clusters, nrep))
@@ -182,85 +182,99 @@ class Database:
                 p, _ = markovian(xctmp, K=sim_markov)
                 self.p_markov[nrclusters, reps] = p
                 self.xc[:, nrclusters, reps] = xctmp
-        if plot:
+
+        if plot_markov:
             self._plot_markov()
+
         return True
 
     def _plot_markov(self):
         fig, ax = plt.subplots()
         data = self.p_markov[:, :].T
-        print(data.shape)
-        # Create boxplots
+
+        # Plotting
         ax.boxplot(data)
         ax.set_title(f'Probability of being a Markov process for worm {self.data_set_no + 1}')
         ax.set_xlabel('Number of States/Clusters')
         ax.set_ylabel('Probability')
         ax.axhline(0.05)
-        # Adjust layout to prevent overlapping
         plt.tight_layout()
         plt.show()
 
-    def step_plot(self, clusters=5, nrep=10):
+    def step_plot(self, clusters=5, nrep=10, sim_markov=200, save=True, show=True):
         if self.p_markov is None:
             self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), binary=True)
-            self.test_markov(nrep=nrep, max_clusters=clusters, plot=False)
+            self.cluster_BPT(nrep=nrep, max_clusters=clusters, sim_markov=sim_markov, plot_markov=False)
 
+        # Neuronal trajectories preprocessing
         fig, ax = plt.subplots(2, 2, figsize=(16, 8))
-        # UPPER LEFT PLOT
         pca = PCA(n_components=2)
         plot_values = pca.fit_transform(self.neuron_traces.T)
         x_nt, y_nt = plot_values.T
-        ax[0, 0] = self._add_quivers2D(ax[0, 0], x_nt, y_nt)
         handles = []
         for idx, state in enumerate(self.states):
             patch = mpatches.Patch(color=self.colordict[idx], label=state)
             handles.append(patch)
-        ax[0, 0].legend(handles=handles, loc='best')
-        ax[0, 0].set_title('Neuronal trajectories with behavioral labels')
-        # UPPER RIGHT PLOT
+
+        # Behavioral probability trajectories preprocessing
         pca = PCA(n_components=2)
         plot_values = pca.fit_transform(self.yp_map)
         x_bpt, y_bpt = plot_values.T
-        ax[0, 1] = self._add_quivers2D(ax[0, 1], x_bpt, y_bpt)
-        ax[0, 1].set_title('Behavioral probability trajectories with behavioral labels')
-        # LOWER LEFT PLOT
         colordict_cog = dict(zip(list(range(clusters)), generate_equidistant_colors(clusters)))
         best_clustering_idx = np.argmax(self.p_markov[clusters-1, :]) # according to mr.markov himself
         best_clustering = self.xc[:, clusters-1, best_clustering_idx].astype(int)
         cog_colors = [colordict_cog[l] for l in best_clustering]
-        ax[1, 0] = self._add_quivers2D(ax[1, 0], x_bpt, y_bpt, labels=cog_colors)
-        ax[1, 0].set_title('Behavioral probability trajectories with cognitive labels')
-        # LOWER RIGHT PLOT
-        ax[1, 1] = self._add_quivers2D(ax[1, 1], x_nt, y_nt, labels=cog_colors)
         handles_cog = []
         for idx in range(clusters):
-            patch = mpatches.Patch(color=colordict_cog[idx], label=f'C{idx+1}')
+            patch = mpatches.Patch(color=colordict_cog[idx], label=f'C{idx + 1}')
             handles_cog.append(patch)
+
+        # UPPER LEFT PLOT
+        ax[0, 0] = self._add_quivers2D(ax[0, 0], x_nt, y_nt, None)
+        ax[0, 0].legend(handles=handles, loc='best')
+        ax[0, 0].set_title('Neuronal trajectories with behavioral labels')
+
+        # UPPER RIGHT PLOT
+        ax[0, 1] = self._add_quivers2D(ax[0, 1], x_bpt, y_bpt, None)
+        ax[0, 1].set_title('Behavioral probability trajectories with behavioral labels')
+
+        # LOWER LEFT PLOT
+        ax[1, 0] = self._add_quivers2D(ax[1, 0], x_bpt, y_bpt, colors=cog_colors)
+        ax[1, 0].set_title('Behavioral probability trajectories with cognitive labels')
+
+        # LOWER RIGHT PLOT
+        ax[1, 1] = self._add_quivers2D(ax[1, 1], x_nt, y_nt, colors=cog_colors)
         ax[1, 1].legend(handles=handles_cog, loc='best')
         ax[1, 1].set_title('Neuronal trajectories with cognitive labels')
+
         # GENERAL
         fig.suptitle(f'Worm #{self.data_set_no + 1} with {clusters} cognitive states')
-        plt.show()
+        if save:
+            plt.savefig(f'data/plots/step_plot_worm_{self.data_set_no+1}.png', format='png')
+        if show:
+            plt.show()
 
-    def _add_quivers2D(self, ax, x, y, labels=None):
-        if labels is None:
-            labels = self.colors[:-1]
+
+    def _add_quivers2D(self, ax, x, y, colors=None):
+        if colors is None:
+            colors = self.colors[:-1]
         dx = np.diff(x)  # Differences between x coordinates
         dy = np.diff(y)  # Differences between y coordinates
-        ax.quiver(x[:-1], y[:-1], dx, dy, color=labels, alpha=0.5)
+        ax.quiver(x[:-1], y[:-1], dx, dy, color=colors, alpha=0.5)
         return ax
+
 
 
 class Visualizer():
 
     def __init__(self,
-                 X: Union[List[List[float]], np.ndarray],
-                 B: Union[List[int], List[str], np.ndarray],
-                 Data: Database,
+                 #X: Union[List[List[float]], np.ndarray],
+                 #B: Union[List[int], List[str], np.ndarray],
+                 Data: Database):
                  # B_pred: Union[List[int], List[str], np.ndarray],
-                 xlabs: Optional[Union[List[str], np.ndarray]] = None,
-                 blabs: Optional[Union[List[str], np.ndarray]] = None,
-                 fps: float = None):
+                 #xlabs: Optional[Union[List[str], np.ndarray]] = None,
+                 #blabs: Optional[Union[List[str], np.ndarray]] = None,
+                 #fps: float = None):
         """
         Takes values for features (neurons), labels (behaviors), and their corresponding names. If B is a list of strings,
         those are taken as blabs, and blabs is ignored.
@@ -284,125 +298,83 @@ class Visualizer():
             None
         """
 
-        # Input Preprocessing
-        self.scatter = None
-        X = np.asarray(X)
-        B = np.asarray(B)
+        # Setting Attributes
+        self.data = Data
 
         # If B is not an integer array we have to transform it into one
-        if not (np.issubdtype(B.dtype, int) or np.issubdtype(B.dtype, np.integer)):
+        if not (np.issubdtype(self.data.B.dtype, int) or np.issubdtype(self.data.B.dtype, np.integer)):
             print('B has been transformed and a blabs has been created')
-            newB, blabs = make_integer_list(B)
-            B = np.asarray(newB)
-            blabs = np.asarray(blabs).astype(str)
+            newB, blabs = make_integer_list(self.data.B)
+            self.data.B = np.asarray(newB)
+            self.data.states = np.asarray(blabs).astype(str)
 
-        # If no labs are given, they are generated
-        if xlabs is None:
-            xlabs = np.asarray(range(X.shape[0])).astype(str)
+        # If no Neuron Names / State Names are given, they are generated
+        if self.data.neuron_names is None:
+            self.data.neuron_names = np.asarray(range(self.data.neuron_traces.shape[0])).astype(str)
         else:
-            xlabs = np.asarray(xlabs)
-        if blabs is None:
-            blabs = np.asarray(np.unique(B)).astype(str)
+            self.data.neuron_names = np.asarray(self.data.neuron_names)
+        if self.data.states is None:
+            self.data.states = np.asarray(np.unique(self.data.B)).astype(str)
         else:
-            blabs = np.asarray(blabs)
+            self.data.states = np.asarray(self.data.states)
 
-        # Setting Attributes
-        self.X = X
-        self.B = B
-        self.data = Data
-        self.B_pred = Data.B_pred
-        self.xlabs = xlabs
-        self.blabs = blabs
+        # generate a color-dictionary for all states and generate the colors
+        self.colordict = dict(zip(np.unique(self.data.B), generate_equidistant_colors(len(self.data.states))))
+        self.colors = [self.colordict[val] for val in self.data.B]
+        self.trimmed_colors = None
+        # BundleNet
         self.tau_model = None
         self.bundle_tau = False
         self.model = None
-        self.fps = fps
+        # Animation
         self.animation = None
         self.interval = None
+        self.scatter = None
 
-        # generate a color-dictionary for all states and generate the colors
-        self.colordict = dict(zip(np.unique(self.B), generate_equidistant_colors(len(self.blabs))))
-        self.colors = [self.colordict[val] for val in self.B]
-        self.trimmed_colors = None
-
+    ### DIAGNOSTICS ###
     def plotting_neuronal_behavioural(self, vmin=0, vmax=2):
         fig, axs = plt.subplots(2, 1, figsize=(10, 4))
         self._neurons(ax=axs[0])
         self._behavior(ax=axs[1])
+        plt.subplots_adjust(hspace=0.5)
         plt.show()
 
     def _behavior(self, ax=None, sample=None):
 
-        ### Sample selection ha to be made ###
-
         show = False
         if ax is None:
             show = True
             fig, ax = plt.subplots(figsize=(10, 2))
 
-        cmap = plt.get_cmap('Pastel1', np.max(self.B) - np.min(self.B) + 1)
-        im1 = ax.imshow([self.B], cmap=cmap, vmin=np.min(self.B) - 0.5, vmax=np.max(self.B) + 0.5, aspect='auto')
+        cmap = plt.get_cmap('Pastel1', np.max(self.data.B) - np.min(self.data.B) + 1)
+        im1 = ax.imshow([self.data.B], cmap=cmap, vmin=np.min(self.data.B) - 0.5, vmax=np.max(self.data.B) + 0.5, aspect='auto')
         # tell the colorbar to tick at integers
-        cax = ax.get_figure().colorbar(im1, ticks=np.arange(np.min(self.B), np.max(self.B) + 1))
-        if len(np.unique(self.B)) == len(self.blabs):
-            cax.ax.set_yticklabels(self.blabs)
+        cax = ax.get_figure().colorbar(im1, ticks=np.arange(np.min(self.data.B), np.max(self.data.B) + 1))
+        if len(np.unique(self.data.B)) == len(self.data.states):
+            cax.ax.set_yticklabels(self.data.states)
         ax.set_xlabel("time $t$")
         ax.set_ylabel("Behaviour")
         ax.set_yticks([])
-        if sample:
-            ax.set_title(f'Sample no#{sample}')
+        ax.set_title(f'Sample no#{self.data.data_set_no+1}')
 
         if show:
             plt.show()
 
-    def _neurons(self, ax=None, sample=None, vmin=0, vmax=2):
-
-        ### Sample selection ha to be made ###
-
+    def _neurons(self, ax=None, vmin=0, vmax=2):
         show = False
         if ax is None:
             show = True
             fig, ax = plt.subplots(figsize=(10, 2))
 
-        im0 = ax.imshow(self.X.T, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
+        im0 = ax.imshow(self.data.neuron_traces.T, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
         # tell the colorbar to tick at integers
         # plt.colorbar(im0)
         ax.get_figure().colorbar(im0)
         ax.set_xlabel("time $t$")
-        ax.set_ylabel("Neuronal activation")
-
+        ax.set_ylabel("Neurons")
+        ax.set_title("Neuronal activation")
         if show:
             plt.show()
-
-    def _transform_points(self, dim_red):
-        if dim_red is None:
-            print('No mapping present. CREATING PCA MODEL ...')
-            dim_red = PCA(n_components=3)
-            transformed_points = dim_red.fit_transform(self.X)
-        # If we are using the TAU model to map into 3D space
-        elif isinstance(dim_red, tf.keras.Sequential):
-            transformed_points = np.asarray(self.tau_model(self.X_[:, 0]))
-            # This happens if we give some mapping which is not a NN
-        elif hasattr(dim_red, 'fit_transform'):
-            if dim_red.get_params()['n_components'] == 3:
-                print('HAVE different mapping MODEL')
-                if isinstance(dim_red, NMF):
-                    scaler = MinMaxScaler(feature_range=(0, np.max(self.X)))
-                    X_scaled = scaler.fit_transform(self.X)
-                    transformed_points = dim_red.fit_transform(X_scaled)
-                else:
-                    transformed_points = dim_red.fit_transform(self.X)
-            else:
-                print('The selected model does not project to a 3 dimensional space.')
-                return False
-        else:
-            print('The selected model has no attribute \'fit_transform\'. (SKLEARN models are recommended)')
-            return False
-
-        print('Points have coordinate shape: ', transformed_points.shape)
-        print(transformed_points.T.shape)
-        self.x, self.y, self.z = transformed_points.T
-        return True
 
     def plot3D_mapping(self, dim_red=None, show_legend=False, grid_off=True, quivers=False):
 
@@ -424,9 +396,9 @@ class Visualizer():
             colors = self.colors
 
         if quivers:
-            ax = self._add_quivers(ax, colors)
+            ax = self._add_quivers3D(ax, self.x, self.y, self.z, colors=colors)
         else:
-            ax.scatter(self.x, self.y, self.z, label=self.blabs, s=1, alpha=0.5, color=colors)
+            ax.scatter(self.x, self.y, self.z, label=self.data.states, s=1, alpha=0.5, color=colors)
 
         ax.set_xlabel('Axes 1')
         ax.set_ylabel('Axes 2')
@@ -434,7 +406,7 @@ class Visualizer():
 
         # plot the legend if wanted
         if show_legend:
-            legend_elements = self._generate_legend(self.blabs)
+            legend_elements = self._generate_legend(self.data.states)
             ax.legend(handles=legend_elements)
 
         if grid_off:
@@ -443,17 +415,47 @@ class Visualizer():
 
         plt.show()
 
+    def _transform_points(self, dim_red):
+        if dim_red is None:
+            print('No mapping present. CREATING PCA MODEL ...')
+            dim_red = PCA(n_components=3)
+            transformed_points = dim_red.fit_transform(self.data.neuron_traces)
+        # If we are using the TAU model to map into 3D space
+        elif isinstance(dim_red, tf.keras.Sequential):
+            transformed_points = np.asarray(self.tau_model(self.X_[:, 0]))
+            # This happens if we give some mapping which is not a NN
+        elif hasattr(dim_red, 'fit_transform'):
+            if dim_red.get_params()['n_components'] == 3:
+                print('HAVE different mapping MODEL')
+                if isinstance(dim_red, NMF):
+                    scaler = MinMaxScaler(feature_range=(0, np.max(self.data.neuron_traces)))
+                    X_scaled = scaler.fit_transform(self.data.neuron_traces)
+                    transformed_points = dim_red.fit_transform(X_scaled)
+                else:
+                    transformed_points = dim_red.fit_transform(self.data.neuron_traces)
+            else:
+                print('The selected model does not project to a 3 dimensional space.')
+                return False
+        else:
+            print('The selected model has no attribute \'fit_transform\'. (SKLEARN models are recommended)')
+            return False
+
+        print('Points have coordinate shape: ', transformed_points.shape)
+        print(transformed_points.T.shape)
+        self.x, self.y, self.z = transformed_points.T
+        return True
+
     def _generate_legend(self, classifier, diff=False):
         # Create custom legend handles
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.colordict[idx],
-                                      markersize=10, label=r'$\mathbf{' + lab + '}$' + f' ({list(self.B).count(idx)})')
-                           for idx, lab in enumerate(self.blabs)]
+                                      markersize=10, label=r'$\mathbf{' + lab + '}$' + f' ({list(self.data.B).count(idx)})')
+                           for idx, lab in enumerate(self.data.states)]
 
         # if the legend for the difference plot is requested
         if diff:
             y_labels_diff = {
                 label: {wrong: count for wrong, count in self.diff_label_counts[c_idx].items() if count}
-                for c_idx, label in enumerate(self.blabs)
+                for c_idx, label in enumerate(self.data.states)
             }
 
             y_labels_list = [
@@ -472,17 +474,17 @@ class Visualizer():
             window = len(self.colors) - len(self.x)
             self.trimmed_colors = self.colors[window:]
 
-            merged_list = [False if self.B[i] == self.B_pred[i] else self.B[i] for i in range(len(self.B))]
+            merged_list = [False if self.data.B[i] == self.data.B_pred[i] else self.data.B[i] for i in range(len(self.data.B))]
             self.diff_colors_pred = [self.colordict[val] if val else (0.8, 0.8, 0.8) for val in merged_list[window:]]
-            self.colors_pred = [self.colordict[val] for val in self.B_pred[window:]]
+            self.colors_pred = [self.colordict[val] for val in self.data.B_pred[window:]]
             print(
                 f'Length of color arrays: {len(self.trimmed_colors), len(self.colors_pred), len(self.diff_colors_pred)}')
         else:
             self.trimmed_colors = self.colors
 
-            merged_list = [False if self.B[i] == self.B_pred[i] else self.B[i] for i in range(len(self.B))]
+            merged_list = [False if self.data.B[i] == self.data.B_pred[i] else self.data.B[i] for i in range(len(self.data.B))]
             self.diff_colors_pred = [self.colordict[val] if val else (0.8, 0.8, 0.8) for val in merged_list]
-            self.colors_pred = [self.colordict[val] for val in self.B_pred]
+            self.colors_pred = [self.colordict[val] for val in self.data.B_pred]
 
         # merged_list = [False if self.B[i] == self.B_pred[i] else self.B[i] for i in range(len(self.B))]
         # self.diff_colors_pred = [self.colordict[val] if val else "lightgrey" for val in merged_list]
@@ -496,27 +498,31 @@ class Visualizer():
         self.true_label_counts = {}
         self.diff_label_counts = {}
         for idx, wrong_predict in enumerate(merged_list):
-            pred_label = self.B_pred[idx]
-            true_label = self.B[idx]
+            pred_label = self.data.B_pred[idx]
+            true_label = self.data.B[idx]
 
             if pred_label not in self.pred_label_counts:
                 self.pred_label_counts[pred_label] = {True: 0, False: 0}
             if true_label not in self.true_label_counts:
                 self.true_label_counts[true_label] = {True: 0, False: 0}
             if true_label not in self.diff_label_counts:
-                self.diff_label_counts[true_label] = {lab: 0 for lab in self.blabs}
+                self.diff_label_counts[true_label] = {lab: 0 for lab in self.data.states}
 
             if wrong_predict:
                 self.pred_label_counts[pred_label][False] += 1
                 self.true_label_counts[true_label][False] += 1
-                self.diff_label_counts[true_label][self.blabs[pred_label]] += 1
+                self.diff_label_counts[true_label][self.data.states[pred_label]] += 1
             else:
                 self.pred_label_counts[pred_label][True] += 1
                 self.true_label_counts[true_label][True] += 1
 
     def attachBundleNet(self, l_dim=3, train=True, epochs=2000):
-        time, newX = preprocess_data(self.X, self.fps)
-        self.X_, self.B_ = prep_data(newX, self.B, win=15)
+        if self.data.fps is None:
+            print('In order to attach the BundleNet \'self.data.fps\' has to have a value!')
+            return False
+
+        time, newX = preprocess_data(self.data.neuron_traces, self.data.fps)
+        self.X_, self.B_ = prep_data(newX, self.data.B, win=15)
 
         self.model = BunDLeNet(latent_dim=l_dim)
         self.model.build(input_shape=self.X_.shape)
@@ -561,14 +567,20 @@ class Visualizer():
         self.tau_model = self.model.tau
         self.bundle_tau = True
 
-    def _add_quivers(self, ax, colors):
-        dx = np.diff(self.x)  # Differences between x coordinates
-        dy = np.diff(self.y)  # Differences between y coordinates
-        dz = np.diff(self.z)  # Differences between z coordinates
+    def _add_quivers3D(self, ax, x, y, z, colors=None):
+        if colors is None:
+            colors = self.colors[:-1]
+
+        dx = np.diff(x)  # Differences between x coordinates
+        dy = np.diff(y)  # Differences between y coordinates
+        dz = np.diff(z)  # Differences between z coordinates
+        # we do this so each arrowhead has the same size independent of the size of the arrow
         lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+        lengths = 0.05/lengths
         for idx in range(len(dx)):
-            ax.quiver(self.x[idx], self.y[idx], self.z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
-                      arrow_length_ratio=0.1 / lengths[idx], alpha=0.5, linewidths=0.5)
+            ax.quiver(x[idx], y[idx], z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
+                      arrow_length_ratio=lengths[idx], alpha=0.8, linewidths=0.8)
+
         return ax
 
     def make_movie(self, interval=None, dim_red=None, save=False, show_legend=False, grid_off=True, quivers=False):
@@ -605,8 +617,11 @@ class Visualizer():
             return False
 
         if interval is None:
-            print('The movie well be played in real time.')
-            interval = 1000 / self.fps
+            if self.data.fps is not None:
+                print('The movie well be played in real time.')
+                interval = 1000 / self.data.fps
+            else:
+                interval = 10
         self.interval = interval
 
         # We need to trim labs and colors if we have a Bundle
@@ -619,9 +634,9 @@ class Visualizer():
         fig, self.movie_ax = plt.subplots(subplot_kw={'projection': '3d'})
 
         if quivers:
-            self.movie_ax = self._add_quivers(self.movie_ax, self.trimmed_colors)
+            self.movie_ax = self._add_quivers3D(self.movie_ax, self.x, self.y, self.z, colors=self.trimmed_colors)
         else:
-            self.movie_ax.scatter(self.x, self.y, self.z, color=self.trimmed_colors, label=self.blabs, s=2, alpha=0.2)
+            self.movie_ax.scatter(self.x, self.y, self.z, color=self.trimmed_colors, label=self.data.states, s=2, alpha=0.2)
 
         if grid_off:
             self.movie_ax.grid(False)
@@ -631,16 +646,21 @@ class Visualizer():
         self.animation = anim.FuncAnimation(fig, self._update, fargs=(grid_off, show_legend,), frames=len(self.x),
                                             interval=self.interval)
         plt.show()
+
+        if save:
+            name = str(input('What should the movie be called?')) + '.gif'
+            self.save_gif(name)
+
         return True
 
     def _update(self, frame, grid_off, show_legend):
         if self.scatter is not None:
             self.scatter.remove()
         self.scatter = self.movie_ax.scatter(self.x[frame], self.y[frame], self.z[frame], s=20, alpha=0.8, color='red')
-        self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.blabs[self.B[frame]]}')
+        self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.data.states[self.data.B[frame]]}')
 
         if show_legend:
-            legend_elements = self._generate_legend(self.blabs)
+            legend_elements = self._generate_legend(self.data.states)
             self.movie_ax.legend(handles=legend_elements)
 
         if grid_off:
@@ -662,59 +682,69 @@ class Visualizer():
             gif_writer = anim.PillowWriter(fps=int(1000 / self.interval), metadata=dict(artist='Me'), bitrate=1800)
             self.animation.save(path, writer=gif_writer, dpi=144)
 
-    def behavioral_state_diagram(self, cog_stat_num=3):
+    def behavioral_state_diagram(self, cog_stat_num=3, threshold=0.001, offset=2.5, save=True, show=True, adj_matrix=True):
+        if self.data.p_markov is None:
+            print('You need to run the behavioral probability trajectory clustering first (\'.cluster_BPT\').')
+            return False
         # make the graph
         G = nx.DiGraph()
         node_colors = list(self.colordict.values())*cog_stat_num
 
-        #cog_states = [1] * (len(self.B))
-        T, states = adj_matrix_ncmcm(self.B, self.data, cog_stat_num=cog_stat_num)
+        T, states = adj_matrix_ncmcm(self.data.B, self.data, cog_stat_num=cog_stat_num)
         G.add_nodes_from(states)
 
         # adding edges
         for idx1, n1 in enumerate(states):
             for idx2, n2 in enumerate(states):
                 if n1 != n2:
-                    if T[idx1, idx2] > 0.001:
+                    if T[idx1, idx2] > threshold:
                         G.add_edge(n1, n2, weight=T[idx1, idx2] * 1000)
 
         edge_colors = [node_colors[np.where(states == u)[0][0]] for u, v in G.edges()]
 
-        node_sizes = np.diag(T) * 1000
+        node_sizes = np.diag(T) * 500 * (np.sqrt(T.shape[0])/offset)
 
+        mapping = {node: self.map_names(str(node)) for node in G.nodes()}
 
-        # Relabeling nodes
-        mapping = {10: f'C1:dt',
-                   11: f'C1:fwd',
-                   12: f'C1:nostate',
-                   13: f'C1:rev1',
-                   14: f'C1:rev2',
-                   15: f'C1:revsus',
-                   16: f'C1:slow',
-                   17: f'C1:vt',
-                   20: f'C2:dt',
-                   21: f'C2:fwd',
-                   22: f'C2:nostate',
-                   23: f'C2:rev1',
-                   24: f'C2:rev2',
-                   25: f'C2:revsus',
-                   26: f'C2:slow',
-                   27: f'C2:vt',
-                   30: f'C3:dt',
-                   31: f'C3:fwd',
-                   32: f'C3:nostate',
-                   33: f'C3:rev1',
-                   34: f'C3:rev2',
-                   35: f'C3:revsus',
-                   36: f'C3:slow',
-                   37: f'C3:vt'}
+        print(G.nodes)
         G = nx.relabel_nodes(G, mapping)
-        pos = nx.circular_layout(G)
+        print(G.nodes)
+        print(type(G))
+
+        if adj_matrix:
+            plt.imshow(T, cmap='Reds', interpolation='nearest', vmin=0, vmax=0.03)
+            plt.title('Adjacency Matrix Heatmap')
+            plt.colorbar()
+            plt.yticks(np.arange(T.shape[0]), G.nodes)
+            plt.xlabel('Nodes')
+            plt.ylabel('Nodes')
+            plt.show()
+
+        #pos = nx.circular_layout(G)
+
+        c_nodes = []
+        for c_num in range(cog_stat_num):
+            c_nodes.append([n for n in G.nodes if n.split(':')[0] == 'C'+str(c_num+1)])
+
+
+        all_pos = []
+        for c_node_group in c_nodes:
+            all_pos.append(nx.circular_layout(G.subgraph(c_node_group)))
+
+
+        adjusted_pos = {}
+        degrees_list = np.linspace(0, 360, num=cog_stat_num, endpoint=False)
+        print(f'DEGREES: {degrees_list}')
+        for idx, p in enumerate(all_pos):
+            adjusted_pos = circle_pos(p, adjusted_pos, degrees_list[idx], offset)
+
+
+
 
         # Plot graph
         edges = G.edges()
         weights = [G[u][v]['weight'] for u, v in edges]
-        nx.draw(G, pos,
+        nx.draw(G, adjusted_pos,
                 with_labels=True,
                 connectionstyle="arc3,rad=-0.2",
                 node_color=node_colors,
@@ -723,9 +753,26 @@ class Visualizer():
                 arrows=True,
                 arrowsize=10,
                 edge_color=edge_colors)
-        # nx.draw(G, pos, with_labels=True, arrows=True)
+
         plt.title("Behavioral State Diagram")
-        plt.show()
+        if save:
+            name = str(input('File name for the plot? '))
+            #plt.savefig(f'data/plots/state_diagram_worm_{self.data.data_set_no+1}.png', format='png')
+            plt.savefig(f'data/plots/' + name + '.png', format='png')
+        if show:
+            plt.show()
+
+        #net = Network()
+        #net.from_nx(G)
+        #net.show('test.html', notebook=False)
+
+
+
+
+
+    def map_names(self, name):
+        new_name = f'C{name[:-1]}:{self.data.states[int(name[-1])]}'
+        return new_name
 
     def make_comparison(self, show_legend=False, dim_red=None):
         if dim_red is None and self.bundle_tau:
@@ -744,15 +791,15 @@ class Visualizer():
         ax2 = fig.add_subplot(132, projection='3d')
         ax3 = fig.add_subplot(133, projection='3d')
 
-        ax1.scatter(self.x, self.y, self.z, color=self.trimmed_colors, s=2, alpha=0.5)  # label=self.blabs,
+        ax1.scatter(self.x, self.y, self.z, color=self.trimmed_colors, s=2, alpha=0.5)  # label=self.data.states,
         ax1.set_title(f'True Label')
 
         ax2.scatter(self.x, self.y, self.z, color=self.diff_colors_pred, s=2,
-                    alpha=0.5)  # color=self.diff_colors_pred, label=self.blabs,
+                    alpha=0.5)  # color=self.diff_colors_pred, label=self.data.states,
         ax2.set_title(
-            f'\nModel: {type(self.data.pred_model)}\nMapping: {type(dim_red)}\n\nAccuracy at {round(accuracy_score(self.B, self.B_pred), 2)}\n')
+            f'\nModel: {type(self.data.pred_model)}\nMapping: {type(dim_red)}\n\nAccuracy at {round(accuracy_score(self.data.B, self.data.B_pred), 2)}\n')
 
-        ax3.scatter(self.x, self.y, self.z, color=self.colors_pred, s=2, alpha=0.5)  # label=self.blabs,
+        ax3.scatter(self.x, self.y, self.z, color=self.colors_pred, s=2, alpha=0.5)  # label=self.data.states,
         ax3.set_title(f'Predicted Label')
 
         ax1.grid(False)
@@ -896,12 +943,12 @@ def simulate_markovian(M, P=np.array([]), N=1):
 
 
 def adj_matrix_ncmcm(B, data, cog_stat_num = 3):
-    '''
-    :param data: data from daatbase
+    """
+    :param data: data from database
     :param B: all behaviors at each frame (e.g.: slow, rev ...)
-    :param cog_states: all cognitive states at each frame (e.g.: C1, C2, C3 ...) == xc
+    :param cog_stat_num: number of cognitive states in the plot (e.g.: C1, C2, C3 ...)
     :return:
-    '''
+    """
     xc = data.xc
     p = data.p_markov
 
@@ -911,7 +958,6 @@ def adj_matrix_ncmcm(B, data, cog_stat_num = 3):
 
     b = np.unique(B)
     c = np.unique(cog_states)
-    #T = np.zeros((8, 8))
     T = np.zeros((len(c)*len(b), len(c)*len(b)))
 
     states = [(cs+1) * 10 + bs for cs in c for bs in b]
@@ -927,14 +973,7 @@ def adj_matrix_ncmcm(B, data, cog_stat_num = 3):
     # normalize T
     T = T / (len(B) - 1)
     T = T.T
-    plt.imshow(T, cmap='hot', interpolation='nearest', vmin=0, vmax=0.03)
-    plt.title('Adjacency Matrix Heatmap')
-    plt.colorbar()  # Add color bar to show scale
-    plt.xticks(np.arange(T.shape[1]), states)
-    plt.yticks(np.arange(T.shape[0]), states)
-    plt.xlabel('Nodes')
-    plt.ylabel('Nodes')
-    plt.show()
+
     return T, states
 
 
@@ -970,3 +1009,11 @@ def average_markov_plot(markov_array):
 
     # Show the plot
     plt.show()
+
+
+def circle_pos(old_pos, new_pos, degree, offset):
+    for node, coords in old_pos.items():
+        new_pos[node] = (coords[0] + offset * np.cos(np.radians(degree)),
+                         coords[1] + offset * np.sin(np.radians(degree)))
+    return new_pos
+
