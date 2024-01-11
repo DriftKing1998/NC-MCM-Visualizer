@@ -16,7 +16,7 @@ data = Database(worm_num, verbose=0)
 data.exclude_neurons(b_neurons)
 loaded_vs = data.loadBundleVisualizer()
 
-loaded_vs.plot3D_mapping(show_legend=True, quivers=True)
+loaded_vs.plot_mapping(show_legend=True, quivers=True)
 
 weights_T_Y = loaded_vs.model.T_Y.get_weights()
 weights_predictor = loaded_vs.model.predictor.get_weights()
@@ -38,7 +38,7 @@ for worm_num in range(5):
 
     vs.train_model(epochs=500)
     vs.plot_loss()
-    vs.plot3D_mapping(show_legend=True)
+    vs.plot_mapping(show_legend=True)
 exit()
 
 # This follows worm 0 looks best.
