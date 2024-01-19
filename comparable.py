@@ -12,8 +12,15 @@ b_neurons = [
 ]
 
 worm_num = 0
-data = Database(worm_num, verbose=0)
+d = Loader(worm_num)
+a, b, c, d, e = d.data
+data = Database(a, b, c, d, e)
 data.exclude_neurons(b_neurons)
+vs = data.createVisualizer(epochs=300)
+
+vs.make_movie()
+exit()
+
 loaded_vs = data.loadBundleVisualizer()
 
 loaded_vs.plot_mapping(show_legend=True, quivers=True)
