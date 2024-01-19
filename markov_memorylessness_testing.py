@@ -16,10 +16,10 @@ def test_params_m(axes, reps=3, N_states=10, sim_markov=200):
             lag2_seq = generate_markov_process(M=3000, N=n+1, order=2)
             not_stat = non_stationary_process(M=3000, N=n+1, changes=10)
 
-            p_markov, _ = markovian(true_seq, K=sim_markov)
-            p_random, _ = markovian(rand_seq, K=sim_markov)
-            p_markov2, _ = markovian(lag2_seq, K=sim_markov)
-            p_not_stat, _ = markovian(not_stat, K=sim_markov)
+            p_markov, _ = markovian(true_seq, sim_memoryless=sim_markov)
+            p_random, _ = markovian(rand_seq, sim_memoryless=sim_markov)
+            p_markov2, _ = markovian(lag2_seq, sim_memoryless=sim_markov)
+            p_not_stat, _ = markovian(not_stat, sim_memoryless=sim_markov)
 
             result[0, n, i] = p_markov
             result[1, n, i] = p_random

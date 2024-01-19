@@ -18,7 +18,6 @@ import matplotlib.animation as anim  # FuncAnimation
 from sklearn.base import clone
 from sklearn.ensemble import StackingClassifier
 from sklearn.manifold import TSNE
-
 import networkx as nx
 from itertools import combinations
 from pyvis.network import Network
@@ -27,7 +26,8 @@ import copy
 
 class Loader:
 
-    def __init__(self, data_set_no):
+    def __init__(self,
+                 data_set_no):
         """
         Reads in the data from the all files corresponding to the selected dataset.
         It stores all values into numpy arrays.
@@ -126,7 +126,8 @@ class Database:
             print(f'Or Neuron-names {self.neuron_names.shape[0]} are not the same length as neurons were recorded '
                   f'{self.neuron_traces.shape[0]}')
 
-    def exclude_neurons(self, exclude_neurons):
+    def exclude_neurons(self,
+                        exclude_neurons):
         """
         Excludes specified neurons from the database.
 
@@ -145,7 +146,12 @@ class Database:
 
         print(f'{amount} neurons have been removed.')
 
-    def createVisualizer(self, mapping=None, l_dim=3, epochs=2000, window=15, use_predictor=True):
+    def createVisualizer(self,
+                         mapping=None,
+                         l_dim=3,
+                         epochs=2000,
+                         window=15,
+                         use_predictor=True):
         """
         Takes either a mapping to visualize the data (e.g.: PCA) or parameters for a BundleNet (l_dim, epochs, window)
         which will be used to visualize the data. If a BundleNet is created, it will be used to predict behaviors in
@@ -162,6 +168,12 @@ class Database:
 
         :param window: Window-size for BundleNet
         :type window: int
+
+        :param use_predictor: If the BundleNet Predictor should be used as prediction model
+        :type use_predictor: bool
+
+        return: Will return the correctly configured Visualizer object or None
+        :type: Visualizer
         """
 
         # If a mapping is provided
@@ -192,7 +204,6 @@ class Database:
             vs.B_ = B_
             vs.model = model
             vs.loss_array = loss_array
-            # print(loss_array)
             vs.tau_model = model.tau
             vs.bundle_tau = True
             # I need to do this later, since X_ is not defined yet
@@ -201,41 +212,75 @@ class Database:
                 vs.useBundlePredictor()
         return vs
 
-    # NEEDS SOME WORK
-    def loadBundleVisualizer(self, weights_path=None, l_dim=3, window=15):
+    def loadBundleVisualizer(self,
+                             weights_path=None,
+                             l_dim=3,
+                             window=15,
+                             use_predictor=True):
+        """
+        Takes a path to the weights (standard directory = /data/generated/BundleNet_model_<name>) and parameters for a
+        BundleNet (l_dim, window) which will be created and the weights will be laoded in. One can also choose if the
+        predictor of the BundleNet or the model form the Database-object will be used (if present).
+
+        :param weights_path: A path to the "directory + name of the weights file"
+        :type weights_path: string
+
+        :param l_dim: Latent dimension the BundleNet maps to (for visualisation: 3D; For further use: XD)
+        :type l_dim: int
+
+        :param window: Window-size for BundleNet
+        :type window: int
+
+        :param use_predictor: Boolean if the BundleNet Predictor should be used for plots.
+        :type use_predictor: bool
+
+        :return: Will return the correctly configured Visualizer object or None
+        :type: Visualizer
+        """
+
         time, newX = preprocess_data(self.neuron_traces.T, self.fps)
         X_, B_ = prep_data(newX, self.B, win=window)
         model = BunDLeNet(latent_dim=l_dim)
         model.build(input_shape=X_.shape)
 
-        if weights_path is None:
-            model.load_weights('data/generated/BunDLeNet_model_' + self.name)
-        else:
-            model.load_weights(weights_path)
+        try:
+            if weights_path is None:
+                model.load_weights('data/generated/BundleNet_model_' + self.name)
+            else:
+                model.load_weights(weights_path)
+        except Exception as e:
+            print(f'Error {e}! No such file.')
+            return None
 
         vs = Visualizer(self, model.tau, transform=False)
         vs.X_ = X_
         vs.B_ = B_
         vs.model = model
-        # vs.loss_array = loss_array
         vs.tau_model = model.tau
         vs.bundle_tau = True
         # I need to do this later, since X_ is not defined yet
         vs._transform_points(vs.mapping)
-        vs.useBundlePredictor()
+        if use_predictor:
+            vs.useBundlePredictor()
         return vs
 
     # Maybe make a 90/10 training test set split.
-    def fit_model(self, base_model, prob_map=True, binary=True):
+    def fit_model(self,
+                  base_model,
+                  prob_map=True,
+                  binary=True):
         """
         Allows to fit a model which is used to predict behaviors from the neuron traces (accuracy is printed). Its
         probabilities are used for an eventual clustering.
 
         :param base_model:
+
         :param prob_map: A boolean indicating if a probability map is created for each frame. This is used in the
         behavioral probability trajectory clustering (.cluster_BPT()).
+
         :param binary: A boolean indicating if the CustomEnsembleModel should be created. It makes a set of models for
         each behavior, to differentiate it from each of the others behaviors.
+
         :return: Boolean success indicator
         """
         if not hasattr(base_model, 'fit'):
@@ -257,7 +302,41 @@ class Database:
             print(f'Probability map has shape: {self.yp_map.shape}')
         return True
 
-    def cluster_BPT(self, nrep=200, max_clusters=20, sim_markov=200, chunks=7, kmeans_init='auto', plot_markov=True):
+    def cluster_BPT(self,
+                    nrep=200,
+                    max_clusters=20,
+                    sim_m=300,
+                    sim_s=300,
+                    chunks=7,
+                    kmeans_init='auto',
+                    plot_markov=True):
+        """
+        Clusters behavioral probability trajectories if a model has been fitted on the data.
+
+        :param nrep: Repetitions of repeated clustering for each number of clusters.
+        :type nrep: int
+
+        :param max_clusters: Maximal amount of clusters - 1 to "max_clusters" clusters will be done.
+        :type max_clusters: int
+
+        :param sim_m: Amount of simulations will be done for the test statistics of each memory-less test
+        :type sim_m: int
+
+        :param sim_s: Amount of simulations will be done for the test statistics of each stationary test
+        :type sim_s: int
+
+        :param chunks: Amount of chunks created for the stationary test (frobenius norm of the chunks is used)
+        :type chunks: int
+
+        :param kmeans_init: Is for the "n_init" parameter of KMeans and defines how often K-means is initialized after
+        clustering (the best result is picked by the sklearn package)
+        :type kmeans_init: string or int
+
+        :param plot_markov: If the result should be plotted
+        :type plot_markov: bool
+
+        :return: Boolean success indicator
+        """
         if self.yp_map is None:
             print(f'You first need to fit a model (eg. Logistic Regression), '
                   f'which will be used to map to behavioral probability trajectories.\n'
@@ -276,10 +355,10 @@ class Database:
                 clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
                 xctmp = clusters.labels_
 
-                p, _ = markovian(xctmp, K=sim_markov)
+                p, _ = markovian(xctmp, sim_memoryless=sim_m)
                 # print('Memoryless test done')
 
-                _, p_adj_stationary = test_stationarity(xctmp, parts=chunks, plot=False)
+                _, p_adj_stationary = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
                 # print('Stationary test done')
 
                 self.p_memoryless[nrclusters, reps] = p
@@ -289,10 +368,12 @@ class Database:
 
         if plot_markov:
             self._plot_markov()
-
         return True
 
     def _plot_markov(self):
+        """
+        Creates the markovian plot.
+        """
         fig, ax = plt.subplots()
         data_m = self.p_memoryless[:, :].T
         data_s = self.p_stationary[:, :].T
@@ -302,7 +383,7 @@ class Database:
 
         box_label_m = 'Memoryless'
         boxplot_m['boxes'][0].set_label(box_label_m)
-        box_label_s = 'Stationary'
+        box_label_s = 'not Stationary'
         boxplot_s['boxes'][0].set_label(box_label_s)
 
         ax.set_title(f'Probability of being a Markov process for {self.name}')
@@ -312,12 +393,45 @@ class Database:
         plt.legend()
         plt.tight_layout()
         plt.show()
+        return True
 
-    def step_plot(self, clusters=5, nrep=10, sim_markov=200, save=False, show=True, png_name=None):
+    def step_plot(self,
+                  clusters=5,
+                  nrep=10,
+                  sim_m=200,
+                  sim_s=200,
+                  save=False,
+                  show=True,
+                  png_name=None):
+        """
+        Creates a plot consisting of 4 plots. The first one showing behavioral labels plotted onto the 2 principal
+        components of the neuronal data, the second one showing behavioral labels plotted onto behavioral probability
+        trajectories, the third one showing cognitive labels plotted onto behavioral probability trajectories and the
+        last one showing cognitive labels plotted onto the 2 principal components of the neuronal data.
+
+        :param clusters: Amount of cognitive states (clusters) to use.
+        :type clusters: int
+
+        :param nrep: Repetitions of repeated clustering for each number of clusters.
+        :type nrep: int
+
+        :param sim_m: Amount of simulations will be done for the test statistics of each memory-less test
+        :type sim_m: int
+
+        :param sim_s: Amount of simulations will be done for the test statistics of each stationary test
+        :type sim_s: int
+
+        :param png_name: Name of the plot if it should be saved, otherwise it will be named step_plot_<self.name>.png
+        :type png_name: string
+
+        :param save: Boolean if it should be saved
+        :param show: Boolean if it should be shown
+
+        """
         if self.p_memoryless is None:
             print('There were no BPT-clusterings computed. It will be done now...')
             self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), binary=True)
-            self.cluster_BPT(nrep=nrep, max_clusters=clusters, sim_markov=sim_markov, plot_markov=False)
+            self.cluster_BPT(nrep=nrep, max_clusters=clusters, sim_m=sim_m, sim_s=sim_s, plot_markov=False)
 
         # Neuronal trajectories preprocessing
         fig, ax = plt.subplots(2, 2, figsize=(16, 8))
@@ -371,6 +485,9 @@ class Database:
             plt.show()
 
     def _add_quivers2D(self, ax, x, y, colors=None):
+        """
+        Function to add 2D quivers of correct size to an axis.
+        """
         if colors is None:
             colors = self.colors[:-1]
         dx = np.diff(x)  # Differences between x coordinates
@@ -383,14 +500,34 @@ class Database:
                                  threshold=None,
                                  offset=2.5,
                                  adj_matrix=True,
+                                 show=True,
                                  save=True,
                                  interactive=False):
+        """
+        Creates a behavioral state diagram using the defined states as a directed graph.
+
+        :param cog_stat_num: Defines the amount of cognitive states used.
+        :type cog_stat_num: int
+
+        :param threshold: A threshold which is used to display edges in the graph (smaller values are not plotted)
+        :type threshold: float
+
+        :param offset: Distance between clusters
+        :type offset: float
+
+        :param adj_matrix: If the adjacency matrix should be plotted
+        :param show: If the matplotlib plot should be shown
+        :param save: If the matplotlib plot should be saved
+        :param interactive: If the html plot should be saved
+
+        :return: Boolean success indicator
+        """
         if self.p_memoryless is None:
             print('You need to run the behavioral probability trajectory clustering first (\'.cluster_BPT\').')
             return False
         if threshold is None:
             threshold = 1 / (500 * cog_stat_num)
-            print('threshold is: ', threshold)
+            print('Calcualted threshold is: ', threshold)
         # make the graph
         G = nx.DiGraph()
         node_colors = list(self.colordict.values()) * cog_stat_num
@@ -437,17 +574,18 @@ class Database:
         edges = G.edges()
         weights = [G[u][v]['weight'] for u, v in edges]
 
-        nx.draw(G, adjusted_pos,
-                with_labels=True,
-                connectionstyle="arc3,rad=-0.2",
-                node_color=node_colors,
-                node_size=node_sizes,
-                width=weights,
-                arrows=True,
-                arrowsize=10,
-                edge_color=edge_colors)
-        plt.title("Behavioral State Diagram")
-        plt.show()
+        if show:
+            nx.draw(G, adjusted_pos,
+                    with_labels=True,
+                    connectionstyle="arc3,rad=-0.2",
+                    node_color=node_colors,
+                    node_size=node_sizes,
+                    width=weights,
+                    arrows=True,
+                    arrowsize=10,
+                    edge_color=edge_colors)
+            plt.title("Behavioral State Diagram")
+            plt.show()
 
         if save:
             nx.draw(G, adjusted_pos,
@@ -462,36 +600,50 @@ class Database:
             plt.title("Behavioral State Diagram")
             name = str(input('File name for the plot? '))
             plt.savefig(f'data/plots/{name}.png', format='png')
+            print(f'Plot has been saved under: data/plots/{name}.png')
             plt.close()
-            # This right here will create the interactive HTML plot
-            if interactive:
-                net = Network(directed=True  # ,
-                              # select_menu=True,  # Show part 1 in the plot (optional)
-                              )
-                net.from_nx(G)
-                for node in net.nodes:
-                    c, b = node['id'].split(':')
-                    c_int = int(c[1:]) - 1
-                    b_int = np.where(np.asarray(self.states) == b)[0][0]
-                    r, g, b = self.colordict[b_int]
-                    node['color'] = f'rgb({r * 255},{g * 255},{b * 255})'
-                    node['size'] = np.sqrt(node_sizes[c_int * (len(self.states)) + b_int])
+        # This right here will create the interactive HTML plot
+        if interactive:
+            net = Network(directed=True  # ,
+                          # select_menu=True,  # Show part 1 in the plot (optional)
+                          )
+            net.from_nx(G)
+            for node in net.nodes:
+                c, b = node['id'].split(':')
+                c_int = int(c[1:]) - 1
+                b_int = np.where(np.asarray(self.states) == b)[0][0]
+                r, g, b = self.colordict[b_int]
+                node['color'] = f'rgb({r * 255},{g * 255},{b * 255})'
+                node['size'] = np.sqrt(node_sizes[c_int * (len(self.states)) + b_int])
 
-                net.show(f'data/plots/{name}.html', notebook=False)
+            name = str(input('File name for the html-plot? '))
+            net.show(f'data/plots/{name}.html', notebook=False)
+            print(f'Plot has been saved under: data/plots/{name}.html')
+        return True
 
     def map_names(self, name):
+        """
+        Used to generate a state-name from a number
+        """
         new_name = f'C{name[:-2]}:{self.states[int(name[-2:])]}'
         return new_name
 
     def plotting_neuronal_behavioural(self, vmin=0, vmax=2):
+        """
+        Plots neuronal data and behavioral data as a timeseries.
+        :param vmin: minimal value for neuronal data values
+        :param vmax: maximal value for neuronal data values
+        """
         fig, axs = plt.subplots(2, 1, figsize=(10, 4))
-        self._neurons(ax=axs[0])
+        self._neurons(ax=axs[0], vmin=vmin, vmax=vmax)
         self._behavior(ax=axs[1])
         plt.subplots_adjust(hspace=0.5)
         plt.show()
 
-    def _behavior(self, ax=None, sample=None):
-
+    def _behavior(self, ax=None):
+        """
+        Plots behavioral data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
+        """
         show = False
         if ax is None:
             show = True
@@ -513,6 +665,11 @@ class Database:
             plt.show()
 
     def _neurons(self, ax=None, vmin=0, vmax=2):
+        """
+        Plots neuronal data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
+        :param vmin: minimal value for neuronal data values
+        :param vmax: maximal value for neuronal data values
+        """
         show = False
         if ax is None:
             show = True
@@ -532,15 +689,9 @@ class Database:
 class Visualizer():
 
     def __init__(self,
-                 # X: Union[List[List[float]], np.ndarray],
-                 # B: Union[List[int], List[str], np.ndarray],
                  Data: Database,
                  mapping,
                  transform=True):
-        # B_pred: Union[List[int], List[str], np.ndarray],
-        # xlabs: Optional[Union[List[str], np.ndarray]] = None,
-        # blabs: Optional[Union[List[str], np.ndarray]] = None,
-        # fps: float = None):
         """
         Takes values for features (neurons), labels (behaviors), and their corresponding names. If B is a list of strings,
         those are taken as blabs, and blabs is ignored.
@@ -1009,6 +1160,16 @@ class Visualizer():
                   f' not used for accuracy calculation of the model')
             self._transform_points(self.mapping)
         return True
+
+    def save_weights(self, path=None):
+        if self.model is not None:
+            if path is None:
+                self.model.save_weights('data/generated/BundleNet_model_' + self.data.name)
+            else:
+                self.model.save_weights(path)
+        else:
+            print('No Model created yet.')
+            return False
 
 
 class CustomEnsembleModel:

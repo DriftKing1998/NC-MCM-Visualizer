@@ -55,13 +55,13 @@ def test_params_mem(axes, reps=3, N_states=10):
             true_seq5 = data5.xc[:, n, i]
             not_stat = non_stationary_process(M=3000, N=n + 1, changes=10)
 
-            adj_lag1, _ = markovian(lag1_seq, K=800)
-            adj_lag2, _ = markovian(lag2_seq, K=800)
-            adj_lag3, _ = markovian(lag3_seq, K=800)
-            adj_worm1, _ = markovian(true_seq1, K=800)
-            adj_worm3, _ = markovian(true_seq3, K=800)
-            adj_worm5, _ = markovian(true_seq5, K=800)
-            adj_not_stat, _ = markovian(not_stat, K=800)
+            adj_lag1, _ = markovian(lag1_seq, sim_memoryless=800)
+            adj_lag2, _ = markovian(lag2_seq, sim_memoryless=800)
+            adj_lag3, _ = markovian(lag3_seq, sim_memoryless=800)
+            adj_worm1, _ = markovian(true_seq1, sim_memoryless=800)
+            adj_worm3, _ = markovian(true_seq3, sim_memoryless=800)
+            adj_worm5, _ = markovian(true_seq5, sim_memoryless=800)
+            adj_not_stat, _ = markovian(not_stat, sim_memoryless=800)
 
             result[0, i, n] = adj_lag1
             result[1, i, n] = adj_lag2

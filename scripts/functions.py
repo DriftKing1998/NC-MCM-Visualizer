@@ -27,7 +27,7 @@ def shift_pos_by(old_positioning, new_positioning, degree, offset):
 
 # Functions Markov #
 
-def markovian(sequence, K=1000):
+def markovian(sequence, sim_memoryless=1000):
     P, states, M, N = compute_transition_matrix_lag2(sequence)
     # P(z[t]|z[t-1]) = P(z[t],z[t-1]) / P(z[t-1])
     Pz0z1 = np.sum(P, axis=0)
@@ -55,8 +55,8 @@ def markovian(sequence, K=1000):
     P2 = np.nan_to_num(P2)
 
     # Testing
-    TH0 = np.zeros(K)
-    for kperm in range(K):
+    TH0 = np.zeros(sim_memoryless)
+    for kperm in range(sim_memoryless):
         zH0, _ = simulate_markovian(M, P1)
         PH0 = np.zeros((N, N, N))
 
@@ -181,7 +181,7 @@ def make_random_adj_matrices(num_matrices=1000, matrix_shape=(10, 10)):
     # For example, to access the first transition matrix: transition_matrices[0]
 
 
-def test_stationarity(sequence, parts=3, test_statistics=1000, plot=False):
+def test_stationarity(sequence, parts=3, sim_stationary=1000, plot=False):
     states = np.unique(sequence)
     num_states = len(states)
     transition_dict = {state: [] for state in np.unique(sequence)}
@@ -202,7 +202,7 @@ def test_stationarity(sequence, parts=3, test_statistics=1000, plot=False):
 
     # Making test statistic
     test_stats = []
-    test_matrices = make_random_adj_matrices(num_matrices=test_statistics, matrix_shape=(num_states, num_states))
+    test_matrices = make_random_adj_matrices(num_matrices=sim_stationary, matrix_shape=(num_states, num_states))
     for idx1, m1 in enumerate(test_matrices):
         for idx2, m2 in enumerate(test_matrices[idx1 + 1:]):
             m_diff = m1 - m2
@@ -404,9 +404,9 @@ def test_params_s(axes, parts=10, reps=3, N_states=10, sequence=None, plot_marko
             #print(true_seq)
             #print(rand_seq)
 
-            x, adj_x = test_stationarity(true_seq, parts=p + 2, plot=plot_markov, test_statistics=1000)
-            y, adj_y = test_stationarity(rand_seq, parts=p + 2, plot=False, test_statistics=1000)
-            a, adj_a = test_stationarity(not_stat, parts=p + 2, plot=False, test_statistics=1000)
+            x, adj_x = test_stationarity(true_seq, parts=p + 2, plot=plot_markov, sim_stationary=1000)
+            y, adj_y = test_stationarity(rand_seq, parts=p + 2, plot=False, sim_stationary=1000)
+            a, adj_a = test_stationarity(not_stat, parts=p + 2, plot=False, sim_stationary=1000)
 
             result[0, p, i] = np.mean(adj_x)
             result[1, p, i] = np.mean(adj_y)
@@ -449,10 +449,10 @@ def test_params_m(axes, reps=3, N_states=10, sim_markov=200):
             lag2_seq = generate_markov_process(M=3000, N=n+1, order=2)
             not_stat = non_stationary_process(M=3000, N=n+1, changes=10)
 
-            p_markov, _ = markovian(true_seq, K=sim_markov)
-            p_random, _ = markovian(rand_seq, K=sim_markov)
-            p_markov2, _ = markovian(lag2_seq, K=sim_markov)
-            p_not_stat, _ = markovian(not_stat, K=sim_markov)
+            p_markov, _ = markovian(true_seq, sim_memoryless=sim_markov)
+            p_random, _ = markovian(rand_seq, sim_memoryless=sim_markov)
+            p_markov2, _ = markovian(lag2_seq, sim_memoryless=sim_markov)
+            p_not_stat, _ = markovian(not_stat, sim_memoryless=sim_markov)
 
             result[0, n, i] = p_markov
             result[1, n, i] = p_random
