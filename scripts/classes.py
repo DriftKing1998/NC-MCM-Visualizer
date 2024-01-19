@@ -621,14 +621,17 @@ class Database:
             print(f'Plot has been saved under: data/plots/{name}.html')
         return True
 
-    def map_names(self, name):
+    def map_names(self,
+                  name):
         """
         Used to generate a state-name from a number
         """
         new_name = f'C{name[:-2]}:{self.states[int(name[-2:])]}'
         return new_name
 
-    def plotting_neuronal_behavioural(self, vmin=0, vmax=2):
+    def plotting_neuronal_behavioural(self,
+                                      vmin=0,
+                                      vmax=2):
         """
         Plots neuronal data and behavioral data as a timeseries.
         :param vmin: minimal value for neuronal data values
@@ -640,7 +643,8 @@ class Database:
         plt.subplots_adjust(hspace=0.5)
         plt.show()
 
-    def _behavior(self, ax=None):
+    def _behavior(self,
+                  ax=None):
         """
         Plots behavioral data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
         """
@@ -664,7 +668,10 @@ class Database:
         if show:
             plt.show()
 
-    def _neurons(self, ax=None, vmin=0, vmax=2):
+    def _neurons(self,
+                 ax=None,
+                 vmin=0,
+                 vmax=2):
         """
         Plots neuronal data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
         :param vmin: minimal value for neuronal data values
@@ -693,26 +700,14 @@ class Visualizer():
                  mapping,
                  transform=True):
         """
-        Takes values for features (neurons), labels (behaviors), and their corresponding names. If B is a list of strings,
-        those are taken as blabs, and blabs is ignored.
+        Creates a Visualizer object using a Database object and a mapping.
 
-        :param X: ndarray
-        :type X: 2D array with each row corresponding to a neuron and each column is a timeframe.
+        :param Data: Database object with data to be plotted later
+        :type Data: Database
 
-        :param B: ndarray
-        :type B: 1D array with behavior encoded as integers.
+        :param mapping: Some sort of dimensionality reduction, preferably to 3D space, so plotting is possible.
 
-        :param xlabs: ndarray
-        :type xlabs: 1D array with the names of the neurons.
-
-        :param blabs: ndarray
-        :type blabs: 1D array with translation for behavior.
-
-        :param fps: float
-        :type fps: gives the recording fps.
-
-        Returns:
-            None
+        :param transform: Boolean if points should be transformed directly using the mapping. Normally "True" is fine.
         """
 
         # Setting Attributes
@@ -728,26 +723,7 @@ class Visualizer():
         else:
             self.transformed_points = None
 
-        # If B is not an integer array we have to transform it into one
-        if not (np.issubdtype(self.data.B.dtype, int) or np.issubdtype(self.data.B.dtype, np.integer)):
-            print('B has been transformed and a blabs has been created')
-            newB, blabs = make_integer_list(self.data.B)
-            self.data.B = np.asarray(newB)
-            self.data.states = np.asarray(blabs).astype(str)
-
-        # If no Neuron Names / State Names are given, they are generated
-        if self.data.neuron_names is None:
-            self.data.neuron_names = np.asarray(range(self.data.neuron_traces.shape[1])).astype(str)
-        else:
-            self.data.neuron_names = np.asarray(self.data.neuron_names)
-        if self.data.states is None:
-            self.data.states = np.asarray(np.unique(self.data.B)).astype(str)
-        else:
-            self.data.states = np.asarray(self.data.states)
-
-        # generate a color-dictionary for all states and generate the colors
-        # self.colordict = dict(zip(np.unique(self.data.B), generate_equidistant_colors(len(self.data.states))))
-        # = [self.colordict[val] for val in self.data.B]
+        # Colors for plotting
         self.plot_colors = None
         self.colors_diff_pred = None
         self.colors_pred = None
@@ -760,15 +736,28 @@ class Visualizer():
         self.interval = None
         self.scatter = None
 
-    def change_mapping(self, new_mapping):
+    def change_mapping(self,
+                       new_mapping):
+        """
+        If a different mapping should be used in the future.
+
+        :param new_mapping: Some sort of dimensionality reduction, preferably to 3D space, so plotting is possible.
+
+        :return: Boolean success indicator
+        """
         if self._transform_points(new_mapping):
             self.mapping = new_mapping
+            return True
         else:
             print('Mapping was not changed.')
+            return False
 
     ### DIAGNOSTICS ###
-
-    def plot_mapping(self, show_legend=False, grid_off=True, quivers=False, show=True):
+    def plot_mapping(self,
+                     show_legend=False,
+                     grid_off=True,
+                     quivers=False,
+                     show=True):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         if self.transformed_points.shape[0] != 3:
@@ -804,7 +793,8 @@ class Visualizer():
         else:
             return fig, ax, legend_elements
 
-    def _transform_points(self, mapping):
+    def _transform_points(self,
+                          mapping):
         if mapping is None:  # This should not happen normally
             print('No mapping present. CREATING PCA MODEL ...')
             mapping = PCA(n_components=3)
@@ -839,7 +829,9 @@ class Visualizer():
         self.transformed_points = transformed_points.T
         return True
 
-    def _generate_legend(self, blabs, diff=False):
+    def _generate_legend(self,
+                         blabs,
+                         diff=False):
         # if the legend for the difference plot is requested
         if diff:
             y_labels_diff = {
@@ -868,7 +860,8 @@ class Visualizer():
 
         return legend_elements
 
-    def _generate_diff_label_counts(self, diff_predict):
+    def _generate_diff_label_counts(self,
+                                    diff_predict):
         # Create dictionary to count different predictions for each label
         self.diff_label_counts = {l: {state: 0 for state in self.data.states} for l in np.unique(self.data.B)}
         for idx, wrong_predict in enumerate(diff_predict):
@@ -877,7 +870,12 @@ class Visualizer():
             if wrong_predict > -1:
                 self.diff_label_counts[true_label][self.data.states[pred_label]] += 1
 
-    def attachBundleNet(self, l_dim=3, train=True, epochs=2000, window=15, use_predictor=True):
+    def attachBundleNet(self,
+                        l_dim=3,
+                        train=True,
+                        epochs=2000,
+                        window=15,
+                        use_predictor=True):
         if self.data.fps is None:
             print('In order to attach the BundleNet \'self.data.fps\' has to have a value!')
             return False
@@ -916,7 +914,10 @@ class Visualizer():
         else:
             print('No model was trained.')
 
-    def train_model(self, epochs=2000, learning_rate=0.001):
+    def train_model(self,
+                    epochs=2000,
+                    learning_rate=0.001):
+
         optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=learning_rate)
         self.loss_array = train_model(
             self.X_,
@@ -930,6 +931,7 @@ class Visualizer():
         self.bundle_tau = True
 
     def use_latent_dim_as_input(self):
+
         if self.bundle_tau:
             names = np.asarray([f'axis{i}' for i in range(self.transformed_points.shape[0])])
             ###
@@ -944,24 +946,13 @@ class Visualizer():
 
         return Database(self.transformed_points, self.B_, names, self.data.states, self.data.fps)
 
-        exit()
+    def _add_quivers3D(self,
+                       ax,
+                       x,
+                       y,
+                       z,
+                       colors=None):
 
-        new_data = copy.copy(self)
-
-        ###
-        # We need to trim labs and colors if we have a Bundle
-        if len(self.x) < len(self.data.colors):
-            window = len(self.data.colors) - len(self.x)
-            self.plot_colors = self.data.colors[window:]
-        else:
-            self.plot_colors = self.data.colors
-        ###
-        transformed_points = np.asarray(self.mapping(self.X_[:, 0]))
-        ###
-        self.x, self.y, self.z = transformed_points.T
-        ###
-
-    def _add_quivers3D(self, ax, x, y, z, colors=None):
         if colors is None:
             colors = self.data.colors[:-1]
 
@@ -989,7 +980,12 @@ class Visualizer():
 
         return ax
 
-    def make_movie(self, interval=None, save=False, show_legend=False, grid_off=True, quivers=False):
+    def make_movie(self,
+                   interval=None,
+                   save=False,
+                   show_legend=False,
+                   grid_off=True,
+                   quivers=False):
         """
         Makes a movie out of each frame in the imaging data. It uses the tau model or a model given as a parameter to
         map the data to a 3-dimensional space.
@@ -1022,7 +1018,11 @@ class Visualizer():
             self.save_gif(name)
         return True
 
-    def _update(self, frame, grid_off, legend_elements):
+    def _update(self,
+                frame,
+                grid_off,
+                legend_elements):
+
         if self.scatter is not None:
             self.scatter.remove()
 
@@ -1044,7 +1044,11 @@ class Visualizer():
 
         return self.movie_ax
 
-    def save_gif(self, name, bitrate=1800, dpi=144):
+    def save_gif(self,
+                 name,
+                 bitrate=1800,
+                 dpi=144):
+
         if self.animation is None:
             print('No animation created yet.\nTo create one use \'.make_movie()\'.')
         else:
@@ -1054,6 +1058,7 @@ class Visualizer():
             self.animation.save(path, writer=gif_writer, dpi=dpi)
 
     def useBundlePredictor(self):
+
         if self.bundle_tau:
             window = self.X_.shape[2]
             Yt1_upper, Yt1_lower, Bt1_upper = self.model.call(self.X_)
@@ -1065,7 +1070,10 @@ class Visualizer():
             print('It seems there is no BundleNet attached yet. Use \'Visualizer.attachBundleNet()\'!')
             return False
 
-    def make_comparison(self, show_legend=False, quivers=True):
+    def make_comparison(self,
+                        show_legend=False,
+                        quivers=True):
+
         if self.transformed_points.shape[0] != 3:
             print('The mapping does not map into a 3D space.')
             return False
@@ -1151,9 +1159,8 @@ class Visualizer():
         fig.suptitle(f'{self.transformed_points.shape[1]} Frames', fontsize='x-large', fontweight='bold')
         plt.show()
         if len(self.B_pred) - len(self.B_pred[win_plot_p:]) > 0:
-            print(
-                f'Some points {len(self.B_pred) - len(self.B_pred[win_plot_p:])} used for accuracy calculation of the model '
-                f'are not plotted, since the mapping does not include them.')
+            print(f'Some points {len(self.B_pred) - len(self.B_pred[win_plot_p:])} used for accuracy calculation of '
+                  f'the model are not plotted, since the mapping does not include them.')
 
         if reform:
             print(f'The prediction has fewer points than the true labels. Therefore {t} points are not plotted and also'
@@ -1161,7 +1168,9 @@ class Visualizer():
             self._transform_points(self.mapping)
         return True
 
-    def save_weights(self, path=None):
+    def save_weights(self,
+                     path=None):
+
         if self.model is not None:
             if path is None:
                 self.model.save_weights('data/generated/BundleNet_model_' + self.data.name)
@@ -1178,15 +1187,20 @@ class CustomEnsembleModel:
     As a prediction for each instance it gives the most abundant prediction from its sub-models.
     """
 
-    def __init__(self, base_model):
+    def __init__(self,
+                 base_model):
         """
-        :param base_model: a model from which the binary classifiers will be built (e.g. Logistic Regression)
+        :param base_model: a model from which the binary classifiers will be built (e.g. Logistic Regression). It needs
+        to have the method "fit", "predict" and "predict_proba".
         """
         self.base_model = base_model
         self.combinatorics = []
         self.ensemble_models = []
 
-    def fit(self, neuron_traces, labels):
+    def fit(self,
+            neuron_traces,
+            labels):
+
         self.ensemble_models = []
         self.combinatorics = list(combinations(np.unique(labels), 2))
         for idx, class_mapping in enumerate(self.combinatorics):
@@ -1200,13 +1214,17 @@ class CustomEnsembleModel:
             self.ensemble_models.append(b_model)
         return self
 
-    def predict(self, neuron_traces):
+    def predict(self,
+                neuron_traces):
+
         results = np.zeros((neuron_traces.shape[0], len(self.combinatorics))).astype(int)
         for idx, b_model in enumerate(self.ensemble_models):
             results[:, idx] = b_model.predict(neuron_traces)
         return [np.bincount(results[row, :]).argmax() for row in range(results.shape[0])]
 
-    def predict_proba(self, neuron_traces):
+    def predict_proba(self,
+                      neuron_traces):
+
         y_prob_map = np.zeros((neuron_traces.shape[0], len(self.combinatorics)))
         for idx, model in enumerate(self.ensemble_models):
             prob = model.predict_proba(neuron_traces)[:, 0]
