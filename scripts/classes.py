@@ -109,6 +109,14 @@ class Database:
         else:
             self.neuron_names = np.asarray(neuron_names)
 
+        # If no State Names are given, they are generated
+        if states is None:
+            print('State-names are created from behavior-labels. Translation is accessed by\'self.states\'.')
+            newB, blabs = make_integer_list(self.B)
+            self.states = np.asarray(blabs).astype(str)
+        else:
+            self.states = np.asarray(states)
+
         self.pred_model = None
         self.B_pred = None
         self.yp_map = None
@@ -186,7 +194,7 @@ class Database:
                 return None
             time, newX = preprocess_data(self.neuron_traces.T, self.fps)
             X_, B_ = prep_data(newX, self.B, win=window)
-            model = BunDLeNet(latent_dim=l_dim)
+            model = BunDLeNet(latent_dim=l_dim, behaviors=len(self.states))
             model.build(input_shape=X_.shape)
 
             optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=0.001)
@@ -240,7 +248,7 @@ class Database:
 
         time, newX = preprocess_data(self.neuron_traces.T, self.fps)
         X_, B_ = prep_data(newX, self.B, win=window)
-        model = BunDLeNet(latent_dim=l_dim)
+        model = BunDLeNet(latent_dim=l_dim, behaviors=len(self.states))
         model.build(input_shape=X_.shape)
 
         try:
@@ -728,6 +736,7 @@ class Visualizer():
         self.colors_diff_pred = None
         self.colors_pred = None
         # BundleNet
+        self.loss_array = None
         self.tau_model = None
         self.bundle_tau = False
         self.model = None
@@ -758,12 +767,25 @@ class Visualizer():
                      grid_off=True,
                      quivers=False,
                      show=True):
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        """
+        Uses the mapping of the Visualizer to plot the datapoints into 3D space
+
+        :param show_legend: If the legend should be shown
+
+        :param grid_off: If the grid should be shown
+
+        :param quivers: If quivers should be used, otherwise a scatterplot is created
+
+        :param show: If the plot should be shown, otherwise the plot's components will be returned
+
+        :return: Either a boolean success indicator or figure, axis and legend handles
+        """
         if self.transformed_points.shape[0] != 3:
             print('The mapping does not map into a 3D space.')
             return False
 
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
         # We need to trim labs and colors if we have a Bundle
         if self.transformed_points.shape[1] < len(self.data.colors):
             window = len(self.data.colors) - self.transformed_points.shape[1]
@@ -795,6 +817,15 @@ class Visualizer():
 
     def _transform_points(self,
                           mapping):
+        """
+        Uses the mapping given to transform the data points (Database.neuron_traces). Also checks if the mapping is a
+        neural network or any other sklearn dimensionality reduction.
+
+        :param mapping: Dimensionality reduction mapping for the data points (for visualization mapping to 3D space)
+        :type mapping: neural network or any sklearn-object with method "fit_transform"
+
+        :return: Boolean success indicator
+        """
         if mapping is None:  # This should not happen normally
             print('No mapping present. CREATING PCA MODEL ...')
             mapping = PCA(n_components=3)
@@ -830,8 +861,18 @@ class Visualizer():
         return True
 
     def _generate_legend(self,
-                         blabs,
+                         blabs=None,
                          diff=False):
+        """
+        Generates legend handles from earlier created "self.diff_label_counts" or from labels given as a parameter.
+
+        :param blabs: Labels from which the legend handles should be created
+        :type blabs: numpy array
+
+        :param diff: Boolean to say if legend for different predictions should be created
+
+        :return: Legend handles
+        """
         # if the legend for the difference plot is requested
         if diff:
             y_labels_diff = {
@@ -862,6 +903,13 @@ class Visualizer():
 
     def _generate_diff_label_counts(self,
                                     diff_predict):
+        """
+        Generates the counts of wrong predictions by the model from a numpy array were correct predictions are marked as
+        "-1" while wrong ones are correctly labeled.
+
+        :param diff_predict: Array with correct predictions (as "-1") and incorrect predictions (as "0", "1", ...)
+        :type diff_predict: numpy array
+        """
         # Create dictionary to count different predictions for each label
         self.diff_label_counts = {l: {state: 0 for state in self.data.states} for l in np.unique(self.data.B)}
         for idx, wrong_predict in enumerate(diff_predict):
@@ -872,17 +920,36 @@ class Visualizer():
 
     def attachBundleNet(self,
                         l_dim=3,
-                        train=True,
                         epochs=2000,
                         window=15,
+                        train=True,
                         use_predictor=True):
+        """
+        Creates a BundleNet and trains it if indicated. The tau-model will be used as a mapping for visualizations and if
+        indicated the predictor will be used as a prediction model for visualizations.
+
+        :param l_dim: Size of latent dimension (for visualization should be 3)
+        :type l_dim: int
+
+        :param epochs: Number of epochs the neural network should be trained
+        :type epochs: int
+
+        :param window: Window size used by BundleNet input
+        :type window: int
+
+        :param train: If the BundleNet should be trained
+
+        :param use_predictor: If the Predictor should be used in future visualizations
+
+        :return: Boolean success indicator
+        """
         if self.data.fps is None:
             print('In order to attach the BundleNet \'self.data.fps\' has to have a value!')
             return False
 
         time, newX = preprocess_data(self.data.neuron_traces.T, self.data.fps)
         self.X_, self.B_ = prep_data(newX, self.data.B, win=window)
-        self.model = BunDLeNet(latent_dim=l_dim)
+        self.model = BunDLeNet(latent_dim=l_dim, behaviors=len(self.data.states))
         self.model.build(input_shape=self.X_.shape)
 
         if train:
@@ -901,10 +968,14 @@ class Visualizer():
             self.change_mapping(self.model.tau)
             if use_predictor:
                 self.useBundlePredictor()
-        return self.model
+        return True
 
     def plot_loss(self):
-        if self.model is not None:
+        """
+        Will plot the loss over epochs as total loss, markov loss (loss for predicted Y-t+1 (=lower) and created Y-t+1
+        (=upper)) and behavior loss (loss for predicted B-t+1 (=upper) and true label at t+1).
+        """
+        if self.loss_array is not None:
             plt.figure()
             for i, label in enumerate(
                     ["$\mathcal{L}_{{Markov}}$", "$\mathcal{L}_{{Behavior}}$", "Total loss $\mathcal{L}$"]):
@@ -912,12 +983,25 @@ class Visualizer():
             plt.legend()
             plt.show()
         else:
-            print('No model was trained.')
+            print('No model was trained. No loss saved.')
 
     def train_model(self,
                     epochs=2000,
                     learning_rate=0.001):
+        """
+        Trains an attached BundleNet using the Adam-optimizer.
 
+        :param epochs: Number of epochs for training
+        :param epochs: int
+
+        :param learning_rate: Learning rate used by the Adam-optimizer
+        :param learning_rate: float
+
+        :return: Boolean success indicator
+        """
+        if self.model is None:
+            print('No model is attached/loaded.')
+            return False
         optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=learning_rate)
         self.loss_array = train_model(
             self.X_,
@@ -929,12 +1013,18 @@ class Visualizer():
         )
         self.tau_model = self.model.tau
         self.bundle_tau = True
+        return True
 
     def use_latent_dim_as_input(self):
+        """
+        Will use the output from the attached tau-model as an input for a new Database object. This is used if the input
+        data of the current object could be too large or for exploratory uses
 
+        :return: A new Database object with the transformed points as neuron traces and labels without the first few
+        instances, since the window (needed for nc-mcm-training) is cut from them
+        """
         if self.bundle_tau:
             names = np.asarray([f'axis{i}' for i in range(self.transformed_points.shape[0])])
-            ###
             print('X', self.transformed_points.shape)
             print('Y', self.B_.shape)
             print('Y-names', self.data.states.shape)
@@ -952,7 +1042,15 @@ class Visualizer():
                        y,
                        z,
                        colors=None):
-
+        """
+        Adds 3D quivers with appropriate size to an axis using 3D input data
+        :param ax: Matplotlib-axis to which the quivers are added
+        :param x: x-values
+        :param y: y-values
+        :param z: z-values
+        :param colors: color-values
+        :return: Axis with quivers added
+        """
         if colors is None:
             colors = self.data.colors[:-1]
 
@@ -963,16 +1061,14 @@ class Visualizer():
         lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
 
         if 0 in lengths:
-            print('we replace zeros')
+            print('We need to replace some zeros in the quiver lengths at indices:')
             zero_indices = np.where(lengths == 0)
             print(zero_indices)
-            print(lengths[zero_indices])
-
-        epsilon = 1e-8
-        lengths[lengths == 0] = epsilon
+            #print(lengths[zero_indices])
+            epsilon = 1e-8
+            lengths[lengths == 0] = epsilon
 
         mean_length = np.mean(lengths)
-        print(0.05, ' or ', mean_length)
         lengths = mean_length / lengths
         for idx in range(len(dx)):
             ax.quiver(x[idx], y[idx], z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
@@ -987,8 +1083,22 @@ class Visualizer():
                    grid_off=True,
                    quivers=False):
         """
-        Makes a movie out of each frame in the imaging data. It uses the tau model or a model given as a parameter to
-        map the data to a 3-dimensional space.
+        Makes a movie out of each frame in the imaging data. It uses the tau model or a mapping to map the data to a
+        3-dimensional space.
+
+        :param interval: Number of milliseconds between each frame in the movie. Important: For a movie with quivers
+        only the saved version will satisfy this, since the creation of each frame takes to long in view-mode.
+        :type interval: float
+
+        :param save: Boolean if the gif should be saved
+
+        :param show_legend: Boolean if the legend should be shown in movie
+
+        :param grid_off: Boolean if the grid should be shown
+
+        :param quivers: Boolean if quivers should be used, otherwise it will be a scatterplot
+
+        :return: Boolean success indicator
         """
         if self.transformed_points.shape[0] != 3:
             print('The mapping does not map into a 3D space.')
@@ -1022,7 +1132,18 @@ class Visualizer():
                 frame,
                 grid_off,
                 legend_elements):
+        """
+        Update function to create a frame in the movie.
 
+        :param frame: Index of the frame
+        :type frame: int
+
+        :param grid_off: Boolean if grid is shown
+
+        :param legend_elements: Either legend handles or False if no legend is shown
+
+        :return: The Axis the movie is played on
+        """
         if self.scatter is not None:
             self.scatter.remove()
 
@@ -1048,7 +1169,18 @@ class Visualizer():
                  name,
                  bitrate=1800,
                  dpi=144):
+        """
+        Saves the movie which was created earlier.
 
+        :param name: Name the movie should be saved under in the "movies" directory.
+        :type name: str
+
+        :param bitrate: Bits per Second the movie is processed at by the PillowWriter
+        :param bitrate: int
+
+        :param dpi: Dots per Inch = resolution of the gif
+        :param dpi: int
+        """
         if self.animation is None:
             print('No animation created yet.\nTo create one use \'.make_movie()\'.')
         else:
@@ -1058,9 +1190,13 @@ class Visualizer():
             self.animation.save(path, writer=gif_writer, dpi=dpi)
 
     def useBundlePredictor(self):
+        """
+        Tries to use the prediction model used in plots to the Predictor of the BundleNet. This is normally only used
+        if the upon BundleNet creation the "use_predictor" parameter was set to False.
 
+        :return: Boolean success indicator
+        """
         if self.bundle_tau:
-            window = self.X_.shape[2]
             Yt1_upper, Yt1_lower, Bt1_upper = self.model.call(self.X_)
             B_pred_new = np.argmax(Bt1_upper, axis=1).astype(int)
             self.pred_model = self.model
@@ -1073,7 +1209,15 @@ class Visualizer():
     def make_comparison(self,
                         show_legend=False,
                         quivers=True):
+        """
+        Creates a comparison plot between the True labels and the prediction model which is added/selected.
 
+        :param show_legend: If the legend should be shown
+
+        :param quivers: If quivers should be used, otherwise a scatterplot is used
+
+        :return: Boolean success indicator
+        """
         if self.transformed_points.shape[0] != 3:
             print('The mapping does not map into a 3D space.')
             return False
@@ -1170,12 +1314,21 @@ class Visualizer():
 
     def save_weights(self,
                      path=None):
+        """
+        Saves the weigths of the BundleNet to a given path or as "data/generated/BundleNet_model_ + self.data.name"
 
+        :param path: Relative path in the NeuronVisualizer directory with the file name attached.
+        :type path: str
+
+        :return: Boolean success indicator
+        """
         if self.model is not None:
             if path is None:
                 self.model.save_weights('data/generated/BundleNet_model_' + self.data.name)
+                return True
             else:
                 self.model.save_weights(path)
+                return True
         else:
             print('No Model created yet.')
             return False

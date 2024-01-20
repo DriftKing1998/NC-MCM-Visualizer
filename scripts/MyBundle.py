@@ -19,9 +19,10 @@ class BunDLeNet(Model):
 
     Args:
         latent_dim (int): Dimension of the latent space.
+        behaviors (int): Amount of different behaviors.
     """
 
-    def __init__(self, latent_dim):
+    def __init__(self, latent_dim, behaviors):
         super(BunDLeNet, self).__init__()
         self.latent_dim = latent_dim
         # This is the tau mapping from neurons to latent dimension using the windowed input (default 15)
@@ -42,7 +43,7 @@ class BunDLeNet(Model):
         ])
         # This is a model which predicts the behavior from the latent dimension
         self.predictor = tf.keras.Sequential([
-            layers.Dense(8, activation='linear')
+            layers.Dense(behaviors, activation='linear')
         ])
 
     def call(self, X):
