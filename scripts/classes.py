@@ -854,7 +854,7 @@ class Visualizer():
         # If we are using the TAU model to map into 3D space
         elif isinstance(mapping, tf.keras.Sequential):
             # If the mapping is BundleNet we use the 'windowed' input
-            if self.X_ and mapping.input_shape[1] == self.X_.shape[2]:
+            if self.X_ is not None and mapping.input_shape[1] == self.X_.shape[2]:
                 self.bundle_tau = True
                 transformed_points = np.asarray(mapping(self.X_[:, 0]))
             else:

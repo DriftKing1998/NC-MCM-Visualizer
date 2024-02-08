@@ -11,6 +11,19 @@ This is a toolbox uses neuronal & behavioral data and visualizes it. The main fu
 - creating movies and plots of behavioral/neuronal trajectories using the 3D mapping
 
 ## These are some of the plots created from calcium imaging data of C. elegans
-<img src="data/plots/AverageMarkov.png" alt="Mean probability to be a 1st order markov process for all worms">
-<iframe src="data/plots/Demo_worm3_c4.html" width="100%" height="500" ></iframe>
-# alt="Worm 3 with 4 cognitive states"
+#### Mean probability of being a 1st order markov process for all 5 worms at different amounts of cognitive states (30 reps)
+<img src="data/plots/AverageMarkov.png" width="800" alt="Mean probability to be a 1st order markov process for all worms">
+
+#### Behavioral state diagram for worm 3 and 3 cognitive states
+<img src="data/plots/NormalPlot.png" width="800" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states">
+
+#### Interactive behavioral state diagram for worm 3 and 3 cognitive states (saved as a .html file)
+<img src="data/plots/InteractivePlot.png" width="800" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - interactive">
+
+#### Behavioral state adjacancy matrix for worm 3 and 3 cognitive states
+<img src="data/plots/AdjacancyMatrix.png" width="600" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - adjancency matrix">
+
+#### Comparison of predicted and true label using BunDLeNet's tau model as mapping and its predictor
+<img src="data/plots/ComaprisonBunDLeNet.png" width="800" alt="Comparison between true and predicted label using BunDLeNet as mapping and predictor">
+
+

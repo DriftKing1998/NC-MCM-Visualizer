@@ -15,6 +15,10 @@ for i in range(5):
 		WORMS.append(worm)
 		m_data.append(np.mean(worm.p_memoryless, axis=1))
 
+vs = WORMS[2].createVisualizer()
+
+vs.make_comparison(show_legend=True)
+
 average_markov_plot(np.asarray(m_data))
 
 for w in WORMS:
