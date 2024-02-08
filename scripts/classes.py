@@ -89,7 +89,6 @@ class Database:
         :type name: string
         """
 
-
         self.neuron_traces = np.asarray(neuron_traces)
         self.fps = fps
         self.name = name
@@ -813,11 +812,10 @@ class Visualizer():
         else:
             ax.scatter(*self.transformed_points, label=self.data.states, color=self.plot_colors, s=1, alpha=draw)
 
-
         # plot the legend if wanted
         if show_legend:
             legend_elements = self._generate_legend(self.data.B)
-            ax.legend(handles=legend_elements, loc='best', fontsize='small')
+            ax.legend(handles=legend_elements, fontsize='small', loc='lower center', bbox_to_anchor=[1,0])
         else:
             legend_elements = False
 
@@ -862,7 +860,7 @@ class Visualizer():
         # This happens if we give some mapping which is not a NN
         elif hasattr(mapping, 'fit_transform'):
             if mapping.get_params()['n_components'] == 3:
-                #print('HAVE mapping MODEL')
+                # print('HAVE mapping MODEL')
                 if isinstance(mapping, NMF):
                     scaler = MinMaxScaler(feature_range=(0, np.max(self.data.neuron_traces.T)))
                     X_scaled = scaler.fit_transform(self.data.neuron_traces.T)
@@ -1141,24 +1139,37 @@ class Visualizer():
             else:
                 interval = 10
         self.interval = interval
-        fig, self.movie_ax, legend_elements = self.plot_mapping(show_legend=show_legend,
-                                                                    grid_off=grid_off,
-                                                                    quivers=quivers,
-                                                                    show=False,
-                                                                    draw=draw)
-
-
-        self.scatter = None
-        self.animation = anim.FuncAnimation(fig, self._update,
-                                            fargs=(grid_off, legend_elements, quivers, draw),
-                                            # frames=len(self.x),
-                                            frames=self.transformed_points.shape[1],
-                                            interval=self.interval)
+        self._create_animation(show_legend=show_legend,
+                               grid_off=grid_off,
+                               quivers=quivers,
+                               draw=True)
         plt.show()
         if save:
-            name = str(input('What should the movie be called?')) + '.gif'
+            name = str(input('What should the movie be called?'))
+            self._create_animation(show_legend=show_legend,
+                                   grid_off=grid_off,
+                                   quivers=quivers,
+                                   draw=draw)
             self.save_gif(name)
+
         return True
+
+    def _create_animation(self,
+                          show_legend=False,
+                          grid_off=True,
+                          quivers=False,
+                          draw=True):
+
+        self.scatter = None
+        fig, self.movie_ax, legend_elements = self.plot_mapping(show_legend=show_legend,
+                                                                grid_off=grid_off,
+                                                                quivers=quivers,
+                                                                show=False,
+                                                                draw=draw)
+        self.animation = anim.FuncAnimation(fig, self._update,
+                                            fargs=(grid_off, legend_elements, quivers, draw),
+                                            frames=self.transformed_points.shape[1],
+                                            interval=self.interval)
 
     def _update(self,
                 frame,
@@ -1182,8 +1193,8 @@ class Visualizer():
             self.scatter.remove()
             if not draw:
                 if quivers:
-                    self.movie_ax = self._add_quivers3D(self.movie_ax, *self.transformed_points[:, frame:frame+2],
-                                                        colors=self.plot_colors[frame:frame+2])
+                    self.movie_ax = self._add_quivers3D(self.movie_ax, *self.transformed_points[:, frame:frame + 2],
+                                                        colors=self.plot_colors[frame:frame + 2])
                 else:
                     self.movie_ax.scatter(*self.transformed_points[:, frame],
                                           color=self.plot_colors[frame],
@@ -1196,7 +1207,7 @@ class Visualizer():
         self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.data.states[self.data.B[frame]]}')
 
         if legend_elements:
-            self.movie_ax.legend(handles=legend_elements, loc='best')
+            self.movie_ax.legend(handles=legend_elements, loc='lower center', bbox_to_anchor=[1,0])
 
         if not grid_off:
             self.movie_ax.set_xlabel('Axes 1')
@@ -1225,6 +1236,8 @@ class Visualizer():
             print('No animation created yet.\nTo create one use \'.make_movie()\'.')
         else:
             print('This may take a while...')
+            # self.movie_ax.remove()
+
             path = 'movies/' + name + '.gif'
             gif_writer = anim.PillowWriter(fps=int(1000 / self.interval), metadata=dict(artist='Me'), bitrate=bitrate)
             self.animation.save(path, writer=gif_writer, dpi=dpi)
