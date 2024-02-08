@@ -89,7 +89,7 @@ class Database:
         :type name: string
         """
 
-        #
+
         self.neuron_traces = np.asarray(neuron_traces)
         self.fps = fps
         self.name = name
@@ -218,6 +218,7 @@ class Database:
             vs._transform_points(vs.mapping)
             if use_predictor:
                 vs.useBundlePredictor()
+
         return vs
 
     def loadBundleVisualizer(self,
@@ -270,6 +271,7 @@ class Database:
         vs._transform_points(vs.mapping)
         if use_predictor:
             vs.useBundlePredictor()
+
         return vs
 
     # Maybe make a 90/10 training test set split.
@@ -313,11 +315,12 @@ class Database:
     def cluster_BPT(self,
                     nrep=200,
                     max_clusters=20,
-                    sim_m=300,
-                    sim_s=300,
+                    sim_m=500,
+                    sim_s=500,
                     chunks=7,
                     kmeans_init='auto',
-                    plot_markov=True):
+                    plot_markov=True,
+                    stationary=False):
         """
         Clusters behavioral probability trajectories if a model has been fitted on the data.
 
@@ -343,6 +346,9 @@ class Database:
         :param plot_markov: If the result should be plotted
         :type plot_markov: bool
 
+        :param stationary: If stationarity test should also be done
+        :type stationary: bool
+
         :return: Boolean success indicator
         """
         if self.yp_map is None:
@@ -364,41 +370,41 @@ class Database:
                 xctmp = clusters.labels_
 
                 p, _ = markovian(xctmp, sim_memoryless=sim_m)
-                # print('Memoryless test done')
-
-                _, p_adj_stationary = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
-                # print('Stationary test done')
-
                 self.p_memoryless[nrclusters, reps] = p
-                self.p_stationary[nrclusters, reps] = p_adj_stationary
+
+                if stationary:
+                    _, p_adj_s = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
+                    self.p_stationary[nrclusters, reps] = p_adj_s
 
                 self.xc[:, nrclusters, reps] = xctmp
 
         if plot_markov:
-            self._plot_markov()
+            self._plot_markov(stationary)
         return True
 
-    def _plot_markov(self):
+    def _plot_markov(self, stationary=False):
         """
         Creates the markovian plot.
         """
         fig, ax = plt.subplots()
+        # Plotting Memorylessness
         data_m = self.p_memoryless[:, :].T
-        data_s = self.p_stationary[:, :].T
-        # Plotting
-        boxplot_m = ax.boxplot(data_m, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-        boxplot_s = ax.boxplot(data_s, patch_artist=True, boxprops=dict(facecolor='salmon'))
-
+        boxplot_m = ax.boxplot(data_m, patch_artist=True, boxprops=dict(facecolor='lightblue', edgecolor='blue'))
         box_label_m = 'Memoryless'
         boxplot_m['boxes'][0].set_label(box_label_m)
-        box_label_s = 'not Stationary'
-        boxplot_s['boxes'][0].set_label(box_label_s)
+        boxplot_m['boxes'][0].set_label(box_label_m)
+        # Plotting Stationarity if wanted
+        if stationary:
+            data_s = self.p_stationary[:, :].T
+            boxplot_s = ax.boxplot(data_s, patch_artist=True, boxprops=dict(facecolor='salmon', edgecolor='red'))
+            box_label_s = 'not Stationary'
+            boxplot_s['boxes'][0].set_label(box_label_s)
 
         ax.set_title(f'Probability of being a Markov process for {self.name}')
         ax.set_xlabel('Number of States/Clusters')
         ax.set_ylabel('Probability')
         ax.axhline(0.05)
-        plt.legend()
+        plt.legend(loc='best')
         plt.tight_layout()
         plt.show()
         return True
@@ -406,8 +412,8 @@ class Database:
     def step_plot(self,
                   clusters=5,
                   nrep=10,
-                  sim_m=200,
-                  sim_s=200,
+                  sim_m=300,
+                  sim_s=300,
                   save=False,
                   show=True,
                   png_name=None):
@@ -429,12 +435,13 @@ class Database:
         :param sim_s: Amount of simulations will be done for the test statistics of each stationary test
         :type sim_s: int
 
-        :param png_name: Name of the plot if it should be saved, otherwise it will be named step_plot_<self.name>.png
+        :param png_name: Name of the plot if it should be saved, otherwise it will be named step_plot_<self.name>Mouse.png
         :type png_name: string
 
         :param save: Boolean if it should be saved
         :param show: Boolean if it should be shown
 
+        :return: Boolean success indicator
         """
         if self.p_memoryless is None:
             print('There were no BPT-clusterings computed. It will be done now...')
@@ -443,6 +450,7 @@ class Database:
 
         # Neuronal trajectories preprocessing
         fig, ax = plt.subplots(2, 2, figsize=(16, 8))
+
         pca = PCA(n_components=2)
         plot_values = pca.fit_transform(self.neuron_traces.T)
         x_nt, y_nt = plot_values.T
@@ -486,11 +494,12 @@ class Database:
         fig.suptitle(f'{self.name} with {clusters} cognitive states')
         if save:
             if png_name:
-                plt.savefig(f'data/plots/{png_name}.png', format='png')
+                plt.savefig(f'data/plots/{png_name}Mouse.png', format='png')
             else:
-                plt.savefig(f'data/plots/step_plot_{self.name}.png', format='png')
+                plt.savefig(f'data/plots/step_plot_{self.name}Mouse.png', format='png')
         if show:
             plt.show()
+        return True
 
     def _add_quivers2D(self, ax, x, y, colors=None):
         """
@@ -500,7 +509,7 @@ class Database:
             colors = self.colors[:-1]
         dx = np.diff(x)  # Differences between x coordinates
         dy = np.diff(y)  # Differences between y coordinates
-        ax.quiver(x[:-1], y[:-1], dx, dy, color=colors, alpha=0.5)
+        ax.quiver(x[:-1], y[:-1], dx, dy, color=colors, scale_units='xy', angles='xy', scale=1, alpha=0.5)
         return ax
 
     def behavioral_state_diagram(self,
@@ -510,7 +519,8 @@ class Database:
                                  adj_matrix=True,
                                  show=True,
                                  save=True,
-                                 interactive=False):
+                                 interactive=False,
+                                 clustering_rep=None):
         """
         Creates a behavioral state diagram using the defined states as a directed graph.
 
@@ -522,6 +532,9 @@ class Database:
 
         :param offset: Distance between clusters
         :type offset: float
+
+        :param clustering_rep: If a certain clustering should be used
+        :type clustering_rep: None or int
 
         :param adj_matrix: If the adjacency matrix should be plotted
         :param show: If the matplotlib plot should be shown
@@ -540,7 +553,7 @@ class Database:
         G = nx.DiGraph()
         node_colors = list(self.colordict.values()) * cog_stat_num
 
-        T, cog_beh_states = adj_matrix_ncmcm(self, cog_stat_num=cog_stat_num)
+        T, cog_beh_states = adj_matrix_ncmcm(self, cog_stat_num=cog_stat_num, clustering_rep=clustering_rep)
         G.add_nodes_from(cog_beh_states)
 
         # adding edges
@@ -607,8 +620,8 @@ class Database:
                     edge_color=edge_colors)
             plt.title("Behavioral State Diagram")
             name = str(input('File name for the plot? '))
-            plt.savefig(f'data/plots/{name}.png', format='png')
-            print(f'Plot has been saved under: data/plots/{name}.png')
+            plt.savefig(f'data/plots/{name}Mouse.png', format='png')
+            print(f'Plot has been saved under: data/plots/{name}Mouse.png')
             plt.close()
         # This right here will create the interactive HTML plot
         if interactive:
@@ -754,6 +767,7 @@ class Visualizer():
 
         :return: Boolean success indicator
         """
+        self.bundle_tau = False
         if self._transform_points(new_mapping):
             self.mapping = new_mapping
             return True
@@ -766,7 +780,8 @@ class Visualizer():
                      show_legend=False,
                      grid_off=True,
                      quivers=False,
-                     show=True):
+                     show=True,
+                     draw=True):
         """
         Uses the mapping of the Visualizer to plot the datapoints into 3D space
 
@@ -794,22 +809,28 @@ class Visualizer():
             self.plot_colors = self.data.colors
 
         if quivers:
-            ax = self._add_quivers3D(ax, *self.transformed_points, colors=self.plot_colors)
+            ax = self._add_quivers3D(ax, *self.transformed_points, colors=self.plot_colors, draw=draw)
         else:
-            ax.scatter(*self.transformed_points, label=self.data.states, color=self.plot_colors, s=1, alpha=0.5)
+            ax.scatter(*self.transformed_points, label=self.data.states, color=self.plot_colors, s=1, alpha=draw)
+
 
         # plot the legend if wanted
         if show_legend:
             legend_elements = self._generate_legend(self.data.B)
-            ax.legend(handles=legend_elements, loc='best')
+            ax.legend(handles=legend_elements, loc='best', fontsize='small')
         else:
             legend_elements = False
 
         if grid_off:
             ax.grid(False)
             ax.set_axis_off()
+        else:
+            ax.set_xlabel('Axes 1')
+            ax.set_ylabel('Axes 2')
+            ax.set_zlabel('Axes 3')
 
         if show:
+            ax.set_title(f'Mapping: {type(self.mapping)}')
             plt.show()
             return True
         else:
@@ -833,7 +854,7 @@ class Visualizer():
         # If we are using the TAU model to map into 3D space
         elif isinstance(mapping, tf.keras.Sequential):
             # If the mapping is BundleNet we use the 'windowed' input
-            if mapping.input_shape[1] == self.X_.shape[2]:
+            if self.X_ and mapping.input_shape[1] == self.X_.shape[2]:
                 self.bundle_tau = True
                 transformed_points = np.asarray(mapping(self.X_[:, 0]))
             else:
@@ -841,7 +862,7 @@ class Visualizer():
         # This happens if we give some mapping which is not a NN
         elif hasattr(mapping, 'fit_transform'):
             if mapping.get_params()['n_components'] == 3:
-                print('HAVE mapping MODEL')
+                #print('HAVE mapping MODEL')
                 if isinstance(mapping, NMF):
                     scaler = MinMaxScaler(feature_range=(0, np.max(self.data.neuron_traces.T)))
                     X_scaled = scaler.fit_transform(self.data.neuron_traces.T)
@@ -968,6 +989,7 @@ class Visualizer():
             self.change_mapping(self.model.tau)
             if use_predictor:
                 self.useBundlePredictor()
+
         return True
 
     def plot_loss(self):
@@ -1015,7 +1037,7 @@ class Visualizer():
         self.bundle_tau = True
         return True
 
-    def use_latent_dim_as_input(self):
+    def use_mapping_as_input(self):
         """
         Will use the output from the attached tau-model as an input for a new Database object. This is used if the input
         data of the current object could be too large or for exploratory uses
@@ -1027,21 +1049,28 @@ class Visualizer():
             names = np.asarray([f'axis{i}' for i in range(self.transformed_points.shape[0])])
             print('X', self.transformed_points.shape)
             print('Y', self.B_.shape)
+            Y = self.B_
             print('Y-names', self.data.states.shape)
             print('X-names', names.shape)
 
+        elif self.transformed_points is not None:
+            print('WARNING! No BundleNet!')
+            names = np.asarray([f'axis{i}' for i in range(self.transformed_points.shape[0])])
+            Y = self.data.B
+
         else:
-            print('Attach a bundleNet first!')
+            print('No mapping attached!')
             return False
 
-        return Database(self.transformed_points, self.B_, names, self.data.states, self.data.fps)
+        return Database(self.transformed_points, Y, names, self.data.states, self.data.fps)
 
     def _add_quivers3D(self,
                        ax,
                        x,
                        y,
                        z,
-                       colors=None):
+                       colors=None,
+                       draw=True):
         """
         Adds 3D quivers with appropriate size to an axis using 3D input data
         :param ax: Matplotlib-axis to which the quivers are added
@@ -1059,21 +1088,21 @@ class Visualizer():
         dz = np.diff(z)  # Differences between z coordinates
         # we do this so each arrowhead has the same size independent of the size of the arrow
         lengths = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+        # We replace eventual zeros
+        zero_indices = np.where(lengths == 0)
+        epsilon = 1e-8
+        lengths[lengths == 0] = epsilon
 
-        if 0 in lengths:
-            print('We need to replace some zeros in the quiver lengths at indices:')
-            zero_indices = np.where(lengths == 0)
-            print(zero_indices)
-            #print(lengths[zero_indices])
-            epsilon = 1e-8
-            lengths[lengths == 0] = epsilon
+        if draw:
+            lw = 0.8
+        else:
+            lw = 0
 
         mean_length = np.mean(lengths)
         lengths = mean_length / lengths
         for idx in range(len(dx)):
             ax.quiver(x[idx], y[idx], z[idx], dx[idx], dy[idx], dz[idx], color=colors[idx],
-                      arrow_length_ratio=lengths[idx], alpha=0.8, linewidths=0.8)
-
+                      arrow_length_ratio=lengths[idx], alpha=0.8, linewidths=lw)
         return ax
 
     def make_movie(self,
@@ -1081,7 +1110,8 @@ class Visualizer():
                    save=False,
                    show_legend=False,
                    grid_off=True,
-                   quivers=False):
+                   quivers=False,
+                   draw=True):
         """
         Makes a movie out of each frame in the imaging data. It uses the tau model or a mapping to map the data to a
         3-dimensional space.
@@ -1112,13 +1142,15 @@ class Visualizer():
                 interval = 10
         self.interval = interval
         fig, self.movie_ax, legend_elements = self.plot_mapping(show_legend=show_legend,
-                                                                grid_off=grid_off,
-                                                                quivers=quivers,
-                                                                show=False)
+                                                                    grid_off=grid_off,
+                                                                    quivers=quivers,
+                                                                    show=False,
+                                                                    draw=draw)
+
 
         self.scatter = None
         self.animation = anim.FuncAnimation(fig, self._update,
-                                            fargs=(grid_off, legend_elements,),
+                                            fargs=(grid_off, legend_elements, quivers, draw),
                                             # frames=len(self.x),
                                             frames=self.transformed_points.shape[1],
                                             interval=self.interval)
@@ -1131,7 +1163,9 @@ class Visualizer():
     def _update(self,
                 frame,
                 grid_off,
-                legend_elements):
+                legend_elements,
+                quivers,
+                draw):
         """
         Update function to create a frame in the movie.
 
@@ -1146,6 +1180,15 @@ class Visualizer():
         """
         if self.scatter is not None:
             self.scatter.remove()
+            if not draw:
+                if quivers:
+                    self.movie_ax = self._add_quivers3D(self.movie_ax, *self.transformed_points[:, frame:frame+2],
+                                                        colors=self.plot_colors[frame:frame+2])
+                else:
+                    self.movie_ax.scatter(*self.transformed_points[:, frame],
+                                          color=self.plot_colors[frame],
+                                          s=1,
+                                          alpha=0.5)
 
         x, y, z = self.transformed_points[:, frame]
         self.scatter = self.movie_ax.scatter(x, y, z, s=20, alpha=0.8, color='red')
@@ -1155,10 +1198,7 @@ class Visualizer():
         if legend_elements:
             self.movie_ax.legend(handles=legend_elements, loc='best')
 
-        if grid_off:
-            self.movie_ax.grid(False)
-            self.movie_ax.set_axis_off()
-        else:
+        if not grid_off:
             self.movie_ax.set_xlabel('Axes 1')
             self.movie_ax.set_ylabel('Axes 2')
             self.movie_ax.set_zlabel('Axes 3')
@@ -1201,6 +1241,8 @@ class Visualizer():
             B_pred_new = np.argmax(Bt1_upper, axis=1).astype(int)
             self.pred_model = self.model
             self.B_pred = B_pred_new
+            print(f'Accuracy of BundleNet: {round(accuracy_score(self.data.B[self.X_.shape[2]:], self.B_pred), 3)}')
+
             return True
         else:
             print('It seems there is no BundleNet attached yet. Use \'Visualizer.attachBundleNet()\'!')
@@ -1292,15 +1334,29 @@ class Visualizer():
         # plot the legend if wanted
         if show_legend:
             legend_1 = self._generate_legend(self.data.B)
-            ax1.legend(title='True Labels', handles=legend_1, loc='upper center', bbox_to_anchor=(0.5, 0.))
+            ax1.legend(title='True Labels',
+                       handles=legend_1,
+                       loc='upper center',
+                       bbox_to_anchor=(0.5, 0.),
+                       fontsize='small')
 
             legend_2 = self._generate_legend(None, diff=True)
-            ax2.legend(title='Incorrect Predictions', handles=legend_2, loc='upper center', bbox_to_anchor=(0.5, 0.))
+            ax2.legend(title='Incorrect Predictions',
+                       handles=legend_2,
+                       loc='upper center',
+                       bbox_to_anchor=(0.5, 0.),
+                       fontsize='small')
 
             legend_3 = self._generate_legend(self.B_pred)
-            ax3.legend(title='Predicted Labels', handles=legend_3, loc='upper center', bbox_to_anchor=(0.5, 0.))
+            ax3.legend(title='Predicted Labels',
+                       handles=legend_3,
+                       loc='upper center',
+                       bbox_to_anchor=(0.5, 0.),
+                       fontsize='small')
 
-        fig.suptitle(f'{self.transformed_points.shape[1]} Frames', fontsize='x-large', fontweight='bold')
+        fig.suptitle(f'{self.transformed_points.shape[1]} Frames',
+                     fontsize='x-large',
+                     fontweight='bold')
         plt.show()
         if len(self.B_pred) - len(self.B_pred[win_plot_p:]) > 0:
             print(f'Some points {len(self.B_pred) - len(self.B_pred[win_plot_p:])} used for accuracy calculation of '
@@ -1315,7 +1371,7 @@ class Visualizer():
     def save_weights(self,
                      path=None):
         """
-        Saves the weigths of the BundleNet to a given path or as "data/generated/BundleNet_model_ + self.data.name"
+        Saves the weights of the BundleNet to a given path or as "data/generated/BundleNet_model_ + self.data.name"
 
         :param path: Relative path in the NeuronVisualizer directory with the file name attached.
         :type path: str

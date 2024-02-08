@@ -1,26 +1,21 @@
 import unittest
 from unittest.mock import MagicMock
-
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.cluster import KMeans
-import networkx as nx
-import matplotlib.pyplot as plt
 from scripts.classes import *
+from sklearn.decomposition import PCA
 
 
 class TestDatabase(unittest.TestCase):
 
     def setUp(self):
-        # Set up any necessary data or configurations for the tests
-        pass
+        self.db = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                          [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
+                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
+                           behavior=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                           neuron_names=['neuron1', 'neuron2', 'neuron3', 'neuron4'],
+                           fps=1)
 
     def test_init(self):
-        # Test the initialization of the Database class
-        # Include cases for both default and custom parameter values
-
-        # Example with default parameters
         db_default = Database(neuron_traces=[[1, 2], [3, 4]], behavior=[0, 1])
         self.assertTrue(np.array_equal(db_default.neuron_traces, np.array([[1, 2], [3, 4]])))
         self.assertIsNone(db_default.fps)
@@ -56,48 +51,93 @@ class TestDatabase(unittest.TestCase):
         self.assertIsNone(db_custom.pred_model)
 
     def test_exclude_neurons(self):
-        # Test the exclude_neurons function
-        # Include cases with valid and invalid neuron names
-
-        db = Database(neuron_traces=[[1, 2], [4, 5]], behavior=[0, 1], neuron_names=['neuron1', 'neuron2'])
-
         # Exclude an existing neuron
-        db.exclude_neurons(['neuron1'])
-        self.assertTrue(np.array_equal(db.neuron_traces, np.array([[4, 5]])))
-        self.assertTrue(np.array_equal(db.neuron_names, np.array(['neuron2'])))
-
+        self.db.exclude_neurons(['neuron1'])
+        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
+                                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                                                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])))
+        self.assertTrue(np.array_equal(self.db.neuron_names, np.array(['neuron2', 'neuron3', 'neuron4'])))
         # Exclude a non-existing neuron
-        db.exclude_neurons(['nonexistent_neuron'])
-        self.assertTrue(np.array_equal(db.neuron_traces, np.array([[4, 5]])))
-        self.assertTrue(np.array_equal(db.neuron_names, np.array(['neuron2'])))
+        self.db.exclude_neurons(['nonexistent_neuron'])
+        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
+                                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                                                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])))
+        self.assertTrue(np.array_equal(self.db.neuron_names, np.array(['neuron2', 'neuron3', 'neuron4'])))
 
     def test_createVisualizer(self):
-        # Test the createVisualizer function
-        # Include cases with and without specifying a mapping
-
-        db = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                     [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-                                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
-                      behavior=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                      neuron_names=['neuron1', 'neuron2', 'neuron3', 'neuron4'],
-                      fps=1)
-
         # Without mapping
-        visualizer_no_mapping = db.createVisualizer(window=3, epochs=20)
+        visualizer_no_mapping = self.db.createVisualizer(window=3, epochs=20)
         self.assertIsNotNone(visualizer_no_mapping)
         self.assertIsNotNone(visualizer_no_mapping.mapping)
         self.assertIsNotNone(visualizer_no_mapping.tau_model)
-
         # With PCA mapping
-        from sklearn.decomposition import PCA
         mapping_pca = PCA(n_components=2)
-        visualizer_with_mapping = db.createVisualizer(mapping=mapping_pca)
+        visualizer_with_mapping = self.db.createVisualizer(mapping=mapping_pca)
         self.assertIsNotNone(visualizer_with_mapping)
         self.assertEqual(visualizer_with_mapping.mapping, mapping_pca)
         self.assertIsNone(visualizer_with_mapping.tau_model)
 
-    # Similar tests can be created for the remaining functions
+    def test_fit_model(self):
+        # Create a MagicMock object to replace the base_model
+        base_model_mock = MagicMock()
+        base_model_mock.fit.side_effect = lambda x, y: base_model_mock  # Mocking the fit method
+        base_model_mock.predict.side_effect = lambda x: np.zeros(x.shape[0])  # Mocking the predict method
+        base_model_mock.predict_proba.side_effect = lambda x: np.zeros(len(self.db.states))  # Mocking predict_proba
+        # Call the fit_model without CustomModel activated
+        result = self.db.fit_model(base_model_mock, prob_map=True, binary=False)
+        self.assertTrue(result)  # Assuming fit_model returns True on success
+        self.assertTrue(hasattr(self.db, 'pred_model'))  # Check if pred_model attribute is set
+        self.assertTrue(hasattr(self.db, 'B_pred'))  # Check if B_pred attribute is set
+        self.assertTrue(hasattr(self.db, 'yp_map'))  # Check if yp_map attribute is set
+
+    def test_cluster_BPT(self):
+        self.db.yp_map = np.zeros((self.db.neuron_traces.shape[0], len(np.unique(self.db.B))))
+        result = self.db.cluster_BPT(nrep=5,
+                       max_clusters=2,
+                       sim_m=10,
+                       sim_s=10,
+                       chunks=2,
+                       kmeans_init='auto',
+                       plot_markov=False)
+
+        self.assertTrue(result)
+        self.assertTrue(hasattr(self.db, 'p_memoryless'))  # Check if pred_model attribute is set
+        self.assertTrue(hasattr(self.db, 'xc'))  # Check if pred_model attribute is set
+
+        self.db.yp_map = None
+        result = self.db.cluster_BPT(nrep=5,
+                                max_clusters=2,
+                                sim_m=10,
+                                sim_s=10,
+                                chunks=2,
+                                kmeans_init='auto',
+                                plot_markov=False)
+        self.assertFalse(result)
+
+    def test_step_plot(self, clusters=5):
+        # Mock the necessary methods for fit_model and cluster_BPT
+        self.db.fit_model = MagicMock(return_value=True)
+        self.db.cluster_BPT = MagicMock(return_value=True)
+        self.db.yp_map = np.zeros((4, 10))
+        self.db.xc = np.array([[np.random.choice(list(range(c+1)), size=10) for c in range(clusters)] for _ in range(10)])
+        self.db.p_memoryless = np.random.rand(clusters, 10)
+
+        # Call the step_plot method with mock data
+        result = self.db.step_plot(clusters=clusters, nrep=10, sim_m=300, sim_s=300, save=False, show=False)
+        self.assertTrue(result)  # Assuming step_plot returns True on success
+
+    def test_behavioral_state_diagram(self, clusters=3):
+        # Call the behavioral_state_diagram without p_memoryless
+        result = self.db.behavioral_state_diagram(cog_stat_num=3, offset=2.5, adj_matrix=True,
+                                                  show=False, save=True, interactive=False)
+        self.assertFalse(result)  # Assuming behavioral_state_diagram returns True on success
+
+        # Call the behavioral_state_diagram with p_memoryless
+        self.db.p_memoryless = np.random.rand(clusters, 10)
+        self.db.xc = np.array([[np.random.choice(list(range(c+1)), size=10) for c in range(clusters)] for _ in range(10)])
+        result = self.db.behavioral_state_diagram(cog_stat_num=clusters, offset=2.5, adj_matrix=True,
+                                                  show=False, save=False, interactive=False)
+        self.assertTrue(result)  # Assuming behavioral_state_diagram returns True on success
 
     def tearDown(self):
         # Clean up any resources or configurations used in the tests

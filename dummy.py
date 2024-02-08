@@ -1,54 +1,48 @@
 from scripts.classes import *
-import numpy as np
+from IPython.display import display
+import os
+import pickle
+from sklearn.manifold import MDS, Isomap, LocallyLinearEmbedding, TSNE, SpectralEmbedding
 
-db = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                     [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-                                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
-                      behavior=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                      neuron_names=['neuron1', 'neuron2', 'neuron3', 'neuron4'],
-                      fps=1)
+#os.chdir('..')
+print(os.getcwd())
 
-# Without mapping
-visualizer_no_mapping = db.createVisualizer(window=3, epochs=20)
-print(visualizer_no_mapping.mapping)
-#self.assertIsNotNone(visualizer_no_mapping)
-#self.assertIsNone(visualizer_no_mapping.mapping)
-#self.assertIsNone(visualizer_no_mapping.tau_model)
+WORMS = []
+m_data = []
+for i in range(5):
+	with open(f'data/pickles/data_worm_{i}.pkl', 'rb') as file:
+		worm = pickle.load(file)
+		WORMS.append(worm)
+		m_data.append(np.mean(worm.p_memoryless, axis=1))
+
+average_markov_plot(np.asarray(m_data))
+
+for w in WORMS:
+	w._plot_markov()
+average_markov_plot(np.asarray(m_data))
+
 exit()
-"""
-P = np.asarray([[0.65, 0.1, 0.2, 0.05, 0],
-                [0.4, 0.1, 0.05, 0.4, 0.05],
-                [0.15, 0.75, 0.10, 0.05, 0],
-                [0.5, 0.1, 0.15, 0.05, 0.2],
-                [0.025, 0.025, 0.025, 0.025, 0.9]])
+# linear manifold embeddings
+# (i) PCA
+pca = PCA(n_components=3)
+# (ii) MDS
+mds = MDS(n_components=3, normalized_stress='auto')
+# non-linear manifold embeddings
+# (i) Isomap
+isomap = Isomap(n_components=3, n_neighbors=50)
+# (ii) LLE
+lle = LocallyLinearEmbedding(n_components=3, n_neighbors=50)
+# (iii) LEM
+lem = SpectralEmbedding(n_components=3)
+# (iv) t-SNE
+tsne = TSNE(n_components=3)
 
-Y, _ = simulate_markovian(P=P, M=1000)
-print(Y)
+dim_reds = [pca, mds, isomap, lle, lem, tsne]
 
-X = np.random.rand(150, len(Y))
-blabs = ['A', 'B', 'C', 'D', 'E']
+for worm in WORMS:
+	vs = worm.createVisualizer(dim_reds[0])
+	vs.plot_mapping(show_legend=True)
 
-influence_factor1 = 0.025
-influence_factor2 = 0.005
-influence_factor3 = 0.01
-influence_factor4 = 0.02
-# Use the values in Y to introduce structure
-for i, y_value in enumerate(Y):
-    X[:50, i] += influence_factor1 * (y_value % 5)  # Adjust the expression as needed
-    X[50:100, i] += influence_factor2 * (y_value % 5)  # Adjust the expression as needed
-    X[100:125, i] += influence_factor3 * (y_value % 5) + pow(X[35:60, i], 2) # Adjust the expression as needed
-    X[125:, i] += influence_factor4 * (y_value % 5) - pow(X[85:110, i], 2)  # Adjust the expression as needed"""
-
-l = Loader(1)
-a, b, c, d, e = l.data
-data = Database(a, b, c, d, fps=10)
-#data = Database(X, Y, states=blabs, fps=10)
-data.plotting_neuronal_behavioural()
-#data.step_plot(clusters=3, nrep=10)
-
-logreg = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=1000)
-data.fit_model(logreg, binary=True)
-
-vs = data.createVisualizer(epochs=1000)
-vs.make_movie(save=True, quivers=True)
+	for dim_red in dim_reds[1:]:
+		vs.change_mapping(dim_red)
+		vs.plot_mapping(show_legend=True)

@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "rgb(255.0,255.0,0.0)", "id": "C1:moving forward", "label": "C1:moving forward", "shape": "dot", "size": 19.887786070810787}, {"color": "rgb(0.0,255.0,0.0)", "id": "C1:moving backward", "label": "C1:moving backward", "shape": "dot", "size": 3.9047484227846807}, {"color": "rgb(0.0,255.0,255.0)", "id": "C1:going right", "label": "C1:going right", "shape": "dot", "size": 0.9244214401428179}, {"color": "rgb(255.0,255.0,0.0)", "id": "C3:moving forward", "label": "C3:moving forward", "shape": "dot", "size": 7.609687597180568}, {"color": "rgb(255.0,0.0,0.0)", "id": "C2:standing still", "label": "C2:standing still", "shape": "dot", "size": 17.199155775479305}, {"color": "rgb(255.0,255.0,0.0)", "id": "C2:moving forward", "label": "C2:moving forward", "shape": "dot", "size": 0.14996095974371407}, {"color": "rgb(0.0,255.0,0.0)", "id": "C2:moving backward", "label": "C2:moving backward", "shape": "dot", "size": 0.0}, {"color": "rgb(0.0,255.0,0.0)", "id": "C3:moving backward", "label": "C3:moving backward", "shape": "dot", "size": 0.0}, {"color": "rgb(255.0,0.0,0.0)", "id": "C3:standing still", "label": "C3:standing still", "shape": "dot", "size": 0.0}, {"color": "rgb(255.0,0.0,0.0)", "id": "C1:standing still", "label": "C1:standing still", "shape": "dot", "size": 0.0}, {"color": "rgb(0.0,0.0,255.0)", "id": "C1:going left", "label": "C1:going left", "shape": "dot", "size": 0.0}, {"color": "rgb(255.0,0.0,255.0)", "id": "C1:invisible", "label": "C1:invisible", "shape": "dot", "size": 0.21207682309604614}, {"color": "rgb(0.0,255.0,255.0)", "id": "C2:going right", "label": "C2:going right", "shape": "dot", "size": 0.0}, {"color": "rgb(0.0,0.0,255.0)", "id": "C2:going left", "label": "C2:going left", "shape": "dot", "size": 0.0}, {"color": "rgb(255.0,0.0,255.0)", "id": "C2:invisible", "label": "C2:invisible", "shape": "dot", "size": 0.0}, {"color": "rgb(0.0,255.0,255.0)", "id": "C3:going right", "label": "C3:going right", "shape": "dot", "size": 0.2597400014279038}, {"color": "rgb(0.0,0.0,255.0)", "id": "C3:going left", "label": "C3:going left", "shape": "dot", "size": 0.0}, {"color": "rgb(255.0,0.0,255.0)", "id": "C3:invisible", "label": "C3:invisible", "shape": "dot", "size": 0.14996095974371407}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "C1:moving forward", "to": "C1:moving backward", "width": 11.661189441323016}, {"arrows": "to", "from": "C1:moving forward", "to": "C1:going right", "width": 2.729778437400615}, {"arrows": "to", "from": "C1:moving forward", "to": "C3:moving forward", "width": 11.714194847874483}, {"arrows": "to", "from": "C1:moving backward", "to": "C1:moving forward", "width": 15.186048976995654}, {"arrows": "to", "from": "C1:moving backward", "to": "C1:going right", "width": 3.47185412912117}, {"arrows": "to", "from": "C1:going right", "to": "C1:moving forward", "width": 4.160924414290258}, {"arrows": "to", "from": "C1:going right", "to": "C1:moving backward", "width": 2.57076221774621}, {"arrows": "to", "from": "C2:standing still", "to": "C2:moving forward", "width": 6.122124456694583}, {"arrows": "to", "from": "C2:standing still", "to": "C2:moving backward", "width": 3.100816283260893}, {"arrows": "to", "from": "C2:standing still", "to": "C3:moving backward", "width": 0.7950810982720238}, {"arrows": "to", "from": "C2:moving forward", "to": "C3:moving forward", "width": 4.7174811830806735}, {"arrows": "to", "from": "C2:moving backward", "to": "C1:moving forward", "width": 0.9540973179264285}, {"arrows": "to", "from": "C2:moving backward", "to": "C1:moving backward", "width": 2.0142054489557935}, {"arrows": "to", "from": "C3:standing still", "to": "C2:standing still", "width": 4.611470369977738}, {"arrows": "to", "from": "C3:moving forward", "to": "C1:moving forward", "width": 4.903000106010813}, {"arrows": "to", "from": "C3:moving forward", "to": "C2:standing still", "width": 5.963108237040179}, {"arrows": "to", "from": "C3:moving forward", "to": "C3:standing still", "width": 4.611470369977738}, {"arrows": "to", "from": "C3:moving backward", "to": "C1:moving backward", "width": 0.9010919113749603}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

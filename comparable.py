@@ -13,8 +13,7 @@ b_neurons = [
 
 worm_num = 0
 d = Loader(worm_num)
-a, b, c, d, e = d.data
-data = Database(a, b, c, d, e)
+data = Database(*d.data)
 data.exclude_neurons(b_neurons)
 vs = data.createVisualizer(epochs=300)
 
