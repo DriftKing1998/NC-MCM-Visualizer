@@ -1,6 +1,4 @@
-# import MyBundle
 from scripts.functions import *
-# from BunDLeNet import *
 from scripts.MyBundle import *
 import numpy as np
 import matplotlib.pyplot as plt
