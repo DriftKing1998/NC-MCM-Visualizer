@@ -12,22 +12,22 @@ This is a toolbox uses neuronal & behavioral data and visualizes it. The main fu
 
 ### These are some of the plots created from calcium imaging data of C. elegans
 #### Mean probability of being a 1st order markov process for all 5 worms at different amounts of cognitive states (30 reps)
-<img src="data/plots/Demonstration/AverageMarkov.png" width="700" alt="Mean probability to be a 1st order markov process for all worms">
+<img src="src/data/plots/Demonstration/AverageMarkov.png" width="700" alt="Mean probability to be a 1st order markov process for all worms">
 
 #### Behavioral state diagram for worm 3 and 3 cognitive states
-<img src="data/plots/Demonstration/NormalPlot.png" width="700" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states">
+<img src="src/data/plots/Demonstration/NormalPlot.png" width="700" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states">
 
 #### Interactive behavioral state diagram for worm 3 and 3 cognitive states (saved as a .html file)
-<img src="data/plots/Demonstration/InteractivePlot.png" width="700" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - interactive">
+<img src="src/data/plots/Demonstration/InteractivePlot.png" width="700" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - interactive">
 
 #### Behavioral state adjacancy matrix for worm 3 and 3 cognitive states
-<img src="data/plots/Demonstration/AdjacancyMatrix.png" width="600" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - adjancency matrix">
+<img src="src/data/plots/Demonstration/AdjacancyMatrix.png" width="600" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - adjancency matrix">
 
 #### Comparison of predicted and true label using BunDLeNet's tau model as mapping and its predictor on worm 3
-<img src="data/plots/Demonstration/ComaprisonBunDLeNet.png" width="700" alt="Comparison between true and predicted label using BunDLeNet as mapping and predictor">
+<img src="src/data/plots/Demonstration/ComaprisonBunDLeNet.png" width="700" alt="Comparison between true and predicted label using BunDLeNet as mapping and predictor">
 
 #### Movie using BunDLeNet's tau model as mapping on worm 1
-<img src="data/plots/Demonstration/Worm_1_Interval_100.gif" width="700" alt="Movie using BunDLeNet's tau model as mapping and the true labels">
+<img src="src/data/plots/Demonstration/Worm_1_Interval_100.gif" width="700" alt="Movie using BunDLeNet's tau model as mapping and the true labels">
 
 ## Installation and usage information (for end-users)
 To get the toolbox running on your own PC I still need to do this:

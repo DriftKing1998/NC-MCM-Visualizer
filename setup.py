@@ -1,5 +1,4 @@
 # setup.py
-
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
@@ -7,14 +6,14 @@ with open("README.md", "r") as fh:
 
 setup(
     name='NC-MCM-Visualizer',
-    version='1.0',
+    version='2.1',
     author='Hofer Michael',
     author_email='hofer.michael.98@email.com',
     description='A toolbox to visualize neuronal imaging data and apply the NC-MCM framework to it',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/DriftKing1998/NC-MCM-Visualizer',
-    packages=find_packages(),
+    packages=["src", "src.data", "src.data.plots", "src.data.plots.Demonstration"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -24,7 +23,7 @@ setup(
     install_requires=[
         'numpy',
         'matplotlib',
-        'sklearn',
+        'scikit-learn',
         'networkx',
         'pyvis',
         'statsmodels',
@@ -33,3 +32,4 @@ setup(
         'scipy'
     ],
 )
+

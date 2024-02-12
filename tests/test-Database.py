@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from scripts.classes import *
+from src.classes import *
 from sklearn.decomposition import PCA
 
 
