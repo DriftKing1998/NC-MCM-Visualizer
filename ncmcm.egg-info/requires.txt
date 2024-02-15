@@ -1,0 +1,10 @@
+numpy
+matplotlib
+scikit-learn
+networkx
+pyvis
+statsmodels
+tensorflow
+tqdm
+scipy
+mat73
