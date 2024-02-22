@@ -13,7 +13,7 @@ from sklearn.decomposition import NMF
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.animation as anim  # FuncAnimation
 from sklearn.base import clone
 from sklearn.ensemble import StackingClassifier
@@ -318,6 +318,7 @@ class Database:
                     sim_m=500,
                     sim_s=500,
                     chunks=7,
+                    clustering='kmeans',
                     kmeans_init='auto',
                     plot_markov=True,
                     stationary=False):
@@ -365,9 +366,16 @@ class Database:
         for reps in range(nrep):
             print("Testing markovianity - repetition ", reps + 1)
             for nrclusters in range(max_clusters):
-                # k-means
-                clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
-                xctmp = clusters.labels_
+                # Clustering in probability space
+                if clustering is 'kmeans':
+                    clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
+                    xctmp = clusters.labels_
+                elif clustering is 'spectral':
+                    clusters = SpectralClustering(n_clusters=nrclusters + 1).fit(self.yp_map)
+                    xctmp = clusters.row_labels_
+                else:
+                    raise ValueError("Invalid value for 'clustering' parameter. "
+                                     "It should be either 'kmeans' or 'spectral'. ")
 
                 p, _ = markovian(xctmp, sim_memoryless=sim_m)
                 self.p_memoryless[nrclusters, reps] = p
@@ -443,7 +451,7 @@ class Database:
 
         :return: Boolean success indicator
         """
-        if self.p_memoryless is None:
+        if self.p_memoryless is None or self.p_memoryless.shape[0] < clusters:
             print('There were no BPT-clusterings computed. It will be done now...')
             self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), binary=True)
             self.cluster_BPT(nrep=nrep, max_clusters=clusters, sim_m=sim_m, sim_s=sim_s, plot_markov=False)
@@ -543,7 +551,7 @@ class Database:
 
         :return: Boolean success indicator
         """
-        if self.p_memoryless is None:
+        if self.p_memoryless is None or self.p_memoryless.shape[0] < cog_stat_num:
             print('You need to run the behavioral probability trajectory clustering first (\'.cluster_BPT\').')
             return False
         if threshold is None:

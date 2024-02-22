@@ -3,7 +3,8 @@ from IPython.display import display
 import os
 import pickle
 from sklearn.manifold import MDS, Isomap, LocallyLinearEmbedding, TSNE, SpectralEmbedding
-
+from sklearn.cluster import SpectralBiclustering
+from sklearn.mixture import GaussianMixture
 #os.chdir('..')
 print(os.getcwd())
 
@@ -14,6 +15,8 @@ for i in range(5):
 		worm = pickle.load(file)
 		WORMS.append(worm)
 		m_data.append(np.mean(worm.p_memoryless, axis=1))
+
+
 
 vs = WORMS[2].createVisualizer()
 
