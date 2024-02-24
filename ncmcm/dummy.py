@@ -1,8 +1,9 @@
-from ncmcmvis.ncmcmvis import *
+from ncmcm.classes import *
 from IPython.display import display
 import os
 import pickle
 os.chdir('..')
+os.chdir('ncmcm')
 print(os.getcwd())
 
 data_average_markov = []
@@ -14,11 +15,13 @@ for i in range(5):
         print(worm.p_memoryless.shape)
         data_average_markov.append(np.mean(worm.p_memoryless, axis=1))
 
-average_markov_plot(np.asarray(data_average_markov))
+#average_markov_plot(np.asarray(data_average_markov))
 
 # Do some cool plots
 
 data = WORMS[0]
+data.behavioral_state_diagram(save=True, show=False, adj_matrix=True)
+exit()
 vs1 = data.createVisualizer()
 vs1.plot_mapping()
 

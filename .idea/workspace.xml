@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/pickles/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_0.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_1.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_2.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_3.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_4.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ncmcm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ncmcm.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.0-py3-none-any.whl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.0.tar.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/PKG-INFO" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/SOURCES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/dependency_links.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/requires.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/top_level.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/classes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_0.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_0.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_1.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_1.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_2.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_2.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_3.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_3.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_4.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_4.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/dummy.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/dummy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/Demo.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/Demo.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file:///Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/unittest/mock.py" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2WOQJMnklmLZrCBa7sypt2CWtXr" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;GitHub-Version&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/michaelhofer/Documents/GitHub/ncmcm/ncmcm/data/pickles&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ncmcm/data/pickles" />
+      <recent name="$PROJECT_DIR$/src/data/plots/Demonstration" />
+      <recent name="$PROJECT_DIR$/src/data/plots" />
+      <recent name="$PROJECT_DIR$/src/data" />
+      <recent name="$PROJECT_DIR$/tests" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/tests" />
+      <recent name="$PROJECT_DIR$/data/plots/Demonstration" />
+      <recent name="$PROJECT_DIR$/data/csv" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="DjangoTestsConfigurationType">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="TARGET" value="" />
+      <option name="SETTINGS_FILE" value="" />
+      <option name="CUSTOM_SETTINGS" value="false" />
+      <option name="USE_OPTIONS" value="false" />
+      <option name="OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="ADDITIONAL_ARGS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.FlaskServer">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Docutils task">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Sphinx task">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Autodetect">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="" />
+      <created>1696601073990</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1696601073990</updated>
+      <workItem from="1696601075128" duration="3953000" />
+      <workItem from="1697019901737" duration="598000" />
+      <workItem from="1697108832179" duration="6491000" />
+      <workItem from="1697185603261" duration="9451000" />
+      <workItem from="1698316517586" duration="9566000" />
+      <workItem from="1698397553005" duration="5534000" />
+      <workItem from="1698919808443" duration="15981000" />
+      <workItem from="1699006545654" duration="7523000" />
+      <workItem from="1699190573286" duration="7623000" />
+      <workItem from="1699525393107" duration="21021000" />
+      <workItem from="1700123403617" duration="20733000" />
+      <workItem from="1700180095575" duration="249000" />
+      <workItem from="1700213577244" duration="5329000" />
+      <workItem from="1700219317294" duration="8960000" />
+      <workItem from="1700734364012" duration="11988000" />
+      <workItem from="1700820116652" duration="4356000" />
+      <workItem from="1701335414243" duration="12310000" />
+      <workItem from="1701354252570" duration="2745000" />
+      <workItem from="1701421954797" duration="7793000" />
+      <workItem from="1701780806051" duration="6000" />
+      <workItem from="1701940881627" duration="17258000" />
+      <workItem from="1702041222157" duration="18398000" />
+      <workItem from="1702120586111" duration="4822000" />
+      <workItem from="1702280330895" duration="15000" />
+      <workItem from="1702312321415" duration="10585000" />
+      <workItem from="1702330789691" duration="365000" />
+      <workItem from="1702368094628" duration="3407000" />
+      <workItem from="1702390830721" duration="2880000" />
+      <workItem from="1702462308398" duration="6000" />
+      <workItem from="1702546364828" duration="4816000" />
+      <workItem from="1702551977870" duration="586000" />
+      <workItem from="1702553183581" duration="9243000" />
+      <workItem from="1702884684315" duration="7000" />
+      <workItem from="1704452278095" duration="6802000" />
+      <workItem from="1704530356078" duration="20502000" />
+      <workItem from="1704565400498" duration="11129000" />
+      <workItem from="1704618087568" duration="18342000" />
+      <workItem from="1704702735442" duration="29854000" />
+      <workItem from="1704786474899" duration="5993000" />
+      <workItem from="1704964758867" duration="13339000" />
+      <workItem from="1704991299644" duration="622000" />
+      <workItem from="1705083223590" duration="607000" />
+      <workItem from="1705304788218" duration="56000" />
+      <workItem from="1705568723324" duration="39046000" />
+      <workItem from="1705676879001" duration="5219000" />
+      <workItem from="1705742670454" duration="11338000" />
+      <workItem from="1705758458982" duration="934000" />
+      <workItem from="1705911387108" duration="605000" />
+      <workItem from="1706170648808" duration="19343000" />
+      <workItem from="1706261706138" duration="25777000" />
+      <workItem from="1706356263426" duration="7014000" />
+      <workItem from="1706461798816" duration="4415000" />
+      <workItem from="1706622099949" duration="3891000" />
+      <workItem from="1706628956154" duration="14378000" />
+      <workItem from="1706686538160" duration="4772000" />
+      <workItem from="1706693690949" duration="2688000" />
+      <workItem from="1706698144584" duration="610000" />
+      <workItem from="1706776265143" duration="582000" />
+      <workItem from="1706776856855" duration="10476000" />
+      <workItem from="1707221101144" duration="30000" />
+      <workItem from="1707378500464" duration="4387000" />
+      <workItem from="1707390198796" duration="2900000" />
+      <workItem from="1707398262735" duration="6884000" />
+      <workItem from="1707405553834" duration="761000" />
+      <workItem from="1707417324310" duration="3881000" />
+      <workItem from="1707421696748" duration="815000" />
+      <workItem from="1707646553813" duration="981000" />
+      <workItem from="1707653984494" duration="4027000" />
+      <workItem from="1707723985901" duration="3349000" />
+      <workItem from="1707761169898" duration="3307000" />
+      <workItem from="1707765830846" duration="6298000" />
+      <workItem from="1707772881899" duration="682000" />
+      <workItem from="1707773635617" duration="125000" />
+      <workItem from="1707774079822" duration="493000" />
+      <workItem from="1707774580399" duration="771000" />
+      <workItem from="1708095806845" duration="1149000" />
+      <workItem from="1708097289369" duration="87000" />
+      <workItem from="1708097421248" duration="3005000" />
+      <workItem from="1708425411609" duration="9000" />
+      <workItem from="1708595051697" duration="511000" />
+      <workItem from="1708595567843" duration="29000" />
+      <workItem from="1708595601397" duration="586000" />
+      <workItem from="1708596193023" duration="93000" />
+      <workItem from="1708596292796" duration="1898000" />
+      <workItem from="1708770746637" duration="1139000" />
+      <workItem from="1708771992975" duration="302000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$setup.coverage" NAME="setup Coverage Results" MODIFIED="1707771250494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$testing.coverage" NAME="testing Coverage Results" MODIFIED="1704623819887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_testing.coverage" NAME="markov_testing Coverage Results" MODIFIED="1704621148089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_mem_testing.coverage" NAME="markov_mem_testing Coverage Results" MODIFIED="1706283973467" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_memorylessness_testing.coverage" NAME="markov_memorylessness_testing Coverage Results" MODIFIED="1704964888585" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_stationary_testing.coverage" NAME="markov_stationary_testing Coverage Results" MODIFIED="1707391711694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$Stationarity_Test_Distribution.coverage" NAME="Stationarity_Test_Distribution Coverage Results" MODIFIED="1707402185563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$TestingNew.coverage" NAME="TestingNew Coverage Results" MODIFIED="1706359048519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$test_Database.coverage" NAME="test-Database Coverage Results" MODIFIED="1706267096949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$main.coverage" NAME="main Coverage Results" MODIFIED="1706359030516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$SequenceMarkovTest.coverage" NAME="SequenceMarkovTest Coverage Results" MODIFIED="1704722183470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$toolbox.coverage" NAME="toolbox Coverage Results" MODIFIED="1699609650266" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../Uni/Bioinformatik/Master" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$comparable.coverage" NAME="comparable Coverage Results" MODIFIED="1707405556456" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1707420359506" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1708098906200" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$Code_mgw.coverage" NAME="Code_mgw Coverage Results" MODIFIED="1699605996642" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$test_Visualizer.coverage" NAME="test-Visualizer Coverage Results" MODIFIED="1705755052191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$functions.coverage" NAME="functions Coverage Results" MODIFIED="1706269767715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$classes.coverage" NAME="classes Coverage Results" MODIFIED="1700217549860" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$.coverage" NAME=" Coverage Results" MODIFIED="1706267678494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$TEST.coverage" NAME="TEST Coverage Results" MODIFIED="1707401417251" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>

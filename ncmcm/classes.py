@@ -10,7 +10,7 @@ import mat73
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.animation as anim  # FuncAnimation
 from sklearn.base import clone
 import networkx as nx
@@ -311,6 +311,7 @@ class Database:
                     sim_m=500,
                     sim_s=500,
                     chunks=7,
+                    clustering='kmeans',
                     kmeans_init='auto',
                     plot_markov=True,
                     stationary=False):
@@ -358,9 +359,16 @@ class Database:
         for reps in range(nrep):
             print("Testing markovianity - repetition ", reps + 1)
             for nrclusters in range(max_clusters):
-                # k-means
-                clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
-                xctmp = clusters.labels_
+                # Clustering in probability space
+                if clustering is 'kmeans':
+                    clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
+                    xctmp = clusters.labels_
+                elif clustering is 'spectral':
+                    clusters = SpectralClustering(n_clusters=nrclusters + 1).fit(self.yp_map)
+                    xctmp = clusters.row_labels_
+                else:
+                    raise ValueError("Invalid value for 'clustering' parameter. "
+                                     "It should be either 'kmeans' or 'spectral'. ")
 
                 p, _ = markovian(xctmp, sim_memoryless=sim_m)
                 self.p_memoryless[nrclusters, reps] = p
@@ -436,7 +444,7 @@ class Database:
 
         :return: Boolean success indicator
         """
-        if self.p_memoryless is None:
+        if self.p_memoryless is None or self.p_memoryless.shape[0] < clusters:
             print('There were no BPT-clusterings computed. It will be done now...')
             self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), binary=True)
             self.cluster_BPT(nrep=nrep, max_clusters=clusters, sim_m=sim_m, sim_s=sim_s, plot_markov=False)
@@ -536,7 +544,7 @@ class Database:
 
         :return: Boolean success indicator
         """
-        if self.p_memoryless is None:
+        if self.p_memoryless is None or self.p_memoryless.shape[0] < cog_stat_num:
             print('You need to run the behavioral probability trajectory clustering first (\'.cluster_BPT\').')
             return False
         if threshold is None:
@@ -563,13 +571,19 @@ class Database:
         G = nx.relabel_nodes(G, mapping)
 
         if adj_matrix:
-            plt.imshow(T, cmap='Reds', interpolation='nearest', vmin=0, vmax=0.03)
-            plt.title('Adjacency Matrix Heatmap')
-            plt.colorbar()
-            plt.yticks(np.arange(T.shape[0]), G.nodes)
-            plt.xlabel('Nodes')
-            plt.ylabel('Nodes')
-            plt.show()
+            fig, ax = plt.subplots(1, 2)
+            ax_a = ax[0]
+            ax_g = ax[1]
+            ax_a.imshow(T, cmap='Reds', interpolation='nearest', vmin=0, vmax=0.03)
+            ax_a.title('Adjacency Matrix Heatmap')
+            ax_a.colorbar()
+            ax_a.yticks(np.arange(T.shape[0]), G.nodes)
+            ax_a.xlabel('Nodes')
+            ax_a.ylabel('Nodes')
+            #plt.show()
+        else:
+            fig, ax_g = plt.subplots()
+
 
         cog_groups = []
         for c_num in range(cog_stat_num):
@@ -597,7 +611,8 @@ class Database:
                     width=weights,
                     arrows=True,
                     arrowsize=10,
-                    edge_color=edge_colors)
+                    edge_color=edge_colors,
+                    ax=ax_g)
             plt.title("Behavioral State Diagram")
             plt.show()
 
