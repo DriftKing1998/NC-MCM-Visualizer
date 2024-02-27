@@ -495,9 +495,9 @@ class Database:
         fig.suptitle(f'{self.name} with {clusters} cognitive states')
         if save:
             if png_name:
-                plt.savefig(f'data/plots/{png_name}Mouse.png', format='png')
+                plt.savefig(f'data/plots/{png_name}.png', format='png')
             else:
-                plt.savefig(f'data/plots/step_plot_{self.name}Mouse.png', format='png')
+                plt.savefig(f'data/plots/step_plot_{self.name}.png', format='png')
         if show:
             plt.show()
         return True
@@ -628,8 +628,8 @@ class Database:
                     edge_color=edge_colors)
             plt.title("Behavioral State Diagram")
             name = str(input('File name for the plot? '))
-            plt.savefig(f'data/plots/{name}Mouse.png', format='png')
-            print(f'Plot has been saved under: data/plots/{name}Mouse.png')
+            plt.savefig(f'data/plots/{name}.png', format='png')
+            print(f'Plot has been saved under: data/plots/{name}.png')
             plt.close()
         # This right here will create the interactive HTML plot
         if interactive:

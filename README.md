@@ -1,3 +1,4 @@
+![Image Title](ncmcm/data/plots/Demonstration/InteractivePlot.png)
 # NC-MCM-Visualizer 
 <a href=https://github.com/DriftKing1998/NC-MCM-Visualizer>See on GitHub</a>
 ## A toolbox to visualize neuronal imaging data and apply the NC-MCM framework to it
@@ -9,15 +10,6 @@ This is a toolbox uses neuronal & behavioral data and visualizes it. The main fu
 * `C`luster behavioral probability trajectories and test them for non-markovianity
 * `M`ovies of behavioral/neuronal trajectories saved as `.gif`-files
 
-### These are some of the plots created from calcium imaging data of C. elegans
-#### Interactive behavioral state diagram for worm 3 and 3 cognitive states (saved as a .html file)
-<img src="ncmcm/data/plots/Demonstration/InteractivePlot.png" width="700" alt="Behavioral State Diagram for Worm 3 and 3 cognitive states - interactive">
-
-#### Comparison of predicted and true label using BunDLeNet's tau model as mapping and its predictor on worm 3
-<img src="ncmcm/data/plots/Demonstration/ComaprisonBunDLeNet.png" width="700" alt="Comparison between true and predicted label using BunDLeNet as mapping and predictor">
-
-#### Movie using BunDLeNet's tau model as mapping on worm 1
-<img src="ncmcm/data/plots/Demonstration/Worm_1_Interval_100.gif" width="700" alt="Movie using BunDLeNet's tau model as mapping and the true labels">
 
 ## Getting Started (for end-users)
 1. **Installation:** Open a terminal window in your Python project directory and run
