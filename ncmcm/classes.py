@@ -3,7 +3,7 @@ from ncmcm.BundDLeNet import *
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-
+import os
 from sklearn.decomposition import PCA, NMF
 from typing import Optional, List, Union
 import mat73
@@ -29,9 +29,8 @@ class Loader:
         :param data_set_no: Defines which CSV files will be read.
         :type data_set_no: int
         """
-
         self.data_set_no = data_set_no
-        data_dict = mat73.loadmat('/data/NoStim_Data.mat')
+        data_dict = mat73.loadmat('data/NoStim_Data.mat')
         data = data_dict['NoStim_Data']
         deltaFOverF_bc = data['deltaFOverF_bc'][self.data_set_no]
         derivatives = data['derivs'][self.data_set_no]
@@ -152,7 +151,8 @@ class Database:
                          l_dim=3,
                          epochs=2000,
                          window=15,
-                         use_predictor=True):
+                         use_predictor=True,
+                         discrete=True):
         """
         Takes either a mapping to visualize the data (e.g.: PCA) or parameters for a BundDLeNet (l_dim, epochs, window)
         which will be used to visualize the data. If a BundDLeNet is created, it will be used to predict behaviors in
@@ -172,6 +172,9 @@ class Database:
 
         :param use_predictor: If the BundDLeNet Predictor should be used as prediction model
         :type use_predictor: bool
+
+        :param discrete: If the BundDLeNet should expect discrete labels
+        :type discrete: bool
 
         return: Will return the correctly configured Visualizer object or None
         :type: Visualizer
@@ -197,7 +200,8 @@ class Database:
                 model,
                 optimizer,
                 gamma=0.9,
-                n_epochs=epochs
+                n_epochs=epochs,
+                discrete=discrete
             )
 
             vs = Visualizer(self, model.tau, transform=False)
@@ -360,10 +364,10 @@ class Database:
             print("Testing markovianity - repetition ", reps + 1)
             for nrclusters in range(max_clusters):
                 # Clustering in probability space
-                if clustering is 'kmeans':
+                if clustering == 'kmeans':
                     clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
                     xctmp = clusters.labels_
-                elif clustering is 'spectral':
+                elif clustering == 'spectral':
                     clusters = SpectralClustering(n_clusters=nrclusters + 1).fit(self.yp_map)
                     xctmp = clusters.row_labels_
                 else:
@@ -741,8 +745,6 @@ class Visualizer():
 
         # Setting Attributes
         self.data = Data
-        self.B_pred = self.data.B_pred
-        self.pred_model = self.data.pred_model
         self.X_ = None
         self.B_ = None
         # Mapping
@@ -751,9 +753,8 @@ class Visualizer():
             self._transform_points(self.mapping)
         else:
             self.transformed_points = None
-
         # Colors for plotting
-        self.plot_colors = None
+        self.window = None
         self.colors_diff_pred = None
         self.colors_pred = None
         # BundDLeNet
@@ -811,15 +812,14 @@ class Visualizer():
         ax = fig.add_subplot(111, projection='3d')
         # We need to trim labs and colors if we have a BundDLe
         if self.transformed_points.shape[1] < len(self.data.colors):
-            window = len(self.data.colors) - self.transformed_points.shape[1]
-            self.plot_colors = self.data.colors[window:]
+            self.window = len(self.data.colors) - self.transformed_points.shape[1]
         else:
-            self.plot_colors = self.data.colors
+            self.window = 0
 
         if quivers:
-            ax = self._add_quivers3D(ax, *self.transformed_points, colors=self.plot_colors, draw=draw)
+            ax = self._add_quivers3D(ax, *self.transformed_points, colors=self.data.colors[self.window:], draw=draw)
         else:
-            ax.scatter(*self.transformed_points, label=self.data.states, color=self.plot_colors, s=1, alpha=draw)
+            ax.scatter(*self.transformed_points, label=self.data.states, color=self.data.colors[self.window:], s=1, alpha=draw)
 
         # plot the legend if wanted
         if show_legend:
@@ -930,19 +930,27 @@ class Visualizer():
         return legend_elements
 
     def _generate_diff_label_counts(self,
-                                    diff_predict):
+                                    diff_predict,
+                                    window_true_trans,
+                                    window_pred_trans):
         """
         Generates the counts of wrong predictions by the model from a numpy array were correct predictions are marked as
         "-1" while wrong ones are correctly labeled.
 
         :param diff_predict: Array with correct predictions (as "-1") and incorrect predictions (as "0", "1", ...)
         :type diff_predict: numpy array
+
+        :param window_true_trans: Size difference of true labels and amount of transformed points
+        :type window_true_trans: int
+
+        :param window_pred_trans: Size difference of predicted labels and amount of transformed points
+        :type window_pred_trans: int
         """
         # Create dictionary to count different predictions for each label
         self.diff_label_counts = {l: {state: 0 for state in self.data.states} for l in np.unique(self.data.B)}
         for idx, wrong_predict in enumerate(diff_predict):
-            pred_label = self.B_pred[idx]
-            true_label = self.data.B[idx]
+            pred_label = self.data.B_pred[idx+window_pred_trans]
+            true_label = self.data.B[idx+window_true_trans]
             if wrong_predict > -1:
                 self.diff_label_counts[true_label][self.data.states[pred_label]] += 1
 
@@ -1203,10 +1211,10 @@ class Visualizer():
             if not draw:
                 if quivers:
                     self.movie_ax = self._add_quivers3D(self.movie_ax, *self.transformed_points[:, frame:frame + 2],
-                                                        colors=self.plot_colors[frame:frame + 2])
+                                                        colors=self.data.colors[self.window:][frame:frame + 2])
                 else:
                     self.movie_ax.scatter(*self.transformed_points[:, frame],
-                                          color=self.plot_colors[frame],
+                                          color=self.data.colors[self.window:][frame],
                                           s=1,
                                           alpha=0.5)
 
@@ -1261,9 +1269,9 @@ class Visualizer():
         if self.bn_tau:
             Yt1_upper, Yt1_lower, Bt1_upper = self.model.call(self.X_)
             B_pred_new = np.argmax(Bt1_upper, axis=1).astype(int)
-            self.pred_model = self.model
-            self.B_pred = B_pred_new
-            print(f'Accuracy of BundDLeNet: {round(accuracy_score(self.data.B[self.X_.shape[2]:], self.B_pred), 3)}')
+            self.data.pred_model = self.model
+            self.data.B_pred = B_pred_new
+            print(f'Accuracy of BundDLeNet: {round(accuracy_score(self.data.B[self.X_.shape[2]:], self.data.B_pred), 3)}')
 
             return True
         else:
@@ -1274,7 +1282,8 @@ class Visualizer():
                         show_legend=False,
                         quivers=True):
         """
-        Creates a comparison plot between the True labels and the prediction model which is added/selected.
+        Creates a comparison plot between the True labels and the prediction model which is added/selected. The legend
+        that is created, does only correspond to actually displayed points.
 
         :param show_legend: If the legend should be shown
 
@@ -1286,67 +1295,60 @@ class Visualizer():
             print('The mapping does not map into a 3D space.')
             return False
 
-        if self.pred_model is None:
-            if self.data.pred_model is not None:
-                self.pred_model = self.data.pred_model
-                self.B_pred = self.data.B_pred
-            else:
+        if self.data.pred_model is None:
                 print('There was no prediction model attached to the Database-object. Either use fit_model on the '
                       'Database object or use useBundDLePredictor on the Visualizer if you attached a BundDLeNet')
                 return False
 
         # Creating differences in lengths needed for correct plotting of the model/mapping
         reform = False
-        win_plot_p = len(self.B_pred) - self.transformed_points.shape[1]
-        if win_plot_p < 0:
+        window_pred_trans = len(self.data.B_pred) - self.transformed_points.shape[1]
+        if window_pred_trans < 0:
             # This handles the exception when a BundDLeNet predictor is used for prediction but the points are plotted
             # using a dim-reduction that will not reduce the amount of points
             reform = True
-            t = abs(win_plot_p)
+            t = abs(window_pred_trans)
             self.transformed_points = self.transformed_points[:, t:]
-            win_plot_p = 0
-        win_plot_t = len(self.data.B) - self.transformed_points.shape[1]
-        win_pred = len(self.data.B) - len(self.B_pred)
+            window_pred_trans = 0
+            print(f'The prediction has fewer points than the true labels. Therefore {t} points are not plotted and also'
+                  f' not used for accuracy calculation of the model')
+        window_true_trans = len(self.data.B) - self.transformed_points.shape[1]
+        window_true_pred = len(self.data.B) - len(self.data.B_pred)
 
         # Calculating differences between prediction and true label - generating the coloring for the 3 plots
-        diff_mask = self.data.B[win_plot_t:] != self.B_pred[win_plot_p:]
-        diff_predicts = np.where(diff_mask, self.data.B[win_plot_t:], -1)
-        self.plot_colors = self.data.colors[win_plot_t:]
-        self.colors_pred = [self.data.colordict[val] for val in self.B_pred[win_plot_p:]]
+        diff_mask = self.data.B[window_true_trans:] != self.data.B_pred[window_pred_trans:]
+        diff_predicts = np.where(diff_mask, self.data.B[window_true_trans:], -1)
+        self.colors_pred = [self.data.colordict[val] for val in self.data.B_pred[window_pred_trans:]]
         self.colors_diff_pred = [self.data.colordict[val] if val > -1 else (0.85, 0.85, 0.85) for val in
                                  diff_predicts]
-        self._generate_diff_label_counts(diff_predicts)
-
-        # print(f'All these colors should be the same shape: {len(self.plot_colors), len(self.colors_pred), len(self.colors_diff_pred)}')
+        self._generate_diff_label_counts(diff_predicts, window_true_trans, window_pred_trans)
 
         fig = plt.figure(figsize=(12, 8))
-
         # First subplot
         ax1 = fig.add_subplot(131, projection='3d')
         ax2 = fig.add_subplot(132, projection='3d')
         ax3 = fig.add_subplot(133, projection='3d')
 
         # True Labels
-        ax1.grid(False)
-        ax1.set_axis_off()
+        remove_grid(ax1)
         if quivers:
-            ax1 = self._add_quivers3D(ax1, *self.transformed_points, colors=self.plot_colors)
+            ax1 = self._add_quivers3D(ax1, *self.transformed_points, colors=self.data.colors[window_true_trans:])
         else:
-            ax1.scatter(*self.transformed_points, label=self.data.states, s=1, alpha=0.5, color=self.plot_colors)
+            ax1.scatter(*self.transformed_points, label=self.data.states, s=1, alpha=0.5, color=self.data.colors[window_true_trans:])
         ax1.set_title(f'True Label')
+
         # Difference
-        ax2.grid(False)
-        ax2.set_axis_off()
+        remove_grid(ax2)
         if quivers:
             ax2 = self._add_quivers3D(ax2, *self.transformed_points, colors=self.colors_diff_pred)
         else:
             ax2.scatter(*self.transformed_points, label=self.data.states, s=1, alpha=0.5, color=self.colors_diff_pred)
-        ax2.set_title(f'\nModel: {type(self.pred_model)}\n'
+        ax2.set_title(f'\nModel: {type(self.data.pred_model)}\n'
                       f'Mapping: {type(self.mapping)}\n\n'
-                      f'Accuracy at {round(accuracy_score(self.data.B[win_pred:], self.B_pred), 3)}\n')
+                      f'Accuracy at {round(accuracy_score(self.data.B[window_true_pred:], self.data.B_pred), 3)}\n')
+
         # Predictions
-        ax3.grid(False)
-        ax3.set_axis_off()
+        remove_grid(ax3)
         if quivers:
             ax3 = self._add_quivers3D(ax3, *self.transformed_points, colors=self.colors_pred)
         else:
@@ -1355,7 +1357,7 @@ class Visualizer():
 
         # plot the legend if wanted
         if show_legend:
-            legend_1 = self._generate_legend(self.data.B)
+            legend_1 = self._generate_legend(self.data.B[window_true_trans:])
             ax1.legend(title='True Labels',
                        handles=legend_1,
                        loc='upper center',
@@ -1369,7 +1371,7 @@ class Visualizer():
                        bbox_to_anchor=(0.5, 0.),
                        fontsize='small')
 
-            legend_3 = self._generate_legend(self.B_pred)
+            legend_3 = self._generate_legend(self.data.B_pred[window_pred_trans:])
             ax3.legend(title='Predicted Labels',
                        handles=legend_3,
                        loc='upper center',
@@ -1380,13 +1382,11 @@ class Visualizer():
                      fontsize='x-large',
                      fontweight='bold')
         plt.show()
-        if len(self.B_pred) - len(self.B_pred[win_plot_p:]) > 0:
-            print(f'Some points {len(self.B_pred) - len(self.B_pred[win_plot_p:])} used for accuracy calculation of '
+        if len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:]) > 0:
+            print(f'Some points {len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:])} used for accuracy calculation of '
                   f'the model are not plotted, since the mapping does not include them.')
 
         if reform:
-            print(f'The prediction has fewer points than the true labels. Therefore {t} points are not plotted and also'
-                  f' not used for accuracy calculation of the model')
             self._transform_points(self.mapping)
         return True
 

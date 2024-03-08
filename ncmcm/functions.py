@@ -445,6 +445,10 @@ def make_windowed_data(X, B, win=15):
 
 # Plotting #
 
+def remove_grid(ax):
+    ax.grid(False)
+    ax.set_axis_off()
+
 def average_markov_plot(markov_array):
     """
         Create a scatter plot of Markov p-values of each worm (input array) with a mean trendline.
