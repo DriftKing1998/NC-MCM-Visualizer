@@ -3,14 +3,66 @@ from ncmcm.classes import *
 from IPython.display import display
 import os
 import pickle
+import time
+
 os.chdir('..')
 os.chdir('ncmcm')
 print(os.getcwd())
 
 
-worm_num = 1
+worm_num = 0
 matlab = Loader(worm_num)
 data = Database(*matlab.data)
+#seq = simulate_random_sequence(10000, 10)
+lg = LogisticRegression(max_iter=1000)
+data.fit_model(lg, ensemble=True, cv_folds=5)
+# data.fit_model(lg, ensemble=True, cv_folds=10)
+# data.fit_model(lg, ensemble=True, cv_folds=15)
+# data.fit_model(lg, ensemble=False, cv_folds=5)
+# data.fit_model(lg, ensemble=False, cv_folds=10)
+# data.fit_model(lg, ensemble=False, cv_folds=15)
+data.cluster_BPT_single(nrep=30, nclusters=4, stationary=False)
+data.cluster_BPT_single(nrep=30, nclusters=2, stationary=False)
+data.behavioral_state_diagram(cog_stat_num=2, interactive=True)
+data.behavioral_state_diagram(cog_stat_num=4, interactive=True)
+exit()
+pca = PCA(n_components=3)
+vs = data.createVisualizer(pca)
+
+res = []
+for i in range(30):
+    start = time.time()
+    vs.plot_mapping(show_legend=True, show=False)
+    end = time.time()
+    print(end-start)
+    res.append(end-start)
+print(f'Mean time is {np.mean(res)} seconds.')
+#vs = data.createVisualizer()
+
+
+
+exit()
+vs.make_movie()
+data.plotting_neuronal_behavioral()
+data.cluster_BPT_single(nclusters=2, nrep=3, chunks=None)
+#data.cluster_BPT_single(nclusters=3, nrep=30, chunks=None)
+#data.step_plot(clusters=5, nrep=30)
+data.behavioral_state_diagram(cog_stat_num=2, interactive=True, adj_matrix=True)
+#data.behavioral_state_diagram(cog_stat_num=2, interactive=True)
+#data.behavioral_state_diagram(cog_stat_num=3, interactive=True)
+#data.behavioral_state_diagram(cog_stat_num=5, interactive=True)
+
+
+data.fit_model(lg, ensemble=False)
+data.cluster_BPT(max_clusters=5, nrep=7, stationary=True, chunks=None)
+data.step_plot(clusters=4)
+print(data.p_memoryless.shape)
+data.cluster_BPT_single(5, nrep=5, stationary=True, chunks=None)
+data._plot_markov(stationary=True)
+print(data.fps)
+print(data.neuron_traces.shape)
+
+exit()
 
 time, newX = preprocess_data(data.neuron_traces.T, data.fps)
 sum_array = np.sum(newX, axis=1)
@@ -59,14 +111,14 @@ data = Database(*matlab.data)
 rf = RandomForestClassifier()
 et = ExtraTreesClassifier()
 lg = LogisticRegression()
-data.fit_model(rf, binary=False)
+data.fit_model(rf, ensemble=False)
 
 vs1 = data.createVisualizer(PCA(n_components=3))
 
 vs1.make_comparison(show_legend=True)
-data.fit_model(et, binary=True)
+data.fit_model(et, ensemble=True)
 vs1.make_comparison(show_legend=True)
-data.fit_model(lg, binary=False)
+data.fit_model(lg, ensemble=False)
 vs1.make_comparison(show_legend=True)
 exit()
 vs1.plot_mapping()

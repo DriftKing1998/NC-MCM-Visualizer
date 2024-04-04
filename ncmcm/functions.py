@@ -6,7 +6,7 @@ import statsmodels.stats.multitest as smt
 
 # General Functions #
 
-def generate_equidistant_colors(n):
+def generate_equidistant_colors(n, color=None):
     """
         Generate a list of RGB colors in HSV space with equidistant hues.
 
@@ -17,12 +17,20 @@ def generate_equidistant_colors(n):
         - colors: List of RGB colors.
     """
     colors = []
-    for i in range(n):
-        hue = i / n  # hue value
-        saturation = 1.0  # fully saturated
-        value = 1.0  # full brightness
-        rgb_color = colorsys.hsv_to_rgb(hue, saturation, value)
-        colors.append(rgb_color)
+    if int == type(color):
+        color = int(color%3)
+        for i in range(n):
+            val = i / n  # value
+            rgb = [val, val, val]
+            rgb[color] += 2 - np.exp(val)
+            colors.append(tuple(rgb))
+    else:
+        for i in range(n):
+            hue = i / n  # hue value
+            saturation = 1.0  # fully saturated
+            value = 1.0  # full brightness
+            rgb_color = colorsys.hsv_to_rgb(hue, saturation, value)
+            colors.append(rgb_color)
     return colors
 
 
@@ -76,7 +84,6 @@ def markovian(sequence, sim_memoryless=1000):
 
     # P2 = P(z[t]|z[t-1],z[t-2]) = P(z[t],z[t-1],z[t-2]) / P(z[t-1],z[t-2]) = Pz0z1z2 / Pz1z2
     Pz1z2 = np.sum(Pz0z1z2, axis=2)
-    # I am replacing zeros in Pz1z2 with epsilon, so we do not encounter RuntimeWarnings
     if 0 in Pz1z2:
         print('This should not happen!!!')
     P2 = Pz0z1z2 / np.tile(Pz1z2[:, :, np.newaxis], (1, 1, N))
@@ -172,7 +179,7 @@ def simulate_markovian(M, P=np.array([]), N=1):
     return z, P
 
 
-def test_stationarity(sequence, parts=3, sim_stationary=1000, plot=False):
+def test_stationarity(sequence, parts=None, sim_stationary=1000, plot=False):
     """
         Test stationarity in input sequence.
 
@@ -192,6 +199,14 @@ def test_stationarity(sequence, parts=3, sim_stationary=1000, plot=False):
     for i in range(len(sequence) - 1):
         transition = (sequence[i], sequence[i + 1])
         transition_dict[sequence[i]].append(transition)
+
+    if parts is None:
+        min_length = min(len(lst) for lst in transition_dict.values())
+        # approximate amount of transitions to each state from the least populated state
+        per_state = min_length/num_states
+        purposed_parts = max(2, int(per_state ** 0.5) + 1)
+        print(f'We purpose {purposed_parts} parts')
+        parts = purposed_parts
 
     # Split each type of transition for each state into parts
     chunks = [[] for _ in range(parts)]
@@ -225,6 +240,10 @@ def test_stationarity(sequence, parts=3, sim_stationary=1000, plot=False):
         # Normalize rows to ensure they sum up to 1
         row_sums = emp_m.sum(axis=1, keepdims=True)
         emp_m /= row_sums
+        emp_m_t1 = np.sum(emp_m, axis=0)
+        if 0 in emp_m_t1:
+            print('This should not happen!!!')
+        emp_m = emp_m / emp_m_t1
         emp_transition_matrices.append(emp_m)
 
     # calculate frobenius norms between the empirical transition matrices

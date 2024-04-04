@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 from ncmcm.classes import *
+from sklearn.manifold import TSNE
 
 
 class TestVisualizerMethods(unittest.TestCase):
@@ -56,7 +57,7 @@ class TestVisualizerMethods(unittest.TestCase):
         self.assertFalse(result)
 
     def test_make_comparison_more_transformed_points(self):
-        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), binary=False)
+        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), ensemble=False)
         self.visualizer.transformed_points = np.random.rand(3, 20)
         with unittest.mock.patch('builtins.print') as mock_print:
             result = self.visualizer.make_comparison()
@@ -64,7 +65,7 @@ class TestVisualizerMethods(unittest.TestCase):
                 'The prediction has fewer points than the true labels. Therefore 10 points are not plotted and also not used for accuracy calculation of the model')
         self.assertTrue(result)
 
-        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), binary=True)
+        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), ensemble=True)
         self.visualizer.transformed_points = np.random.rand(3, 40)
         with unittest.mock.patch('builtins.print') as mock_print:
             result = self.visualizer.make_comparison()
@@ -73,19 +74,19 @@ class TestVisualizerMethods(unittest.TestCase):
         self.assertTrue(result)
 
     def test_make_comparison_success(self):
-        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), binary=False)
+        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), ensemble=False)
         self.visualizer.transformed_points = np.random.rand(3, 10)
         result = self.visualizer.make_comparison()
         self.assertTrue(result)
 
-        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), binary=True)
+        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), ensemble=True)
         self.visualizer.transformed_points = np.random.rand(3, 10)
         result = self.visualizer.make_comparison()
         self.assertTrue(result)
 
     def test_make_comparison_failure(self):
         # If transformed_points shape is not (3, N), it should print an error message and return False
-        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), binary=False)
+        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), ensemble=False)
         self.visualizer.transformed_points = np.random.rand(2, 10)
         with unittest.mock.patch('builtins.print') as mock_print:
             result = self.visualizer.make_comparison()
@@ -93,7 +94,7 @@ class TestVisualizerMethods(unittest.TestCase):
         self.assertFalse(result)
 
         # If transformed_points shape is not (3, N), it should print an error message and return False
-        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), binary=True)
+        self.visualizer.data.fit_model(LogisticRegression(max_iter=1000), ensemble=True)
         self.visualizer.transformed_points = np.random.rand(2, 10)
         with unittest.mock.patch('builtins.print') as mock_print:
             result = self.visualizer.make_comparison()

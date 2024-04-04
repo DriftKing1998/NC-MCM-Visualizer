@@ -81,7 +81,7 @@ class BundDLeNetTrainer:
         self.optimizer = optimizer
 
     @tf.function
-    def train_step(self, x_train, b_train_1, discrete=True):
+    def train_step(self, x_train, b_train_1, gamma, discrete=True):
         with tf.GradientTape() as tape:
             yt1_upper, yt1_lower, bt1_upper = self.model(x_train, training=True)
             DCC_loss, behaviour_loss, total_loss = bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma, discrete=discrete)

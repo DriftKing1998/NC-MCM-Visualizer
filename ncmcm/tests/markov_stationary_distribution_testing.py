@@ -1,5 +1,7 @@
 from ncmcm.classes import *
+import os
 
+os.chdir('..')
 
 def two_step_test(sequence, ax):
     half = int(np.floor(len(sequence) / 2))
@@ -131,9 +133,9 @@ data.exclude_neurons(b_neurons)
 
 # Adding prediction Model & Cluster BPT
 logreg = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=1000)
-data.fit_model(logreg, binary=True)
-nrcluster = 16
-data.cluster_BPT(nrep=10, max_clusters=nrcluster, plot_markov=False, sim_m=500)
+data.fit_model(logreg, ensemble=True)
+nrcluster = 4
+data.cluster_BPT(nrep=3, max_clusters=nrcluster, plot_markov=False, sim_m=500)
 
 best_clusterings = []
 for i in range(nrcluster):

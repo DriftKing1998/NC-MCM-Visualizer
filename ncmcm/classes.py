@@ -11,6 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.cluster import KMeans, SpectralClustering
+from sklearn.model_selection import cross_val_score
 import matplotlib.animation as anim  # FuncAnimation
 from sklearn.base import clone
 import networkx as nx
@@ -54,9 +55,10 @@ class Database:
                  neuron_traces: Union[List[List[float]], np.ndarray],
                  behavior: Union[List[int], List[str], np.ndarray],
                  neuron_names: Optional[Union[List[str], np.ndarray]] = None,
-                 states: Optional[Union[List[str], np.ndarray]] = None,
+                 behavioral_states: Optional[Union[List[str], np.ndarray]] = None,
                  fps: float = None,
-                 name: str = 'nc-mcm'):
+                 name: str = 'nc-mcm',
+                 colors: int = None):
 
         """
         Reads in the data preferably as numpy arrays or Python-lists. If the behavior array consists of strings, a
@@ -72,14 +74,17 @@ class Database:
         :param neuron_names: Defines which CSV files will be read.
         :type neuron_names: int
 
-        :param states: Defines which CSV files will be read.
-        :type states: int
+        :param behavioral_states: Defines which CSV files will be read.
+        :type behavioral_states: int
 
         :param fps: Defines which CSV files will be read.
         :type fps: int
 
         :param name: Separator to split the CSV files.
         :type name: string
+
+        :param colors: If given will select one of three color spectra.
+        :type colors: int
         """
 
         self.neuron_traces = np.asarray(neuron_traces)
@@ -94,7 +99,7 @@ class Database:
             self.states = np.asarray(blabs).astype(str)
         else:
             self.B = behavior
-            self.states = states
+            self.states = behavioral_states
         # If no Neuron Names are given, they are generated
         if neuron_names is None:
             self.neuron_names = np.asarray(range(self.neuron_traces.shape[0])).astype(str)
@@ -102,21 +107,23 @@ class Database:
             self.neuron_names = np.asarray(neuron_names)
 
         # If no State Names are given, they are generated
-        if states is None:
+        if behavioral_states is None:
             print('State-names are created from behavior-labels. Translation is accessed by\'self.states\'.')
             newB, blabs = make_integer_list(self.B)
             self.states = np.asarray(blabs).astype(str)
         else:
-            self.states = np.asarray(states)
+            self.states = np.asarray(behavioral_states)
 
         self.pred_model = None
+        self.cv_scores = None
         self.B_pred = None
         self.yp_map = None
         self.p_memoryless = None
         self.p_stationary = None
         self.xc = None
 
-        self.colordict = dict(zip(np.unique(self.B), generate_equidistant_colors(len(self.states))))
+        self.spectrum = colors
+        self.colordict = dict(zip(np.unique(self.B), generate_equidistant_colors(len(self.states), color=self.spectrum)))
         self.colors = [self.colordict[val] for val in self.B]
 
         if self.B.shape[0] != self.neuron_traces.shape[1] or self.neuron_names.shape[0] != self.neuron_traces.shape[0]:
@@ -125,6 +132,14 @@ class Database:
                   f'{self.neuron_traces.shape[1]}')
             print(f'Or Neuron-names {self.neuron_names.shape[0]} are not the same length as neurons were recorded '
                   f'{self.neuron_traces.shape[0]}')
+
+    def set_colors(self, new_colors):
+        if len(new_colors) == len(self.colordict):
+            self.colordict = dict(zip(np.unique(self.B), new_colors))
+            self.colors = [self.colordict[val] for val in self.B]
+        else:
+            print(
+                f'The size of the colors and different labels do not match!\n{len(new_colors)} != {len(self.colordict)}')
 
     def exclude_neurons(self,
                         exclude_neurons):
@@ -219,14 +234,14 @@ class Database:
         return vs
 
     def loadBundDLeVisualizer(self,
-                              weights_path=None,
+                              weights_path,
                               l_dim=3,
                               window=15,
                               use_predictor=True):
         """
-        Takes a path to the weights (standard directory = /data/generated/BundDLeNet_model_<name>) and parameters for a
-        BundDLeNet (l_dim, window) which will be created and the weights will be laoded in. One can also choose if the
-        predictor of the BundDLeNet or the model form the Database-object will be used (if present).
+        Takes a path to the weights and parameters for a BundDLeNet (l_dim, window) which will be created and the
+        weights will be loaded in. One can also choose if the predictor of the BundDLeNet or the model form the
+        Database-object will be used (if present).
 
         :param weights_path: A path to the "directory + name of the weights file"
         :type weights_path: string
@@ -250,10 +265,7 @@ class Database:
         model.build(input_shape=X_.shape)
 
         try:
-            if weights_path is None:
-                model.load_weights('data/generated/BundDLeNet_model_' + self.name)
-            else:
-                model.load_weights(weights_path)
+            model.load_weights(weights_path)
         except Exception as e:
             print(f'Error {e}! No such file.')
             return None
@@ -264,7 +276,7 @@ class Database:
         vs.model = model
         vs.tau_model = model.tau
         vs.bn_tau = True
-        # I need to do this later, since X_ is not defined yet
+        # I need to do this here, since X_ is not defined yet
         vs._transform_points(vs.mapping)
         if use_predictor:
             vs.useBundDLePredictor()
@@ -275,7 +287,8 @@ class Database:
     def fit_model(self,
                   base_model,
                   prob_map=True,
-                  binary=True):
+                  ensemble=True,
+                  cv_folds=0):
         """
         Allows to fit a model which is used to predict behaviors from the neuron traces (accuracy is printed). Its
         probabilities are used for an eventual clustering.
@@ -285,8 +298,10 @@ class Database:
         :param prob_map: A boolean indicating if a probability map is created for each frame. This is used in the
         behavioral probability trajectory clustering (.cluster_BPT()).
 
-        :param binary: A boolean indicating if the CustomEnsembleModel should be created. It makes a set of models for
+        :param ensemble: A boolean indicating if the CustomEnsembleModel should be created. It makes a set of models for
         each behavior, to differentiate it from each of the others behaviors.
+
+        :param cv_folds: If cross validation should be applied, this signals the amount of cross-folds.
 
         :return: Boolean success indicator
         """
@@ -294,19 +309,81 @@ class Database:
             print('Model has no method \'fit\'.')
             return False
 
-        # For a binary regression by hand
-        if binary:
-            self.pred_model = CustomEnsembleModel(base_model).fit(self.neuron_traces.T, self.B)
-        # For a multiclass regression
+        if ensemble:
+            self.pred_model = CustomEnsembleModel(base_model)
         else:
-            self.pred_model = base_model.fit(self.neuron_traces.T, self.B)
+            self.pred_model = base_model
 
+        if cv_folds and type(cv_folds) is int:
+            self.cv_scores = cross_val_score(self.pred_model, self.neuron_traces.T, self.B, cv=cv_folds, scoring='accuracy')  # 5-fold cross-validation
+            print(f'Mean cross-validation results for {cv_folds} folds:\n'
+                  f'\tMean: {np.mean(self.cv_scores)}\n'
+                  f'The full scores can be accessed by \'self.cv_scores\'')
+
+        self.pred_model.fit(self.neuron_traces.T, self.B)
         self.B_pred = np.asarray(self.pred_model.predict(self.neuron_traces.T))
-        print("Accuracy:", accuracy_score(self.B, self.B_pred))
+        print("Accuracy for full training data:", accuracy_score(self.B, self.B_pred))
         if prob_map:
             # get probabilities and weights
             self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
-            print(f'Probability map has shape: {self.yp_map.shape}')
+        return True
+
+    def _test_clusters(self,
+                       nclusters,
+                       reps,
+                       kmeans_init,
+                       clustering,
+                       chunks,
+                       sim_m,
+                       sim_s,
+                       stationary):
+        # Clustering in probability space
+        if clustering == 'kmeans':
+            clusters = KMeans(n_clusters=nclusters, n_init=kmeans_init).fit(self.yp_map)
+            xctmp = clusters.labels_
+        elif clustering == 'spectral':
+            clusters = SpectralClustering(n_clusters=nclusters).fit(self.yp_map)
+            xctmp = clusters.row_labels_
+        else:
+            raise ValueError("Invalid value for 'clustering' parameter. "
+                             "It should be either 'kmeans' or 'spectral'. ")
+
+        p, _ = markovian(xctmp, sim_memoryless=sim_m)
+        self.p_memoryless[nclusters - 1, reps] = p
+
+        if stationary:
+            _, p_adj_s = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
+            self.p_stationary[nclusters - 1, reps] = p_adj_s
+
+        self.xc[:, nclusters - 1, reps] = xctmp
+
+    def cluster_BPT_single(self,
+                           nclusters,
+                           nrep=200,
+                           sim_m=500,
+                           sim_s=500,
+                           chunks=7,
+                           clustering='kmeans',
+                           kmeans_init='auto',
+                           stationary=False):
+        if self.yp_map is None:
+            print(f'You first need to fit a model (eg. Logistic Regression), '
+                  f'which will be used to map to behavioral probability trajectories.\n'
+                  f'Use \'.fit_model(<your_model>)\' on this instance before.')
+            return False
+        M = self.yp_map.shape[0]
+
+        if (self.p_memoryless is None or
+                self.p_memoryless.shape[0] < nclusters or
+                self.p_memoryless.shape[1] < nrep):
+            print('Creating new')
+            self.p_memoryless = np.zeros((nclusters, nrep))
+            self.p_stationary = np.zeros((nclusters, nrep))
+            self.xc = np.zeros((M, nclusters, nrep))
+
+        for reps in range(nrep):
+            print(f'Testing markovianity for {nclusters} clusters - repetition {reps + 1}')
+            self._test_clusters(nclusters, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary)
         return True
 
     def cluster_BPT(self,
@@ -314,7 +391,7 @@ class Database:
                     max_clusters=20,
                     sim_m=500,
                     sim_s=500,
-                    chunks=7,
+                    chunks=None,
                     clustering='kmeans',
                     kmeans_init='auto',
                     plot_markov=True,
@@ -363,25 +440,7 @@ class Database:
         for reps in range(nrep):
             print("Testing markovianity - repetition ", reps + 1)
             for nrclusters in range(max_clusters):
-                # Clustering in probability space
-                if clustering == 'kmeans':
-                    clusters = KMeans(n_clusters=nrclusters + 1, n_init=kmeans_init).fit(self.yp_map)
-                    xctmp = clusters.labels_
-                elif clustering == 'spectral':
-                    clusters = SpectralClustering(n_clusters=nrclusters + 1).fit(self.yp_map)
-                    xctmp = clusters.row_labels_
-                else:
-                    raise ValueError("Invalid value for 'clustering' parameter. "
-                                     "It should be either 'kmeans' or 'spectral'. ")
-
-                p, _ = markovian(xctmp, sim_memoryless=sim_m)
-                self.p_memoryless[nrclusters, reps] = p
-
-                if stationary:
-                    _, p_adj_s = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
-                    self.p_stationary[nrclusters, reps] = p_adj_s
-
-                self.xc[:, nrclusters, reps] = xctmp
+                self._test_clusters(nrclusters+1, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary)
 
         if plot_markov:
             self._plot_markov(stationary)
@@ -400,6 +459,7 @@ class Database:
         boxplot_m['boxes'][0].set_label(box_label_m)
         # Plotting Stationarity if wanted
         if stationary:
+            print('hello')
             data_s = self.p_stationary[:, :].T
             boxplot_s = ax.boxplot(data_s, patch_artist=True, boxprops=dict(facecolor='salmon', edgecolor='red'))
             box_label_s = 'not Stationary'
@@ -450,8 +510,8 @@ class Database:
         """
         if self.p_memoryless is None or self.p_memoryless.shape[0] < clusters:
             print('There were no BPT-clusterings computed. It will be done now...')
-            self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), binary=True)
-            self.cluster_BPT(nrep=nrep, max_clusters=clusters, sim_m=sim_m, sim_s=sim_s, plot_markov=False)
+            self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), ensemble=True)
+            self.cluster_BPT_single(nrep=nrep, nclusters=clusters, sim_m=sim_m, sim_s=sim_s)
 
         # Neuronal trajectories preprocessing
         fig, ax = plt.subplots(2, 2, figsize=(16, 8))
@@ -468,7 +528,7 @@ class Database:
         pca = PCA(n_components=2)
         plot_values = pca.fit_transform(self.yp_map)
         x_bpt, y_bpt = plot_values.T
-        colordict_cog = dict(zip(list(range(clusters)), generate_equidistant_colors(clusters)))
+        colordict_cog = dict(zip(list(range(clusters)), generate_equidistant_colors(clusters, color=self.spectrum)))
         best_clustering_idx = np.argmax(self.p_memoryless[clusters - 1, :])  # according to mr.markov himself
         best_clustering = self.xc[:, clusters - 1, best_clustering_idx].astype(int)
         cog_colors = [colordict_cog[l] for l in best_clustering]
@@ -521,9 +581,9 @@ class Database:
                                  cog_stat_num=3,
                                  threshold=None,
                                  offset=2.5,
-                                 adj_matrix=True,
+                                 adj_matrix=False,
                                  show=True,
-                                 save=True,
+                                 save=False,
                                  interactive=False,
                                  clustering_rep=None):
         """
@@ -555,39 +615,37 @@ class Database:
             threshold = 1 / (500 * cog_stat_num)
             print('Calcualted threshold is: ', threshold)
         # make the graph
-        G = nx.DiGraph()
+        G_old = nx.DiGraph()
         node_colors = list(self.colordict.values()) * cog_stat_num
 
         T, cog_beh_states = adj_matrix_ncmcm(self, cog_stat_num=cog_stat_num, clustering_rep=clustering_rep)
-        G.add_nodes_from(cog_beh_states)
+        G_old.add_nodes_from(cog_beh_states)
 
         # adding edges
         for idx1, n1 in enumerate(cog_beh_states):
             for idx2, n2 in enumerate(cog_beh_states):
                 if n1 != n2:
                     if T[idx1, idx2] > threshold:
-                        G.add_edge(n1, n2, weight=T[idx1, idx2] * 1000)
+                        G_old.add_edge(n1, n2, weight=T[idx1, idx2] * 1000)
 
-        edge_colors = [node_colors[np.where(cog_beh_states == u)[0][0]] for u, v in G.edges()]
+        edge_colors = [node_colors[np.where(cog_beh_states == u)[0][0]] for u, v in G_old.edges()]
         node_sizes = np.diag(T) * 500 * (np.sqrt(T.shape[0]) / offset)
-        mapping = {node: self.map_names(str(node)) for node in G.nodes()}
+        mapping = {node: self.map_names(str(node)) for node in G_old.nodes()}
 
-        G = nx.relabel_nodes(G, mapping)
+        G = nx.relabel_nodes(G_old, mapping)
 
         if adj_matrix:
             fig, ax = plt.subplots(1, 2)
             ax_a = ax[0]
             ax_g = ax[1]
-            ax_a.imshow(T, cmap='Reds', interpolation='nearest', vmin=0, vmax=0.03)
-            ax_a.title('Adjacency Matrix Heatmap')
-            ax_a.colorbar()
-            ax_a.yticks(np.arange(T.shape[0]), G.nodes)
-            ax_a.xlabel('Nodes')
-            ax_a.ylabel('Nodes')
-            #plt.show()
+            im_a = ax_a.imshow(T, cmap='Reds', interpolation='nearest', vmin=0, vmax=0.03)
+            ax_a.set_title('Adjacency Matrix Heatmap')
+            plt.colorbar(im_a, ax=ax_a)
+            ax_a.set_yticks(np.arange(T.shape[0]), G.nodes)
+            ax_a.set_xlabel('Nodes')
+            ax_a.set_ylabel('Nodes')
         else:
             fig, ax_g = plt.subplots()
-
 
         cog_groups = []
         for c_num in range(cog_stat_num):
@@ -632,8 +690,8 @@ class Database:
                     edge_color=edge_colors)
             plt.title("Behavioral State Diagram")
             name = str(input('File name for the plot? '))
-            plt.savefig(f'data/plots/{name}Mouse.png', format='png')
-            print(f'Plot has been saved under: data/plots/{name}Mouse.png')
+            plt.savefig(f'{name}.png', format='png')
+            print(f'Plot has been saved under: {os.getcwd()}/{name}.png')
             plt.close()
         # This right here will create the interactive HTML plot
         if interactive:
@@ -641,17 +699,23 @@ class Database:
                           # select_menu=True,  # Show part 1 in the plot (optional)
                           )
             net.from_nx(G)
-            for node in net.nodes:
+            for idx, node in enumerate(net.nodes):
                 c, b = node['id'].split(':')
                 c_int = int(c[1:]) - 1
                 b_int = np.where(np.asarray(self.states) == b)[0][0]
+                n_idx = (len(self.states) * c_int + b_int)
                 r, g, b = self.colordict[b_int]
                 node['color'] = f'rgb({r * 255},{g * 255},{b * 255})'
-                node['size'] = np.sqrt(node_sizes[c_int * (len(self.states)) + b_int])
+                node['size'] = np.sqrt(node_sizes[n_idx])
+                new = {name: int(T[n_idx, i]*(len(self.B) - 1)) for i, name in enumerate(G.nodes)}
+                node['title'] = ''.join(f'{k}:{v}\n' for k, v in new.items() if v > 0)
+
+            net.show_buttons(['physics'])
 
             name = str(input('File name for the html-plot? '))
-            net.show(f'data/plots/{name}.html', notebook=False)
-            print(f'Plot has been saved under: data/plots/{name}.html')
+            net.show(f'{name}.html', notebook=False)
+            #net.show(f'data/plots/{name}.html', notebook=False)
+            print(f'Plot has been saved under: {os.getcwd()}/{name}.html')
         return True
 
     def map_names(self,
@@ -662,9 +726,9 @@ class Database:
         new_name = f'C{name[:-2]}:{self.states[int(name[-2:])]}'
         return new_name
 
-    def plotting_neuronal_behavioural(self,
-                                      vmin=0,
-                                      vmax=2):
+    def plotting_neuronal_behavioral(self,
+                                     vmin=0,
+                                     vmax=2):
         """
         Plots neuronal data and behavioral data as a timeseries.
         :param vmin: minimal value for neuronal data values
@@ -729,7 +793,7 @@ class Database:
 class Visualizer():
 
     def __init__(self,
-                 Data: Database,
+                 data: Database,
                  mapping,
                  transform=True):
         """
@@ -744,7 +808,7 @@ class Visualizer():
         """
 
         # Setting Attributes
-        self.data = Data
+        self.data = data
         self.X_ = None
         self.B_ = None
         # Mapping
@@ -819,12 +883,13 @@ class Visualizer():
         if quivers:
             ax = self._add_quivers3D(ax, *self.transformed_points, colors=self.data.colors[self.window:], draw=draw)
         else:
-            ax.scatter(*self.transformed_points, label=self.data.states, color=self.data.colors[self.window:], s=1, alpha=draw)
+            ax.scatter(*self.transformed_points, label=self.data.states, color=self.data.colors[self.window:], s=1,
+                       alpha=draw)
 
         # plot the legend if wanted
         if show_legend:
             legend_elements = self._generate_legend(self.data.B)
-            ax.legend(handles=legend_elements, fontsize='small', loc='lower center', bbox_to_anchor=[1,0])
+            ax.legend(handles=legend_elements, fontsize='small', loc='lower center', bbox_to_anchor=[1, 0])
         else:
             legend_elements = False
 
@@ -949,17 +1014,17 @@ class Visualizer():
         # Create dictionary to count different predictions for each label
         self.diff_label_counts = {l: {state: 0 for state in self.data.states} for l in np.unique(self.data.B)}
         for idx, wrong_predict in enumerate(diff_predict):
-            pred_label = self.data.B_pred[idx+window_pred_trans]
-            true_label = self.data.B[idx+window_true_trans]
+            pred_label = self.data.B_pred[idx + window_pred_trans]
+            true_label = self.data.B[idx + window_true_trans]
             if wrong_predict > -1:
                 self.diff_label_counts[true_label][self.data.states[pred_label]] += 1
 
     def attachBundDLeNet(self,
-                        l_dim=3,
-                        epochs=2000,
-                        window=15,
-                        train=True,
-                        use_predictor=True):
+                         l_dim=3,
+                         epochs=2000,
+                         window=15,
+                         train=True,
+                         use_predictor=True):
         """
         Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations and if
         indicated the predictor will be used as a prediction model for visualizations.
@@ -1062,11 +1127,11 @@ class Visualizer():
         """
         if self.bn_tau:
             names = np.asarray([f'axis{i}' for i in range(self.transformed_points.shape[0])])
-            print('X', self.transformed_points.shape)
-            print('Y', self.B_.shape)
+            print('New X has shape: ', self.transformed_points.shape)
+            print('New Y have shape: ', self.B_.shape)
             Y = self.B_
-            print('Y-names', self.data.states.shape)
-            print('X-names', names.shape)
+            print('New Y-names have shape: ', self.data.states.shape)
+            print('New X-names have shape: ', names.shape)
 
         elif self.transformed_points is not None:
             print('WARNING! No BundDLeNet!')
@@ -1224,7 +1289,7 @@ class Visualizer():
         self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.data.states[self.data.B[frame]]}')
 
         if legend_elements:
-            self.movie_ax.legend(handles=legend_elements, loc='lower center', bbox_to_anchor=[1,0])
+            self.movie_ax.legend(handles=legend_elements, loc='lower center', bbox_to_anchor=[1, 0])
 
         if not grid_off:
             self.movie_ax.set_xlabel('Axes 1')
@@ -1254,8 +1319,10 @@ class Visualizer():
         else:
             print('This may take a while...')
             # self.movie_ax.remove()
-
-            path = 'movies/' + name + '.gif'
+            if name.split('.')[-1] == '.gif':
+                path = name
+            else:
+                path = name + '.gif'
             gif_writer = anim.PillowWriter(fps=int(1000 / self.interval), metadata=dict(artist='Me'), bitrate=bitrate)
             self.animation.save(path, writer=gif_writer, dpi=dpi)
 
@@ -1271,7 +1338,8 @@ class Visualizer():
             B_pred_new = np.argmax(Bt1_upper, axis=1).astype(int)
             self.data.pred_model = self.model
             self.data.B_pred = B_pred_new
-            print(f'Accuracy of BundDLeNet: {round(accuracy_score(self.data.B[self.X_.shape[2]:], self.data.B_pred), 3)}')
+            print(
+                f'Accuracy of BundDLeNet: {round(accuracy_score(self.data.B[self.X_.shape[2]:], self.data.B_pred), 3)}')
 
             return True
         else:
@@ -1279,7 +1347,7 @@ class Visualizer():
             return False
 
     def make_comparison(self,
-                        show_legend=False,
+                        show_legend=True,
                         quivers=True):
         """
         Creates a comparison plot between the True labels and the prediction model which is added/selected. The legend
@@ -1296,9 +1364,9 @@ class Visualizer():
             return False
 
         if self.data.pred_model is None:
-                print('There was no prediction model attached to the Database-object. Either use fit_model on the '
-                      'Database object or use useBundDLePredictor on the Visualizer if you attached a BundDLeNet')
-                return False
+            print('There was no prediction model attached to the Database-object. Either use fit_model on the '
+                  'Database object or use useBundDLePredictor on the Visualizer if you attached a BundDLeNet')
+            return False
 
         # Creating differences in lengths needed for correct plotting of the model/mapping
         reform = False
@@ -1334,7 +1402,8 @@ class Visualizer():
         if quivers:
             ax1 = self._add_quivers3D(ax1, *self.transformed_points, colors=self.data.colors[window_true_trans:])
         else:
-            ax1.scatter(*self.transformed_points, label=self.data.states, s=1, alpha=0.5, color=self.data.colors[window_true_trans:])
+            ax1.scatter(*self.transformed_points, label=self.data.states, s=1, alpha=0.5,
+                        color=self.data.colors[window_true_trans:])
         ax1.set_title(f'True Label')
 
         # Difference
@@ -1381,19 +1450,20 @@ class Visualizer():
         fig.suptitle(f'{self.transformed_points.shape[1]} Frames',
                      fontsize='x-large',
                      fontweight='bold')
-        plt.show()
+        #plt.show()
         if len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:]) > 0:
-            print(f'Some points {len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:])} used for accuracy calculation of '
-                  f'the model are not plotted, since the mapping does not include them.')
+            print(
+                f'Some points {len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:])} used for accuracy calculation of '
+                f'the model are not plotted, since the mapping does not include them.')
 
         if reform:
             self._transform_points(self.mapping)
         return True
 
     def save_weights(self,
-                     path=None):
+                     path):
         """
-        Saves the weights of the BundDLeNet to a given path or as "data/generated/BundDLeNet_model_ + self.data.name"
+        Saves the weights of the BundDLeNet to a given path
 
         :param path: Relative path in the NeuronVisualizer directory with the file name attached.
         :type path: str
@@ -1401,14 +1471,10 @@ class Visualizer():
         :return: Boolean success indicator
         """
         if self.model is not None:
-            if path is None:
-                self.model.save_weights('data/generated/BundDLeNet_model_' + self.data.name)
-                return True
-            else:
-                self.model.save_weights(path)
-                return True
+            self.model.save_weights(path)
+            return True
         else:
-            print('No Model created yet.')
+            print('No BundDLe-Net created yet.')
             return False
 
 
@@ -1461,3 +1527,9 @@ class CustomEnsembleModel:
             prob = model.predict_proba(neuron_traces)[:, 0]
             y_prob_map[:, idx] = prob
         return y_prob_map
+
+    def classify(self, inputs):
+        return np.sign(self.predict(inputs))
+
+    def get_params(self, deep=False):
+        return {'base_model': self.base_model}

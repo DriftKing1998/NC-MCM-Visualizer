@@ -20,10 +20,9 @@ data.exclude_neurons(b_neurons)
 
 # Adding prediction Model & Cluster BPT
 logreg = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=1000)
-data.fit_model(logreg, binary=True)
+data.fit_model(logreg, ensemble=True)
 
 data.cluster_BPT(nrep=10, max_clusters=20, plot_markov=False)
-
 
 def test_params_s(axes, parts=10, reps=3, N_states=10):
     print(f'For {N_states} Clusters!')
