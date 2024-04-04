@@ -9,10 +9,10 @@ def test_params_s(axes, reps, N_states):
     print(f'For {N_states} Clusters!')
     result = np.zeros((4, reps))
     for i in range(reps):
-        true_seq = generate_markov_process(M=10000, N=N_states, order=1)
-        rand_seq = simulate_random_sequence(M=10000, N=N_states)
-        lag2_seq = generate_markov_process(M=10000, N=N_states, order=2)
-        not_stat = non_stationary_process(M=10000, N=N_states, changes=10)
+        true_seq = generate_markov_process(M=5000, N=N_states, order=1)
+        rand_seq = simulate_random_sequence(M=5000, N=N_states)
+        lag2_seq = generate_markov_process(M=5000, N=N_states, order=2)
+        not_stat = non_stationary_process(M=5000, N=N_states, changes=10)
 
         x, adj_x = test_stationarity(true_seq, plot=False, sim_stationary=800)
         y, adj_y = test_stationarity(rand_seq, plot=False, sim_stationary=800)

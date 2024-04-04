@@ -1449,7 +1449,7 @@ class Visualizer():
         fig.suptitle(f'{self.transformed_points.shape[1]} Frames',
                      fontsize='x-large',
                      fontweight='bold')
-        plt.show()
+        #plt.show()
         if len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:]) > 0:
             print(
                 f'Some points {len(self.data.B_pred) - len(self.data.B_pred[window_pred_trans:])} used for accuracy calculation of '
