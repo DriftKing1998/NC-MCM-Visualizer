@@ -179,7 +179,7 @@ def simulate_markovian(M, P=np.array([]), N=1):
     return z, P
 
 
-def test_stationarity(sequence, parts=None, sim_stationary=1000, plot=False):
+def test_stationarity(sequence, chunks=None, sim_stationary=1000, plot=False):
     """
         Test stationarity in input sequence.
 
@@ -200,24 +200,24 @@ def test_stationarity(sequence, parts=None, sim_stationary=1000, plot=False):
         transition = (sequence[i], sequence[i + 1])
         transition_dict[sequence[i]].append(transition)
 
-    if parts is None:
+    if chunks is None:
         min_length = min(len(lst) for lst in transition_dict.values())
         # approximate amount of transitions to each state from the least populated state
         per_state = min_length/num_states
         purposed_parts = max(2, int(per_state ** 0.5) + 1)
         print(f'We purpose {purposed_parts} parts')
-        parts = purposed_parts
+        chunks = purposed_parts
 
     # Split each type of transition for each state into parts
-    chunks = [[] for _ in range(parts)]
+    chunks = [[] for _ in range(chunks)]
     for state, transitions in transition_dict.items():
         # random.shuffle(transitions)
-        state_chunk_length = len(transitions) // parts
-        for p in range(parts - 1):
+        state_chunk_length = len(transitions) // chunks
+        for p in range(chunks - 1):
             start = int(state_chunk_length * p)
             end = int(state_chunk_length * (1 + p))
             chunks[p] += transitions[start:end]
-        chunks[parts - 1] += transitions[int(state_chunk_length * (parts - 1)):]
+        chunks[chunks - 1] += transitions[int(state_chunk_length * (chunks - 1)):]
 
     # Making test statistic
     test_stats = []
@@ -238,11 +238,12 @@ def test_stationarity(sequence, parts=None, sim_stationary=1000, plot=False):
         for t in c:
             emp_m[t[0], t[1]] += 1
         # Normalize rows to ensure they sum up to 1
+        if 0 in emp_m:
+            print('We fill 0 in the transition matrix with very small values.')
+            emp_m[emp_m == 0] = 1e-8
         row_sums = emp_m.sum(axis=1, keepdims=True)
         emp_m /= row_sums
         emp_m_t1 = np.sum(emp_m, axis=0)
-        if 0 in emp_m_t1:
-            print('This should not happen!!!')
         emp_m = emp_m / emp_m_t1
         emp_transition_matrices.append(emp_m)
 
@@ -528,9 +529,9 @@ def test_params_s(axes, parts=10, reps=3, N_states=10, M=3000, sim_s=400, sequen
             rand_seq = simulate_random_sequence(M=M, N=N_states)
             not_stat = non_stationary_process(M=M, N=N_states, changes=10)
 
-            x, adj_x = test_stationarity(true_seq, parts=p + 2, plot=plot_markov, sim_stationary=sim_s)
-            y, adj_y = test_stationarity(rand_seq, parts=p + 2, plot=False, sim_stationary=sim_s)
-            a, adj_a = test_stationarity(not_stat, parts=p + 2, plot=False, sim_stationary=sim_s)
+            x, adj_x = test_stationarity(true_seq, chunks=p + 2, plot=plot_markov, sim_stationary=sim_s)
+            y, adj_y = test_stationarity(rand_seq, chunks=p + 2, plot=False, sim_stationary=sim_s)
+            a, adj_a = test_stationarity(not_stat, chunks=p + 2, plot=False, sim_stationary=sim_s)
 
             result[0, p, i] = np.mean(adj_x)
             result[1, p, i] = np.mean(adj_y)

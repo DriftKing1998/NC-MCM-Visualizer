@@ -37,11 +37,11 @@ def test_params_s(axes, parts=10, reps=3, N_states=10):
             lag2_seq = generate_markov_process(M=3000, N=N_states, order=2)
             not_stat = non_stationary_process(M=3000, N=N_states, changes=10)
 
-            x, adj_x = test_stationarity(true_seq, parts=p + 2, plot=False, sim_stationary=800)
-            y, adj_y = test_stationarity(rand_seq, parts=p + 2, plot=False, sim_stationary=800)
-            z, adj_z = test_stationarity(lag2_seq, parts=p + 2, plot=False, sim_stationary=800)
-            a, adj_a = test_stationarity(not_stat, parts=p + 2, plot=False, sim_stationary=800)
-            b, adj_b = test_stationarity(worm_seq, parts=p + 2, plot=False, sim_stationary=800)
+            x, adj_x = test_stationarity(true_seq, chunks=p + 2, plot=False, sim_stationary=800)
+            y, adj_y = test_stationarity(rand_seq, chunks=p + 2, plot=False, sim_stationary=800)
+            z, adj_z = test_stationarity(lag2_seq, chunks=p + 2, plot=False, sim_stationary=800)
+            a, adj_a = test_stationarity(not_stat, chunks=p + 2, plot=False, sim_stationary=800)
+            b, adj_b = test_stationarity(worm_seq, chunks=p + 2, plot=False, sim_stationary=800)
 
             result[0, p, i] = np.mean(adj_x)
             result[1, p, i] = np.mean(adj_y)

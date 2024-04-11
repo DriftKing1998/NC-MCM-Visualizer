@@ -9,10 +9,10 @@ def test_params_m(axes, reps=3, N_states=10, sim_markov=200):
         print(f'Number of States {n + 1}')
         for i in range(reps):
             # true_seq, _ = simulate_markovian(M=1000, P=underlying_process)
-            true_seq = generate_markov_process(M=5000, N=n + 1, order=1)
-            rand_seq = simulate_random_sequence(M=5000, N=n + 1)
-            lag2_seq = generate_markov_process(M=5000, N=n + 1, order=2)
-            not_stat = non_stationary_process(M=5000, N=n + 1, changes=10)
+            true_seq = generate_markov_process(M=10000, N=n + 1, order=1)
+            rand_seq = simulate_random_sequence(M=10000, N=n + 1)
+            lag2_seq = generate_markov_process(M=10000, N=n + 1, order=2)
+            not_stat = non_stationary_process(M=10000, N=n + 1, changes=10)
 
             p_markov, _ = markovian(true_seq, sim_memoryless=sim_markov)
             p_random, _ = markovian(rand_seq, sim_memoryless=sim_markov)

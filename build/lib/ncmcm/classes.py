@@ -352,7 +352,7 @@ class Database:
         self.p_memoryless[nclusters - 1, reps] = p
 
         if stationary:
-            _, p_adj_s = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
+            _, p_adj_s = test_stationarity(xctmp, chunks=chunks, plot=False, sim_stationary=sim_s)
             self.p_stationary[nclusters - 1, reps] = p_adj_s
 
         self.xc[:, nclusters - 1, reps] = xctmp

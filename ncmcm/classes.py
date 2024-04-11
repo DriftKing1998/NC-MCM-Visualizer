@@ -352,7 +352,7 @@ class Database:
         self.p_memoryless[nclusters - 1, reps] = p
 
         if stationary:
-            _, p_adj_s = test_stationarity(xctmp, parts=chunks, plot=False, sim_stationary=sim_s)
+            _, p_adj_s = test_stationarity(xctmp, chunks=chunks, plot=False, sim_stationary=sim_s)
             self.p_stationary[nclusters - 1, reps] = p_adj_s
 
         self.xc[:, nclusters - 1, reps] = xctmp
@@ -465,7 +465,7 @@ class Database:
             box_label_s = 'not Stationary'
             boxplot_s['boxes'][0].set_label(box_label_s)
 
-        ax.set_title(f'Probability of being a Markov process for {self.name}')
+        ax.set_title(f'P-value for signs against the Markov property in the sequence of cognitive states')
         ax.set_xlabel('Number of States/Clusters')
         ax.set_ylabel('Probability')
         ax.axhline(0.05)
