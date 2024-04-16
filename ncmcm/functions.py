@@ -239,7 +239,7 @@ def test_stationarity(sequence, chunks=None, sim_stationary=1000, plot=False):
             emp_m[t[0], t[1]] += 1
         # Normalize rows to ensure they sum up to 1
         if 0 in emp_m:
-            print('We fill 0 in the transition matrix with very small values.')
+            # print('We fill 0 in the transition matrix with very small values.')
             emp_m[emp_m == 0] = 1e-8
         row_sums = emp_m.sum(axis=1, keepdims=True)
         emp_m /= row_sums
