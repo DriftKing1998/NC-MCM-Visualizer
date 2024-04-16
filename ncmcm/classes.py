@@ -440,6 +440,7 @@ class Database:
         for reps in range(nrep):
             print("Testing markovianity - repetition ", reps + 1)
             for nrclusters in range(max_clusters):
+                print(f'Clusters: {nrclusters}')
                 self._test_clusters(nrclusters+1, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary)
 
         if plot_markov:
@@ -1223,7 +1224,7 @@ class Visualizer():
         self._create_animation(show_legend=show_legend,
                                grid_off=grid_off,
                                quivers=quivers,
-                               draw=True)
+                               draw=draw)
         plt.show()
         if save:
             name = str(input('What should the movie be called?'))

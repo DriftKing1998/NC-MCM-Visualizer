@@ -209,15 +209,15 @@ def test_stationarity(sequence, chunks=None, sim_stationary=1000, plot=False):
         chunks = purposed_parts
 
     # Split each type of transition for each state into parts
-    chunks = [[] for _ in range(chunks)]
+    parts = [[] for _ in range(chunks)]
     for state, transitions in transition_dict.items():
         # random.shuffle(transitions)
         state_chunk_length = len(transitions) // chunks
         for p in range(chunks - 1):
             start = int(state_chunk_length * p)
             end = int(state_chunk_length * (1 + p))
-            chunks[p] += transitions[start:end]
-        chunks[chunks - 1] += transitions[int(state_chunk_length * (chunks - 1)):]
+            parts[p] += transitions[start:end]
+        parts[chunks - 1] += transitions[int(state_chunk_length * (chunks - 1)):]
 
     # Making test statistic
     test_stats = []
@@ -233,7 +233,7 @@ def test_stationarity(sequence, chunks=None, sim_stationary=1000, plot=False):
 
     # calculate the empirical transition matrices from the chunks
     emp_transition_matrices = []
-    for c in chunks:
+    for c in parts:
         emp_m = np.zeros((num_states, num_states))
         for t in c:
             emp_m[t[0], t[1]] += 1

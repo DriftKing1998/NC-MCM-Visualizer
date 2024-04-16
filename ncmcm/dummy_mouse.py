@@ -21,21 +21,6 @@ os.chdir('..')
 os.chdir('ncmcm')
 print(os.getcwd())
 
-
-worm_num = 3
-matlab = Loader(worm_num)
-data = Database(*matlab.data, name='Worm 3')
-#lg = LogisticRegression(max_iter=1000)
-#data.fit_model(lg, ensemble=True)
-data.step_plot()
-vs = data.createVisualizer(epochs=2000)
-vs.make_comparison()
-exit()
-data.cluster_BPT_single(nclusters=2, nrep=30, chunks=None)
-data.behavioral_state_diagram(cog_stat_num=2, interactive=True, adj_matrix=True)
-exit()
-
-
 ''' 
 This is data from the mouse brain.
 '''
@@ -45,46 +30,35 @@ filepath = "/Users/michaelhofer/Documents/Uni/Mouse_data/mouse_10/sub-10_ses-mou
 # Open the file in read mode "r", and specify the driver as "ros3" for S3 files
 io = NWBHDF5IO(filepath, mode="r", load_namespaces=True)
 nwbfile = io.read()
-#print(nwbfile.processing['ophys']['ImageSegmentation'])
-print(nwbfile)
-bhv = nwbfile.processing['behavior']
-different_data = list(bhv.data_interfaces.keys())
-t = bhv.data_interfaces['frame_aligned_position'].spatial_series['frame_aligned_forward_and_lateral_position'].data
-pos = bhv['frame_aligned_position']['frame_aligned_forward_and_lateral_position']
-vel = bhv['frame_to_verm_index_conversion']
-start = pos.data[2458,:]
-time = pos.timestamps
-
-# extract data from deconvolved_activity_plane_0 and
-imaging_timestamps_0 = nwbfile.processing['ophys']['deconvolved_activity_plane_0'].timestamps
-print(np.asarray(imaging_timestamps_0)[:15])
-
-deconv_0 = nwbfile.processing['ophys']['deconvolved_activity_plane_0'].data[:]
-df_0 = nwbfile.processing['ophys']['df_over_f_plane_0']['dF_over_F_plane_0'].data[:]
-x = nwbfile.processing['ophys']['df_over_f_plane_0']['dF_over_F_plane_0']
-print(type(x))
-print(imaging_timestamps_0.shape, deconv_0.shape, df_0.shape)
-print('\nChange in fluorescence (df/F) on plane 0 for each neuron (only 7 neurons & 3 timesteps shown)')
-print(pd.DataFrame(df_0).iloc[:, 0:7].head(3))
-print('\nDeconvolved neural activity (actual firing) on plane 0 for each neuron (only 7 neurons & 3 timesteps shown)')
-print(pd.DataFrame(deconv_0).iloc[:, 0:7].head(3))
-print('\nTimestamp of each recording (only 3 timesteps shown)')
-print(pd.DataFrame(imaging_timestamps_0).head(3))
-
 
 deconv_0 = nwbfile.processing['ophys']['deconvolved_activity_plane_0'].data[:]
 imaging_timestamps_0 = nwbfile.processing['ophys']['deconvolved_activity_plane_0'].timestamps
 
 print('Shape of neuronal data for each imaging Plane')
 print(deconv_0.T.shape) # Neurons | Timesteps
+proc = nwbfile.processing
+
+print(proc['behavior']['frame_aligned_position']['frame_aligned_forward_and_lateral_position'])
+print(imaging_timestamps_0.shape)
+bhv = proc['behavior']
 time_diffs_0 = np.diff(imaging_timestamps_0)
 mean_time_step_0 = np.mean(time_diffs_0)
+fps_0 = 1 / mean_time_step_0
+print(f'FPS {fps_0}')
+
 pos = bhv['frame_aligned_position']['frame_aligned_forward_and_lateral_position']
 
+# Assuming pos.data is a NumPy array with shape (188740, 2)
+# and imaging_timestamps is a NumPy array with shape (37748,)
+forward_threshold = 0.001
+lateral_threshold = 0.001
+
+# Initialize an empty array to store behaviors
 movements = np.zeros(imaging_timestamps_0.shape)
 
 # Loop through imaging timestamps and categorize behaviors
 for i, timestamp in enumerate(imaging_timestamps_0):
+    print(f'TIMESTAMP: {timestamp}')
     # Calculate the index directly from the pattern (every 5th index)
     index = i * 5
 
@@ -98,93 +72,66 @@ for i, timestamp in enumerate(imaging_timestamps_0):
     forward_change = forward_pos - prev_forward_pos
     lateral_change = lateral_pos - prev_lateral_pos
 
-    movements[i] = forward_change
+    # Categorize behaviors based on changes
+    if np.abs(forward_change) < forward_threshold and np.abs(lateral_change) < lateral_threshold:
+        movements[i] = 0
+    elif forward_change > forward_threshold:
+        if lateral_change > lateral_threshold:
+            movements[i] = 2
+        elif lateral_change < -lateral_threshold:
+            movements[i] = 3
+        else:
+            movements[i] = 1
+    elif forward_change < -forward_threshold:
+        if lateral_change > lateral_threshold:
+            movements[i] = 5
+        elif lateral_change < -lateral_threshold:
+            movements[i] = 6
+        else:
+            movements[i] = 4
 
-movements = (movements - np.nanmin(movements)) / (np.nanmax(movements) - np.nanmin(movements))
+    elif lateral_change > lateral_threshold:
+        movements[i] = 7
+    elif lateral_change < -lateral_threshold:
+        movements[i] = 8
+    else:
+        movements[i] = 9
+
 # Now, the 'behaviors' array contains the categorized behaviors for each frame in imaging timestamps.
-states = ['moving forward']
-movements = np.nan_to_num(movements, nan=0)
-print(movements[:10])
+print(movements.shape)
+states = ['standing still',
+          'moving forward', 'moving forward and right', 'moving forward and left',
+          'moving backward', 'moving backward and right', 'moving backward and left',
+          'going right', 'going left', 'invisible']
+print(np.unique(movements, return_counts=True))
+mouse_plane0_complete = Database(neuron_traces=deconv_0.T,
+                                 behavior=movements,
+                                 behavioral_states=states,
+                                 fps=fps_0)
+mouse_plane0_complete.plotting_neuronal_behavioral()
 
-#mouse_plane0_complete = Database(neuron_traces=deconv_0.T,
-#                                 behavior=movements,
-#                                 states=states,
-#                                 fps=mean_time_step_0)
+logreg = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=1000)
+mouse_plane0_complete.fit_model(logreg, ensemble=True)
+mouse_plane0_complete.cluster_BPT(nrep=10, max_clusters=10)
 
-worm_num = 1
-matlab = Loader(worm_num)
-data = Database(*matlab.data)
-data.neuron_traces = deconv_0.T
-data.B = movements
-data.states = 1
-data.fps = mean_time_step_0
+os.chdir('/Users/michaelhofer/Documents/Uni/THESIS/Plots')
 
-time, newX = preprocess_data(deconv_0, mean_time_step_0)
-X_, B_ = prep_data(newX, movements, win=15)
-model = BundDLeNet(latent_dim=3, behaviors=1)
-model.build(input_shape=X_.shape)
+go_on = 1
+while go_on:
+    num = int(input('Amount of clusters: '))
+    mouse_plane0_complete.step_plot(clusters=num)
+    go_on = int(input('Go on (0/1): '))
 
-optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=0.001)
-loss_array = train_model(
-    X_,
-    B_,
-    model,
-    optimizer,
-    gamma=0.9,
-    n_epochs=500,
-    discrete=False
-)
+go_on = 1
+while go_on:
+    num = int(input('Amount of clusters: '))
+    mouse_plane0_complete.behavioral_state_diagram(cog_stat_num=num, interactive=True)
+    go_on = int(input('Go on (0/1): '))
 
-vs = Visualizer(data, model.tau, transform=False)
-vs.X_ = X_
-vs.B_ = B_
-vs.model = model
-vs.loss_array = loss_array
-vs.tau_model = model.tau
-vs.bn_tau = True
-# I need to do this later, since X_ is not defined yet
-vs._transform_points(vs.mapping)
-#vs.useBundDLePredictor()
-
-hsv_colors = np.zeros((len(movements), 3))
-hsv_colors[:, 0] = 0  # Hue (red)
-hsv_colors[:, 1] = 1  # Saturation (full saturation)
-hsv_colors[:, 2] = 1 - movements  # Value (inverse of the values)
-
-# Convert HSV colors to RGB
-rgb_colors = plt.cm.colors.hsv_to_rgb(hsv_colors)
-
-data.colors = rgb_colors
-vs.plot_mapping(show_legend=True)
-vs.make_comparison(show_legend=True)
-
-
-
-
-exit()
-# Do some cool plots
-
-worm_num = 1
-matlab = Loader(worm_num)
-data = Database(*matlab.data)
-#data.behavioral_state_diagram(save=True, show=False, adj_matrix=True)
-rf = RandomForestClassifier()
-et = ExtraTreesClassifier()
-lg = LogisticRegression()
-data.fit_model(rf, ensemble=False)
-
-vs1 = data.createVisualizer(PCA(n_components=3))
-
-vs1.make_comparison(show_legend=True)
-data.fit_model(et, ensemble=True)
-vs1.make_comparison(show_legend=True)
-data.fit_model(lg, ensemble=False)
-vs1.make_comparison(show_legend=True)
-exit()
-vs1.plot_mapping()
-
-data_small = vs1.use_mapping_as_input()
-logreg = LogisticRegression()
-data_small.fit_model(logreg)
-
-data_small.cluster_BPT(nrep=10, max_clusters=15)
+go_on = 1
+while go_on:
+    num = int(input('Amount of epochs: '))
+    mouse_plane0_vs = mouse_plane0_complete.createVisualizer(epochs=num)
+    mouse_plane0_vs.plot_mapping(show_legend=True, quivers=True)
+    mouse_plane0_vs.make_comparison(show_legend=True, quivers=True)
+    go_on = int(input('Go on (0/1): '))
