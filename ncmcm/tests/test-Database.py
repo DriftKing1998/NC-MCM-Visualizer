@@ -7,11 +7,11 @@ from sklearn.decomposition import PCA
 class TestDatabase(unittest.TestCase):
 
     def setUp(self):
-        self.db = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                          [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
-                           behavior=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        self.db = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 6, 7, 8, 1, 1, 1, 8, 9, 10],
+                                          [2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
+                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
+                                          [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]],
+                           behavior=[0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 0, 0, 1, 2, 2],
                            neuron_names=['neuron1', 'neuron2', 'neuron3', 'neuron4'],
                            fps=1)
 
@@ -37,7 +37,7 @@ class TestDatabase(unittest.TestCase):
             neuron_traces=neuron_traces_custom,
             behavior=behavior_custom,
             neuron_names=neuron_names_custom,
-            states=states_custom,
+            behavioral_states=states_custom,
             fps=fps_custom,
             name=name_custom
         )
@@ -53,15 +53,15 @@ class TestDatabase(unittest.TestCase):
     def test_exclude_neurons(self):
         # Exclude an existing neuron
         self.db.exclude_neurons(['neuron1'])
-        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-                                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                                                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])))
+        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
+                                                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
+                                                                          [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]])))
         self.assertTrue(np.array_equal(self.db.neuron_names, np.array(['neuron2', 'neuron3', 'neuron4'])))
         # Exclude a non-existing neuron
         self.db.exclude_neurons(['nonexistent_neuron'])
-        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-                                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                                                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])))
+        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
+                                                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
+                                                                          [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]])))
         self.assertTrue(np.array_equal(self.db.neuron_names, np.array(['neuron2', 'neuron3', 'neuron4'])))
 
     def test_createVisualizer(self):
@@ -84,7 +84,7 @@ class TestDatabase(unittest.TestCase):
         base_model_mock.predict.side_effect = lambda x: np.zeros(x.shape[0])  # Mocking the predict method
         base_model_mock.predict_proba.side_effect = lambda x: np.zeros(len(self.db.states))  # Mocking predict_proba
         # Call the fit_model without CustomModel activated
-        result = self.db.fit_model(base_model_mock, prob_map=True, binary=False)
+        result = self.db.fit_model(base_model_mock, prob_map=True, ensemble=False)
         self.assertTrue(result)  # Assuming fit_model returns True on success
         self.assertTrue(hasattr(self.db, 'pred_model'))  # Check if pred_model attribute is set
         self.assertTrue(hasattr(self.db, 'B_pred'))  # Check if B_pred attribute is set
@@ -134,7 +134,7 @@ class TestDatabase(unittest.TestCase):
 
         # Call the behavioral_state_diagram with p_memoryless
         self.db.p_memoryless = np.random.rand(clusters, 10)
-        self.db.xc = np.array([[np.random.choice(list(range(c+1)), size=10) for c in range(clusters)] for _ in range(10)])
+        self.db.xc = np.array([[np.random.choice(list(range(c+1)), size=10) for c in range(clusters)] for _ in range(21)])
         result = self.db.behavioral_state_diagram(cog_stat_num=clusters, offset=2.5, adj_matrix=True,
                                                   show=False, save=False, interactive=False)
         self.assertTrue(result)  # Assuming behavioral_state_diagram returns True on success

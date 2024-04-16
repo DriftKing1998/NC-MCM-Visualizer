@@ -13,8 +13,8 @@ b_neurons = [
 ]
 
 worm_num = 0
-reps = 12
-states = 23
+reps = 3
+states = 15
 lines = 4
 
 '''a = Loader(0)

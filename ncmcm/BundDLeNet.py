@@ -19,7 +19,7 @@ class BundDLeNet(Model):
         behaviors (int): Amount of different behaviors.
     """
 
-    def __init__(self, latent_dim, behaviors):
+    def __init__(self, latent_dim, behaviors, discrete=True):
         super(BundDLeNet, self).__init__()
         self.latent_dim = latent_dim
         # This is the tau mapping from neurons to latent dimension using the windowed input (default 15)
@@ -39,9 +39,20 @@ class BundDLeNet(Model):
             layers.Normalization(axis=-1),
         ])
         # This is a model which predicts the behavior from the latent dimension
-        self.predictor = tf.keras.Sequential([
-            layers.Dense(behaviors, activation='linear')
-        ])
+        if discrete:
+            self.predictor = tf.keras.Sequential([
+                layers.Dense(behaviors, activation='linear')
+            ])
+        else:
+            self.predictor = tf.keras.Sequential([
+                layers.Dense(latent_dim, activation='linear'),
+                layers.Dense(10, activation='relu'),
+                layers.Dense(25, activation='relu'),
+                layers.Dense(30, activation='relu'),
+                layers.Dense(50, activation='relu'),
+                layers.Dense(1815, activation='linear'),
+                layers.Reshape((15, 121))
+            ])
 
     def call(self, X):
         # Upper arm of commutativity diagram
@@ -70,10 +81,10 @@ class BundDLeNetTrainer:
         self.optimizer = optimizer
 
     @tf.function
-    def train_step(self, x_train, b_train_1, gamma):
+    def train_step(self, x_train, b_train_1, gamma, discrete=True):
         with tf.GradientTape() as tape:
             yt1_upper, yt1_lower, bt1_upper = self.model(x_train, training=True)
-            DCC_loss, behaviour_loss, total_loss = bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma)
+            DCC_loss, behaviour_loss, total_loss = bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma, discrete=discrete)
         grads = tape.gradient(total_loss, self.model.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_weights))
         return DCC_loss, behaviour_loss, total_loss
@@ -160,7 +171,7 @@ def bandpass(traces, f_l, f_h, sampling_freq):
     return filtered
 
 
-def train_model(X_train, B_train_1, model, optimizer, gamma, n_epochs):
+def train_model(X_train, B_train_1, model, optimizer, gamma, n_epochs, discrete=True):
     """
     Training BundDLeNet
 
@@ -185,7 +196,7 @@ def train_model(X_train, B_train_1, model, optimizer, gamma, n_epochs):
     epochs = tqdm(np.arange(n_epochs))
     for epoch in epochs:
         for step, (x_train, b_train_1) in enumerate(train_dataset):
-            DCC_loss, behaviour_loss, total_loss = trainer.train_step(x_train, b_train_1, gamma=gamma)
+            DCC_loss, behaviour_loss, total_loss = trainer.train_step(x_train, b_train_1, gamma=gamma, discrete=discrete)
             loss_array = np.append(loss_array, [[DCC_loss, behaviour_loss, total_loss]], axis=0)
         epochs.set_description("Losses %f %f %f" % (DCC_loss.numpy(), behaviour_loss.numpy(), total_loss.numpy()))
     loss_array = np.delete(loss_array, 0, axis=0)
@@ -219,7 +230,7 @@ def tf_batch_prep(X_, B_, batch_size = 100):
     return batch_dataset
 
 
-def bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma):
+def bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma, discrete=True):
     """Calculate the loss for the BundDLeNet
 
     Args:
@@ -233,10 +244,13 @@ def bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma):
         tuple: A tuple containing the DCC loss, behavior loss, and total loss.
     """
     mse = tf.keras.losses.MeanSquaredError()
-    scce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
     DCC_loss = mse(yt1_upper, yt1_lower)
-    behaviour_loss = scce(b_train_1, bt1_upper)
+    if discrete:
+        scce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        behaviour_loss = scce(b_train_1, bt1_upper)
+    else:
+        behaviour_loss = mse(b_train_1, bt1_upper)
     total_loss = gamma * DCC_loss + (1 - gamma) * behaviour_loss
     return gamma * DCC_loss, (1 - gamma) * behaviour_loss, total_loss
 
