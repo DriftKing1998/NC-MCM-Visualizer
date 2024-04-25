@@ -22,7 +22,8 @@ from pyvis.network import Network
 class Loader:
 
     def __init__(self,
-                 data_set_no):
+                 data_set_no,
+                 path='data/NoStim_Data.mat'):
         """
         Reads in the data from the all files corresponding to the selected dataset.
         It stores all values into numpy arrays.
@@ -31,7 +32,7 @@ class Loader:
         :type data_set_no: int
         """
         self.data_set_no = data_set_no
-        data_dict = mat73.loadmat('data/NoStim_Data.mat')
+        data_dict = mat73.loadmat(path)
         data = data_dict['NoStim_Data']
         deltaFOverF_bc = data['deltaFOverF_bc'][self.data_set_no]
         derivatives = data['derivs'][self.data_set_no]
