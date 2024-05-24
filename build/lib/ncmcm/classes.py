@@ -154,7 +154,7 @@ class Database:
         neuron_names = self.neuron_names
         mask = np.zeros_like(self.neuron_names, dtype='bool')
         for exclude_neuron in exclude_neurons:
-            mask = np.logical_or(mask, neuron_names == exclude_neuron)
+            mask = np.logical_or(mask, neuron_names == str(exclude_neuron))
         mask = ~mask
         amount = len(mask) - np.count_nonzero(mask)
         self.neuron_traces = self.neuron_traces[mask]
@@ -162,13 +162,13 @@ class Database:
 
         print(f'{amount} neurons have been removed.')
 
-    def createVisualizer(self,
-                         mapping=None,
-                         l_dim=3,
-                         epochs=2000,
-                         window=15,
-                         use_predictor=True,
-                         discrete=True):
+    def create_visualizer(self,
+                          mapping=None,
+                          l_dim=3,
+                          epochs=2000,
+                          window=15,
+                          use_predictor=True,
+                          discrete=True):
         """
         Takes either a mapping to visualize the data (e.g.: PCA) or parameters for a BundDLeNet (l_dim, epochs, window)
         which will be used to visualize the data. If a BundDLeNet is created, it will be used to predict behaviors in
@@ -230,15 +230,15 @@ class Database:
             # I need to do this later, since X_ is not defined yet
             vs._transform_points(vs.mapping)
             if use_predictor:
-                vs.useBundDLePredictor()
+                vs.use_bundle_predictor()
 
         return vs
 
-    def loadBundDLeVisualizer(self,
-                              weights_path,
-                              l_dim=3,
-                              window=15,
-                              use_predictor=True):
+    def load_bundle_visualizer(self,
+                               weights_path,
+                               l_dim=3,
+                               window=15,
+                               use_predictor=True):
         """
         Takes a path to the weights and parameters for a BundDLeNet (l_dim, window) which will be created and the
         weights will be loaded in. One can also choose if the predictor of the BundDLeNet or the model form the
@@ -280,7 +280,7 @@ class Database:
         # I need to do this here, since X_ is not defined yet
         vs._transform_points(vs.mapping)
         if use_predictor:
-            vs.useBundDLePredictor()
+            vs.use_bundle_predictor()
 
         return vs
 
@@ -712,7 +712,7 @@ class Database:
                 new = {name: int(T[n_idx, i]*(len(self.B) - 1)) for i, name in enumerate(G.nodes)}
                 node['title'] = ''.join(f'{k}:{v}\n' for k, v in new.items() if v > 0)
 
-            net.show_buttons(['physics'])
+            net.show_buttons(['physics', 'nodes', 'edges'])
 
             name = str(input('File name for the html-plot? '))
             net.show(f'{name}.html', notebook=False)
@@ -1020,12 +1020,12 @@ class Visualizer():
             if wrong_predict > -1:
                 self.diff_label_counts[true_label][self.data.states[pred_label]] += 1
 
-    def attachBundDLeNet(self,
-                         l_dim=3,
-                         epochs=2000,
-                         window=15,
-                         train=True,
-                         use_predictor=True):
+    def attach_bundle(self,
+                      l_dim=3,
+                      epochs=2000,
+                      window=15,
+                      train=True,
+                      use_predictor=True):
         """
         Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations and if
         indicated the predictor will be used as a prediction model for visualizations.
@@ -1069,7 +1069,7 @@ class Visualizer():
             self.bn_tau = True
             self.change_mapping(self.model.tau)
             if use_predictor:
-                self.useBundDLePredictor()
+                self.use_bundle_predictor()
 
         return True
 
@@ -1327,7 +1327,7 @@ class Visualizer():
             gif_writer = anim.PillowWriter(fps=int(1000 / self.interval), metadata=dict(artist='Me'), bitrate=bitrate)
             self.animation.save(path, writer=gif_writer, dpi=dpi)
 
-    def useBundDLePredictor(self):
+    def use_bundle_predictor(self):
         """
         Tries to use the prediction model used in plots to the Predictor of the BundDLeNet. This is normally only used
         if the upon BundDLeNet creation the "use_predictor" parameter was set to False.

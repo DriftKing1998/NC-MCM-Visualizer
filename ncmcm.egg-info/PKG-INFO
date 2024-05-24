@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: ncmcm
-Version: 1.1.0
+Version: 1.2.0
 Summary: A toolbox to visualize neuronal imaging data and apply the NC-MCM framework to it
 Home-page: https://github.com/DriftKing1998/NC-MCM-Visualizer
 Author: Hofer Michael
