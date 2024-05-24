@@ -153,7 +153,7 @@ class Database:
         neuron_names = self.neuron_names
         mask = np.zeros_like(self.neuron_names, dtype='bool')
         for exclude_neuron in exclude_neurons:
-            mask = np.logical_or(mask, neuron_names == exclude_neuron)
+            mask = np.logical_or(mask, neuron_names == str(exclude_neuron))
         mask = ~mask
         amount = len(mask) - np.count_nonzero(mask)
         self.neuron_traces = self.neuron_traces[mask]
@@ -706,12 +706,12 @@ class Database:
                 b_int = np.where(np.asarray(self.states) == b)[0][0]
                 n_idx = (len(self.states) * c_int + b_int)
                 r, g, b = self.colordict[b_int]
-                node['color'] = f'rgb({r * 255},{g * 255},{b * 255})'
+                #node['color'] = f'rgb({r * 255},{g * 255},{b * 255})'
                 node['size'] = np.sqrt(node_sizes[n_idx])
                 new = {name: int(T[n_idx, i]*(len(self.B) - 1)) for i, name in enumerate(G.nodes)}
                 node['title'] = ''.join(f'{k}:{v}\n' for k, v in new.items() if v > 0)
 
-            net.show_buttons(['physics'])
+            net.show_buttons(['physics', 'nodes', 'edges'])
 
             name = str(input('File name for the html-plot? '))
             net.show(f'{name}.html', notebook=False)

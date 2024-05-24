@@ -99,10 +99,10 @@ for i, timestamp in enumerate(imaging_timestamps_0):
 
 # Now, the 'behaviors' array contains the categorized behaviors for each frame in imaging timestamps.
 print(movements.shape)
-states = ['standing still',
-          'moving forward', 'moving forward and right', 'moving forward and left',
-          'moving backward', 'moving backward and right', 'moving backward and left',
-          'going right', 'going left', 'invisible']
+states = ['standing',
+          'forward', 'forward+right', 'forward+left',
+          'backward', 'backward+right', 'backward+left',
+          'right', 'left', 'invisible']
 print(np.unique(movements, return_counts=True))
 mouse_plane0_complete = Database(neuron_traces=deconv_0.T,
                                  behavior=movements,
@@ -112,26 +112,26 @@ mouse_plane0_complete.plotting_neuronal_behavioral()
 
 logreg = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=1000)
 mouse_plane0_complete.fit_model(logreg, ensemble=True)
-mouse_plane0_complete.cluster_BPT(nrep=10, max_clusters=10)
+mouse_plane0_complete.cluster_BPT(nrep=10, max_clusters=5, stationary=True)
 
 os.chdir('/Users/michaelhofer/Documents/Uni/THESIS/Plots')
-
-go_on = 1
-while go_on:
-    num = int(input('Amount of clusters: '))
-    mouse_plane0_complete.step_plot(clusters=num)
-    go_on = int(input('Go on (0/1): '))
-
-go_on = 1
-while go_on:
-    num = int(input('Amount of clusters: '))
-    mouse_plane0_complete.behavioral_state_diagram(cog_stat_num=num, interactive=True)
-    go_on = int(input('Go on (0/1): '))
+#
+# go_on = 1
+# while go_on:
+#     num = int(input('Amount of clusters: '))
+#     mouse_plane0_complete.step_plot(clusters=num)
+#     go_on = int(input('Go on (0/1): '))
+#
+# go_on = 1
+# while go_on:
+#     num = int(input('Amount of clusters: '))
+#     mouse_plane0_complete.behavioral_state_diagram(cog_stat_num=num, interactive=True)
+#     go_on = int(input('Go on (0/1): '))
 
 go_on = 1
 while go_on:
     num = int(input('Amount of epochs: '))
-    mouse_plane0_vs = mouse_plane0_complete.createVisualizer(epochs=num)
+    mouse_plane0_vs = mouse_plane0_complete.createVisualizer(epochs=num, window=20)
     mouse_plane0_vs.plot_mapping(show_legend=True, quivers=True)
     mouse_plane0_vs.make_comparison(show_legend=True, quivers=True)
     go_on = int(input('Go on (0/1): '))
