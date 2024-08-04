@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
-from ncmcm.classes import *
+from sklearn.linear_model import LogisticRegression
+from ncmcm.ncmcm_classes.Visualizer import *
 from sklearn.manifold import TSNE
 
 

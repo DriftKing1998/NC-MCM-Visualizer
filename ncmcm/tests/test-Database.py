@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import MagicMock
-from ncmcm.classes import *
+from ncmcm.ncmcm_classes.Database import *
 from sklearn.decomposition import PCA
+from ncmcm.helpers.visualizer_creation import create_visualizer
 
 
 class TestDatabase(unittest.TestCase):
@@ -53,26 +54,28 @@ class TestDatabase(unittest.TestCase):
     def test_exclude_neurons(self):
         # Exclude an existing neuron
         self.db.exclude_neurons(['neuron1'])
-        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
-                                                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
-                                                                          [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]])))
+        self.assertTrue(np.array_equal(self.db.neuron_traces,
+                                       np.array([[2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
+                                                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
+                                                 [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]])))
         self.assertTrue(np.array_equal(self.db.neuron_names, np.array(['neuron2', 'neuron3', 'neuron4'])))
         # Exclude a non-existing neuron
         self.db.exclude_neurons(['nonexistent_neuron'])
-        self.assertTrue(np.array_equal(self.db.neuron_traces, np.array([[2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
-                                                                          [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
-                                                                          [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]])))
+        self.assertTrue(np.array_equal(self.db.neuron_traces,
+                                       np.array([[2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
+                                                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
+                                                 [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]])))
         self.assertTrue(np.array_equal(self.db.neuron_names, np.array(['neuron2', 'neuron3', 'neuron4'])))
 
     def test_createVisualizer(self):
         # Without mapping
-        visualizer_no_mapping = self.db.create_visualizer(window=3, epochs=20)
+        visualizer_no_mapping = create_visualizer(self.db, window=3, epochs=20)
         self.assertIsNotNone(visualizer_no_mapping)
         self.assertIsNotNone(visualizer_no_mapping.mapping)
         self.assertIsNotNone(visualizer_no_mapping.tau_model)
         # With PCA mapping
         mapping_pca = PCA(n_components=2)
-        visualizer_with_mapping = self.db.create_visualizer(mapping=mapping_pca)
+        visualizer_with_mapping = create_visualizer(self.db, mapping=mapping_pca)
         self.assertIsNotNone(visualizer_with_mapping)
         self.assertEqual(visualizer_with_mapping.mapping, mapping_pca)
         self.assertIsNone(visualizer_with_mapping.tau_model)
@@ -93,12 +96,12 @@ class TestDatabase(unittest.TestCase):
     def test_cluster_BPT(self):
         self.db.yp_map = np.zeros((self.db.neuron_traces.shape[0], len(np.unique(self.db.B))))
         result = self.db.cluster_BPT(nrep=5,
-                       max_clusters=2,
-                       sim_m=10,
-                       sim_s=10,
-                       chunks=2,
-                       kmeans_init='auto',
-                       plot_markov=False)
+                                     max_clusters=2,
+                                     sim_m=10,
+                                     sim_s=10,
+                                     chunks=2,
+                                     kmeans_init='auto',
+                                     plot_markov=False)
 
         self.assertTrue(result)
         self.assertTrue(hasattr(self.db, 'p_memoryless'))  # Check if pred_model attribute is set
@@ -106,12 +109,12 @@ class TestDatabase(unittest.TestCase):
 
         self.db.yp_map = None
         result = self.db.cluster_BPT(nrep=5,
-                                max_clusters=2,
-                                sim_m=10,
-                                sim_s=10,
-                                chunks=2,
-                                kmeans_init='auto',
-                                plot_markov=False)
+                                     max_clusters=2,
+                                     sim_m=10,
+                                     sim_s=10,
+                                     chunks=2,
+                                     kmeans_init='auto',
+                                     plot_markov=False)
         self.assertFalse(result)
 
     def test_step_plot(self, clusters=5):
@@ -119,7 +122,8 @@ class TestDatabase(unittest.TestCase):
         self.db.fit_model = MagicMock(return_value=True)
         self.db.cluster_BPT = MagicMock(return_value=True)
         self.db.yp_map = np.zeros((4, 10))
-        self.db.xc = np.array([[np.random.choice(list(range(c+1)), size=10) for c in range(clusters)] for _ in range(10)])
+        self.db.xc = np.array(
+            [[np.random.choice(list(range(c + 1)), size=10) for c in range(clusters)] for _ in range(10)])
         self.db.p_memoryless = np.random.rand(clusters, 10)
 
         # Call the step_plot method with mock data
@@ -134,7 +138,8 @@ class TestDatabase(unittest.TestCase):
 
         # Call the behavioral_state_diagram with p_memoryless
         self.db.p_memoryless = np.random.rand(clusters, 10)
-        self.db.xc = np.array([[np.random.choice(list(range(c+1)), size=10) for c in range(clusters)] for _ in range(21)])
+        self.db.xc = np.array(
+            [[np.random.choice(list(range(c + 1)), size=10) for c in range(clusters)] for _ in range(21)])
         result = self.db.behavioral_state_diagram(cog_stat_num=clusters, offset=2.5, adj_matrix=True,
                                                   show=False, save=False, interactive=False)
         self.assertTrue(result)  # Assuming behavioral_state_diagram returns True on success

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ncmcm.helpers package &mdash; NCMCM-Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ncmcm.ncmcm_classes package" href="ncmcm.ncmcm_classes.html" />
+    <link rel="prev" title="ncmcm.bundlenet package" href="ncmcm.bundlenet.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            NCMCM-Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">ncmcm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ncmcm.bundlenet.html">ncmcm.bundlenet package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ncmcm.helpers package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.helpers.general_functions">ncmcm.helpers.general_functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.general_functions.generate_equidistant_colors"><code class="docutils literal notranslate"><span class="pre">generate_equidistant_colors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.general_functions.shift_pos_by"><code class="docutils literal notranslate"><span class="pre">shift_pos_by()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.helpers.markov_functions">ncmcm.helpers.markov_functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.markov_functions.compute_transition_matrix_lag2"><code class="docutils literal notranslate"><span class="pre">compute_transition_matrix_lag2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.markov_functions.markovian"><code class="docutils literal notranslate"><span class="pre">markovian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.markov_functions.stationarity"><code class="docutils literal notranslate"><span class="pre">stationarity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.helpers.plotting_functions">ncmcm.helpers.plotting_functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.plotting_functions.average_markov_plot"><code class="docutils literal notranslate"><span class="pre">average_markov_plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.plotting_functions.parameter_testing_m"><code class="docutils literal notranslate"><span class="pre">parameter_testing_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.plotting_functions.parameter_testing_s"><code class="docutils literal notranslate"><span class="pre">parameter_testing_s()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.plotting_functions.remove_grid"><code class="docutils literal notranslate"><span class="pre">remove_grid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.helpers.processing_functions">ncmcm.helpers.processing_functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.processing_functions.adj_matrix_ncmcm"><code class="docutils literal notranslate"><span class="pre">adj_matrix_ncmcm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.processing_functions.make_integer_list"><code class="docutils literal notranslate"><span class="pre">make_integer_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.processing_functions.make_windowed_data"><code class="docutils literal notranslate"><span class="pre">make_windowed_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.helpers.sequence_functions">ncmcm.helpers.sequence_functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.sequence_functions.make_random_adj_matrices"><code class="docutils literal notranslate"><span class="pre">make_random_adj_matrices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.sequence_functions.non_stationary_process"><code class="docutils literal notranslate"><span class="pre">non_stationary_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.sequence_functions.non_stationary_process2"><code class="docutils literal notranslate"><span class="pre">non_stationary_process2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.sequence_functions.simulate_markovian"><code class="docutils literal notranslate"><span class="pre">simulate_markovian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.sequence_functions.simulate_random_sequence"><code class="docutils literal notranslate"><span class="pre">simulate_random_sequence()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.helpers.visualizer_creation">ncmcm.helpers.visualizer_creation module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.visualizer_creation.create_visualizer"><code class="docutils literal notranslate"><span class="pre">create_visualizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.helpers.visualizer_creation.load_bundle_visualizer"><code class="docutils literal notranslate"><span class="pre">load_bundle_visualizer()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ncmcm.ncmcm_classes.html">ncmcm.ncmcm_classes package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">NCMCM-Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">ncmcm</a></li>
+      <li class="breadcrumb-item active">ncmcm.helpers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ncmcm.helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ncmcm-helpers-package">
+<h1>ncmcm.helpers package<a class="headerlink" href="#ncmcm-helpers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-ncmcm.helpers.general_functions">
+<span id="ncmcm-helpers-general-functions-module"></span><h2>ncmcm.helpers.general_functions module<a class="headerlink" href="#module-ncmcm.helpers.general_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.general_functions.generate_equidistant_colors">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.general_functions.</span></span><span class="sig-name descname"><span class="pre">generate_equidistant_colors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/general_functions.html#generate_equidistant_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.general_functions.generate_equidistant_colors" title="Link to this definition"></a></dt>
+<dd><p>Generate a list of RGB colors in HSV space with equidistant hues.</p>
+<p>Parameters:
+- n:  int, required</p>
+<blockquote>
+<div><p>Number of colors to generate.</p>
+</div></blockquote>
+<p>Returns:
+- colors: List of RGB colors.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.general_functions.shift_pos_by">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.general_functions.</span></span><span class="sig-name descname"><span class="pre">shift_pos_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_positioning</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_positioning</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/general_functions.html#shift_pos_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.general_functions.shift_pos_by" title="Link to this definition"></a></dt>
+<dd><p>Shift positions in polar coordinates.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>old_positioning: np.ndarray, required</dt><dd><p>Dictionary of node positions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>new_positioning:  np.ndarray, required</dt><dd><p>Dictionary of new node positions will be updated</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>degree:  float, required</dt><dd><p>Degree to shift positions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>offset:  float, required</dt><dd><p>Offset distance.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>new_positioning: Updated dictionary of node positions.</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.helpers.markov_functions">
+<span id="ncmcm-helpers-markov-functions-module"></span><h2>ncmcm.helpers.markov_functions module<a class="headerlink" href="#module-ncmcm.helpers.markov_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.markov_functions.compute_transition_matrix_lag2">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.markov_functions.</span></span><span class="sig-name descname"><span class="pre">compute_transition_matrix_lag2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/markov_functions.html#compute_transition_matrix_lag2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.markov_functions.compute_transition_matrix_lag2" title="Link to this definition"></a></dt>
+<dd><p>Compute a transition matrix for a lag-2 Markov process.</p>
+<p>Parameters:
+- sequence:  np.ndarray, required</p>
+<blockquote>
+<div><p>Input sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>normalize:  bool, optional</dt><dd><p>Boolean to normalize the transition matrix (default is True).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- P: np.ndarray</p>
+<blockquote>
+<div><p>Transition matrix.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>states: np.ndarray</dt><dd><p>List of unique states in the sequence.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>M: int</dt><dd><p>Length of the sequence.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>N: int</dt><dd><p>Number of unique states.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.markov_functions.markovian">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.markov_functions.</span></span><span class="sig-name descname"><span class="pre">markovian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_memoryless</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/markov_functions.html#markovian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.markov_functions.markovian" title="Link to this definition"></a></dt>
+<dd><p>Test for 1st order Markovian behavior in a sequence. H0 is that the process is a 1st order markov process.</p>
+<p>Parameters:
+- sequence:  np.ndarray, required</p>
+<blockquote>
+<div><p>Input sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>sim_memoryless:  int, optional</dt><dd><p>Number of simulations for memoryless Markov behavior test statistic.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- p: float</p>
+<blockquote>
+<div><p>Probability of Markovian behavior.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>P1: np.ndarray</dt><dd><p>Transition matrix for first-order Markov behavior.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.markov_functions.stationarity">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.markov_functions.</span></span><span class="sig-name descname"><span class="pre">stationarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_stationary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/markov_functions.html#stationarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.markov_functions.stationarity" title="Link to this definition"></a></dt>
+<dd><p>Test stationarity in input sequence.</p>
+<p>Parameters:
+- sequence: np.ndarray, required</p>
+<blockquote>
+<div><p>Input sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>chunks: int, optional</dt><dd><p>Number of parts to split sequence.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_stationary: int, optional</dt><dd><p>Number of simulations for stationary behavior.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>plot: bool, optional</dt><dd><p>Boolean indicating whether to plot the results.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>num_states: int, optional</dt><dd><p>If not every state of the state space is present here one can set the state space size.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>verbose: int, optional</dt><dd><p>Either 0 or 1 and gives additional print-outs for value 1.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- mean_unadjusted_p_value: float</p>
+<blockquote>
+<div><p>Mean unadjusted p-value.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>mean_FDR_adjusted_p_value: float</dt><dd><p>Mean False Discovery Rate (FDR) adjusted p-value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.helpers.plotting_functions">
+<span id="ncmcm-helpers-plotting-functions-module"></span><h2>ncmcm.helpers.plotting_functions module<a class="headerlink" href="#module-ncmcm.helpers.plotting_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.plotting_functions.average_markov_plot">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.plotting_functions.</span></span><span class="sig-name descname"><span class="pre">average_markov_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">markov_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/plotting_functions.html#average_markov_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.plotting_functions.average_markov_plot" title="Link to this definition"></a></dt>
+<dd><p>Create a scatter plot of Markov p-values of each worm (input array) with a mean trendline.</p>
+<p>Parameters:
+- markov_array: np.ndarray, required</p>
+<blockquote>
+<div><p>2D array of Markov p-values.</p>
+</div></blockquote>
+<p>Returns:
+None.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.plotting_functions.parameter_testing_m">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.plotting_functions.</span></span><span class="sig-name descname"><span class="pre">parameter_testing_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_markov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/plotting_functions.html#parameter_testing_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.plotting_functions.parameter_testing_m" title="Link to this definition"></a></dt>
+<dd><p>Test memoryless Markov behavior in sequences.</p>
+<p>Parameters:
+- axes: matplotlib.axes.Axes, required</p>
+<blockquote>
+<div><p>Matplotlib axes.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>reps: int, optional</dt><dd><p>Number of repetitions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>N_states: int, optional</dt><dd><p>Number of states.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_markov: int, optional</dt><dd><p>Number of simulations for Markov behavior.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- axes: matplotlib.axes.Axes</p>
+<blockquote>
+<div><p>Updated Matplotlib axes.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.plotting_functions.parameter_testing_s">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.plotting_functions.</span></span><span class="sig-name descname"><span class="pre">parameter_testing_s</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_markov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/plotting_functions.html#parameter_testing_s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.plotting_functions.parameter_testing_s" title="Link to this definition"></a></dt>
+<dd><p>Test stationary behavior in Markov sequences.</p>
+<p>Parameters:
+- axes: matplotlib.axes.Axes, required</p>
+<blockquote>
+<div><p>Matplotlib axes.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>parts: int, optional</dt><dd><p>Number of parts to split sequences.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>reps: int, optional</dt><dd><p>Number of test repetitions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>N_states: int, optional</dt><dd><p>Number of states.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>M: int, optional</dt><dd><p>Size of sequences</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_s: int, optional</dt><dd><p>Size of test statistic</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sequence: np.ndarray, optional</dt><dd><p>Input sequence (default is None).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>plot_markov: bool, optional</dt><dd><p>Boolean indicating whether to plot Markov sequences.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- axes: matplotlib.axes.Axes</p>
+<blockquote>
+<div><p>Updated Matplotlib axes.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.plotting_functions.remove_grid">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.plotting_functions.</span></span><span class="sig-name descname"><span class="pre">remove_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/plotting_functions.html#remove_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.plotting_functions.remove_grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-ncmcm.helpers.processing_functions">
+<span id="ncmcm-helpers-processing-functions-module"></span><h2>ncmcm.helpers.processing_functions module<a class="headerlink" href="#module-ncmcm.helpers.processing_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.processing_functions.adj_matrix_ncmcm">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.processing_functions.</span></span><span class="sig-name descname"><span class="pre">adj_matrix_ncmcm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cog_stat_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustering_rep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/processing_functions.html#adj_matrix_ncmcm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.processing_functions.adj_matrix_ncmcm" title="Link to this definition"></a></dt>
+<dd><p>Calculate the adjacency matrix and list of cognitive-behavioral states.</p>
+<p>Parameters:
+- data: Database, required</p>
+<blockquote>
+<div><p>Data from the database.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>cog_stat_num: int, optional</dt><dd><p>Number of cognitive states in the plot (e.g., C1, C2, C3 …).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>clustering_rep: int, optional</dt><dd><p>Defines which clustering should be used (by index), otherwise best p-value is used</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- cog_beh_states: list</p>
+<blockquote>
+<div><p>List of all cognitive-behavioral states (coded as: CCBB).</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>T: np.ndarray</dt><dd><p>Adjacency matrix for the cognitive-behavioral states.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.processing_functions.make_integer_list">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.processing_functions.</span></span><span class="sig-name descname"><span class="pre">make_integer_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/processing_functions.html#make_integer_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.processing_functions.make_integer_list" title="Link to this definition"></a></dt>
+<dd><p>Convert a list of strings to a list of integers and create a translation list.</p>
+<p>Parameters:
+- input_list: list, required</p>
+<blockquote>
+<div><p>List of strings.</p>
+</div></blockquote>
+<p>Returns:
+- integer_list: list</p>
+<blockquote>
+<div><p>List of integers corresponding to input_list.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>translation_list: list</dt><dd><p>List of unique strings in input_list.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.processing_functions.make_windowed_data">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.processing_functions.</span></span><span class="sig-name descname"><span class="pre">make_windowed_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/processing_functions.html#make_windowed_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.processing_functions.make_windowed_data" title="Link to this definition"></a></dt>
+<dd><p>Create windowed data from input sequences. The format needed for BundDLeNet</p>
+<p>Parameters:
+- X: np.ndarray, required</p>
+<blockquote>
+<div><p>Input sequences.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>B: np.ndarray, required</dt><dd><p>Labels.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>win: int, optional</dt><dd><p>Window size.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- newX: np.ndarray</p>
+<blockquote>
+<div><p>Windowed input sequences.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>newB: np.ndarray</dt><dd><p>Updated labels.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.helpers.sequence_functions">
+<span id="ncmcm-helpers-sequence-functions-module"></span><h2>ncmcm.helpers.sequence_functions module<a class="headerlink" href="#module-ncmcm.helpers.sequence_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.sequence_functions.make_random_adj_matrices">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.sequence_functions.</span></span><span class="sig-name descname"><span class="pre">make_random_adj_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_matrices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/sequence_functions.html#make_random_adj_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.sequence_functions.make_random_adj_matrices" title="Link to this definition"></a></dt>
+<dd><p>Generate random adjacency matrices.</p>
+<p>Parameters:
+- num_matrices: int, optional</p>
+<blockquote>
+<div><p>Number of matrices to generate.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>matrix_shape: tuple, optional</dt><dd><p>Shape of each matrix.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sparse: bool, optional</dt><dd><p>Can be applied to get more sparse transition matrices.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- transition_matrices: list</p>
+<blockquote>
+<div><p>List of generated matrices (np.ndarray).</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.sequence_functions.non_stationary_process">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.sequence_functions.</span></span><span class="sig-name descname"><span class="pre">non_stationary_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/sequence_functions.html#non_stationary_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.sequence_functions.non_stationary_process" title="Link to this definition"></a></dt>
+<dd><p>Generate a non-stationary Markov process. Changes in the process are equally split within length M.</p>
+<p>Parameters:
+- M: int, required</p>
+<blockquote>
+<div><p>Length of the sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>N: int, required</dt><dd><p>Number of states.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>changes: int, optional</dt><dd><p>Number of changes within the process.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- seq: list</p>
+<blockquote>
+<div><p>Generated sequence.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.sequence_functions.non_stationary_process2">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.sequence_functions.</span></span><span class="sig-name descname"><span class="pre">non_stationary_process2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/sequence_functions.html#non_stationary_process2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.sequence_functions.non_stationary_process2" title="Link to this definition"></a></dt>
+<dd><p>Generate a non-stationary Markov process. Changes in the process are equally split within length M.</p>
+<p>Parameters:
+- M: int, required</p>
+<blockquote>
+<div><p>Length of the sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>N: int, required</dt><dd><p>Number of states.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>changes: int, optional</dt><dd><p>Number of changes within the process.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>epsilon: float, optional</dt><dd><p>Small change to be applied to the transition matrix.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- seq: list</p>
+<blockquote>
+<div><p>Generated sequence.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.sequence_functions.simulate_markovian">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.sequence_functions.</span></span><span class="sig-name descname"><span class="pre">simulate_markovian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/sequence_functions.html#simulate_markovian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.sequence_functions.simulate_markovian" title="Link to this definition"></a></dt>
+<dd><p>Simulate a higher-order Markovian process.</p>
+<p>Parameters:
+- M: int, required</p>
+<blockquote>
+<div><p>Length of the sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>P: np.ndarray, optional</dt><dd><p>Transition matrix (default is None for random generation).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>N: int, optional</dt><dd><p>Number of states (default is 1).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>order: int, optional</dt><dd><p>Order of the Markov process (default is 1).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Returns:
+- z: np.ndarray</p>
+<blockquote>
+<div><p>Simulated sequence.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>P: np.ndarray</dt><dd><p>Used transition matrix.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.sequence_functions.simulate_random_sequence">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.sequence_functions.</span></span><span class="sig-name descname"><span class="pre">simulate_random_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/sequence_functions.html#simulate_random_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.sequence_functions.simulate_random_sequence" title="Link to this definition"></a></dt>
+<dd><p>Simulate a random sequence with N states and length M.</p>
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.helpers.visualizer_creation">
+<span id="ncmcm-helpers-visualizer-creation-module"></span><h2>ncmcm.helpers.visualizer_creation module<a class="headerlink" href="#module-ncmcm.helpers.visualizer_creation" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.visualizer_creation.create_visualizer">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.visualizer_creation.</span></span><span class="sig-name descname"><span class="pre">create_visualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/visualizer_creation.html#create_visualizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.visualizer_creation.create_visualizer" title="Link to this definition"></a></dt>
+<dd><p>Takes a Database object and either a mapping to visualize the data (e.g.: PCA) or parameters for a BundDLeNet
+(l_dim, epochs, window) which will be used to visualize the data. If a BundDLeNet is created, it will be used to
+predict behaviors in future plots. Otherwise, the model fitted on the Database-object, will be used as a predictor,
+if it exists.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>database: Database, required</dt><dd><p>A database object from which the Visualizer will be generated</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mapping: object, required</dt><dd><p>A mapping (such as PCA) which is used for the projection into three dimension. It needs to have the
+method ‘fit_transform’.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>l_dim: int, optional</dt><dd><p>Latent dimension the BundDLeNet maps to (for visualisation: 3D; For further use: XD)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>epochs: int, optional</dt><dd><p>Epochs for the BundDLeNet</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>window: int, optional</dt><dd><p>Window-size for BundDLeNet</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>use_predictor: bool, optional</dt><dd><p>If the BundDLeNet Predictor should be used as prediction model</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>discrete: bool, optional</dt><dd><p>If the BundDLeNet should expect discrete labels</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>return: Visualizer</p></li>
+</ul>
+<p>Will return the correctly configured Visualizer object or None</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ncmcm.helpers.visualizer_creation.load_bundle_visualizer">
+<span class="sig-prename descclassname"><span class="pre">ncmcm.helpers.visualizer_creation.</span></span><span class="sig-name descname"><span class="pre">load_bundle_visualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/helpers/visualizer_creation.html#load_bundle_visualizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.helpers.visualizer_creation.load_bundle_visualizer" title="Link to this definition"></a></dt>
+<dd><p>Takes a path to the weights and parameters for a BundDLeNet (l_dim, window) which will be created and the
+weights will be loaded in. One can also choose if the predictor of the BundDLeNet or the model form the
+Database-object will be used (if present).</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>database: Database, required</dt><dd><p>A Database-object with data from which to create the Visualizer.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>weights_path: str, required</dt><dd><p>A path to the “directory + name of the weights file”</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>l_dim: int, optional</dt><dd><p>Latent dimension the BundDLeNet maps to (for visualisation: 3D; For further use: XD)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>window: int, optional</dt><dd><p>Window-size for BundDLeNet</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>use_predictor: bool, optional</dt><dd><p>Boolean if the BundDLeNet Predictor should be used for plots.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: Visualizer</dt><dd><p>Will return the correctly configured Visualizer object or None</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ncmcm.bundlenet.html" class="btn btn-neutral float-left" title="ncmcm.bundlenet package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ncmcm.ncmcm_classes.html" class="btn btn-neutral float-right" title="ncmcm.ncmcm_classes package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Hofer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
