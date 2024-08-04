@@ -28,7 +28,7 @@ This is a toolbox uses neuronal & behavioral data and visualizes it. The main fu
     ```
     import ncmcm
     ```
-3. **Usage:** the `ncmcm.Database` class as a container for your neuronal and behavioral dataset
+3. **Usage:** the `ncmcm.ncmcm_classes.Database` class as a container for your neuronal and behavioral dataset
 4. **Tutorial:** Check out the `Demo.ipynb` notebook included in the package. It serves as a useful starting point to explore the functionalities of `ncmcm`
 
 ## Installation and usage information (for contributors)
@@ -53,17 +53,19 @@ If you're interested in contributing to this project or creating your own versio
 ### New Branches
 
 1. **Explore the Code**:
-    <br>`ncmcm.classes.py` contains the classes used by ncmcm:
-   1. `Database` is a container for data, which can be used to generate the behavioral probability maps by adding a sklearn-model. It also allows to create different plots and diagnostics.
-   2. `Visualizer` is created by adding a mapping or a BundDLeNet (=default). It allows to create 3D plots and movies.
-   3. `CustomEnsembleModel` is a model that creates an ensemble of models, specializing each model to detect a label.
+    <br>`ncmcm.ncmcm_classes` module contains the classes used by ncmcm:
+   1. `Loader` can be used to load data from a certain MATLAB-file.
+   2. `Database` is a container for data, which can be used to generate the behavioral probability maps by adding a sklearn-model. It also allows to create different plots and diagnostics.
+   3. `Visualizer` is created by adding a mapping or a BundDLeNet (=default). It allows to create 3D plots and movies.
+   4. `CustomEnsembleModel` is a model that creates an ensemble of models, specializing each model to detect a label.
 
-    <br>`ncmcm.functions.py` contains some auxiliary functions:
-   1. Functions to prepare data 
+    <br>`ncmcm.helpers` module contains some auxiliary functions:
+   1. Functions to prepare data
    2. Functions to test for stationarity & non-markovianity
    3. Plotting functions for the tests
+   4. And many more...
 
-    <br>`ncmcm.BundDLeNet.py` contains all the parts of BundDLeNet:
+    <br>`ncmcm.BundDLeNet` module contains all the parts of BundDLeNet:
    1. Class for creating/training the model 
    2. Functions to prep data and get loss
     
