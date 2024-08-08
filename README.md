@@ -20,7 +20,7 @@ This is a toolbox uses neuronal & behavioral data and visualizes it. NCMCM stand
     import ncmcm
     ```
 3. **Usage:** the `ncmcm.ncmcm_classes.Database` class as a container for your neuronal and behavioral dataset
-4. **Tutorial:** Check out the demo-notebooks on the GitHub (`https://github.com/DriftKing1998/NC-MCM-Visualizer/tree/main/demos`). They serve as a useful starting point to explore the functionalities of `ncmcm`.
+4. **Tutorial:** Check out the demo-notebooks on the GitHub (<a href=https://github.com/DriftKing1998/NC-MCM-Visualizer/tree/main/demos>here</a>). They serve as a useful starting point to explore the functionalities of `ncmcm`.
 
 ## Installation and usage information (for contributors)
 
