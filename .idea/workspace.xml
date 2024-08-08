@@ -5,56 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ncmcm/bundlenet/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/helpers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/helpers/markov_functions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/helpers/plotting_functions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/helpers/processing_functions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/helpers/sequence_functions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/helpers/visualizer_creation.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Loader.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Visualizer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/stats_tests/power_curves_discrete.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/stats_tests/power_curves_memorylessness.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ncmcm/stats_tests/power_curves_pseudo_cont.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/Demo_Usage.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/Mouse.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/Mouse_demo.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/Pickles.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/Testing.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/new_Demo.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ncmcm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ncmcm.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demos/Demo_mouse_dataset.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/physics/default_physic.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/BundDLeNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/bundlenet/BundDLeNet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/CustomEnsembleModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_0.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_0_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_1.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_1_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_2_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_3.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_3_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_4_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/Demonstration/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/plots/Demonstration/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/general_functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/movies/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_mem_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/stats_tests/markov_mem_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_memorylessness_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/stats_tests/markov_memorylessness_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_stationary_distribution_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/stats_tests/markov_stationary_distribution_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_stationary_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_stationary_testing_new.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/stats_tests/markov_stationary_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/test-Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/tests/test-Database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/test-Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/tests/test-Visualizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/PKG-INFO" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/SOURCES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/dependency_links.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/requires.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/top_level.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/NoStim_Data.mat" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/datasets/NoStim_Data.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_1.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_2.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_3.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_4.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_5.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Loader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/Demo.ipynb" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -107,7 +74,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;GitHub-Version&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/michaelhofer/Documents/GitHub/ncmcm/ncmcm/ncmcm_classes&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/michaelhofer/Documents/GitHub/ncmcm&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -120,18 +87,18 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/notebooks" />
+      <recent name="$PROJECT_DIR$/ncmcm/data/physics" />
+      <recent name="$PROJECT_DIR$/demos" />
       <recent name="$PROJECT_DIR$/ncmcm/ncmcm_classes" />
-      <recent name="$PROJECT_DIR$/ncmcm/helpers" />
-      <recent name="$PROJECT_DIR$/ncmcm/stats_tests" />
-      <recent name="$PROJECT_DIR$/docs" />
-      <recent name="$PROJECT_DIR$/ncmcm/core" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/demos" />
+      <recent name="$PROJECT_DIR$/ncmcm/data/datasets" />
+      <recent name="$PROJECT_DIR$/demos/pickles" />
+      <recent name="$PROJECT_DIR$/ncmcm" />
       <recent name="$PROJECT_DIR$/ncmcm/helpers" />
-      <recent name="$PROJECT_DIR$/ncmcm/ncmcm_classes" />
-      <recent name="$PROJECT_DIR$/ncmcm/bundlenet" />
-      <recent name="$PROJECT_DIR$/ncmcm/stats_tests" />
-      <recent name="$PROJECT_DIR$/docs/source" />
     </key>
   </component>
   <component name="RunManager" selected="Python.dummy">
@@ -711,7 +678,10 @@
       <workItem from="1722688726422" duration="597000" />
       <workItem from="1722691325585" duration="85000" />
       <workItem from="1722763403469" duration="10737000" />
-      <workItem from="1722774511173" duration="1395000" />
+      <workItem from="1722774511173" duration="10802000" />
+      <workItem from="1722840722324" duration="7000" />
+      <workItem from="1723040499984" duration="7763000" />
+      <workItem from="1723110609551" duration="400000" />
     </task>
     <servers />
   </component>

@@ -1,3 +1,5 @@
+import json
+
 from ncmcm.ncmcm_classes.CustomEnsembleModel import CustomEnsembleModel
 from ncmcm.helpers.general_functions import *
 from ncmcm.helpers.plotting_functions import *
@@ -472,6 +474,7 @@ class Database:
                                  show=True,
                                  save=False,
                                  interactive=False,
+                                 physics=None,
                                  clustering_rep=None):
         """
         Creates a behavioral state diagram using the defined states as a directed graph.
@@ -500,6 +503,9 @@ class Database:
 
             - interactive: bool, optional
                 Whether to save an interactive HTML plot.
+
+            - physics: str, optional
+                A path to a JSON-File with physics for the pyvis-graph.
 
         Returns:
             - return: bool
@@ -575,6 +581,8 @@ class Database:
                     ax=ax_g)
             plt.title("Behavioral State Diagram")
             plt.show()
+        else:
+            plt.close()
 
         if save:
             nx.draw(G, adjusted_pos,
@@ -593,26 +601,39 @@ class Database:
             plt.close()
         # This right here will create the interactive HTML plot
         if interactive:
-            net = Network(directed=True  # ,
-                          # select_menu=True,  # Show part 1 in the plot (optional)
-                          )
+            net = Network(directed=True, filter_menu=True, select_menu=True, cdn_resources='remote')
             net.from_nx(G)
             for idx, node in enumerate(net.nodes):
                 c, b = node['id'].split(':')
+                node['cog_state'] = c
+                node['behavior'] = b
                 c_int = int(c[1:]) - 1
                 b_int = np.where(np.asarray(self.states) == b)[0][0]
                 n_idx = (len(self.states) * c_int + b_int)
                 r, g, b = self.colordict[b_int]
                 node['color'] = f'rgb({r * 255},{g * 255},{b * 255})'
-                node['size'] = np.sqrt(node_sizes[n_idx])
+                node['size'] = max(np.sqrt(node_sizes[n_idx]), 2)
                 new = {name: int(T[n_idx, i] * (len(self.B) - 1)) for i, name in enumerate(G.nodes)}
                 node['title'] = ''.join(f'{k}:{v}\n' for k, v in new.items() if v > 0)
 
-            net.show_buttons(['physics', 'nodes', 'edges'])
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+
+            if physics is None:
+                with open(os.path.join(script_dir, "..", "physics", "default_physic.json"), 'r') as file:
+                    physic = json.load(file)
+            elif type(physics) is str:
+                with open(physics, 'r') as file:
+                    physic = json.load(file)
+            else:
+                print('ERROR! No valid physics script selected.')
+                return None
+
+            physic = json.dumps(physic, indent=2)
+            net.set_options(physic)
 
             name = str(input('File name for the html-plot? '))
             net.show(f'{name}.html', notebook=False)
-            print(f'Plot has been saved under: {os.getcwd()}/{name}.html')
+            print(f'Plot has been saved under: {name}.html')
         return True
 
     def map_names(self,

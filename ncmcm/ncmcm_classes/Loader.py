@@ -32,7 +32,7 @@ class Loader:
     """
     def __init__(self,
                  data_set_no,
-                 path='data/NoStim_Data.mat'):
+                 path='data/datasets/NoStim_Data.mat'):
         """
         Reads in the data from the all files corresponding to the selected dataset.
         It stores all values into numpy arrays.

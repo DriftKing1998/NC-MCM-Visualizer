@@ -1,0 +1,21 @@
+{
+    "nodes": {
+        "physics": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "selfReferenceSize": null,
+        "selfReference": {
+            "angle": 0.5
+        },
+        "smooth": {
+            "forceDirection": "none"
+        }
+    },
+    "physics": {
+        "minVelocity": 0.75
+    }
+}
+
