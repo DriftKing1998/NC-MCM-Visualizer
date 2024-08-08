@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ncmcm.ncmcm_classes.Visualizer &mdash; NCMCM-Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            NCMCM-Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">NCMCM-Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ncmcm.ncmcm_classes.Visualizer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ncmcm.ncmcm_classes.Visualizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ncmcm.helpers.plotting_functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ncmcm.bundlenet.BundDLeNet</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span><span class="p">,</span> <span class="n">NMF</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="kn">import</span> <span class="nn">matplotlib.animation</span> <span class="k">as</span> <span class="nn">anim</span>  <span class="c1"># FuncAnimation</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">ncmcm.ncmcm_classes.Database</span> <span class="kn">import</span> <span class="n">Database</span>
+
+<div class="viewcode-block" id="Visualizer">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer">[docs]</a>
+<span class="k">class</span> <span class="nc">Visualizer</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">data</span><span class="p">:</span> <span class="n">Database</span><span class="p">,</span>
+                 <span class="n">mapping</span><span class="p">,</span>
+                 <span class="n">transform</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a Visualizer object using a Database object and a mapping.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - data: Database, required</span>
+<span class="sd">                Database object with data to be plotted later.</span>
+
+<span class="sd">            - mapping: object, required</span>
+<span class="sd">                Some form of dimensionality reduction, preferably to 3D space, so plotting is possible.</span>
+
+<span class="sd">            - transform: bool, optional</span>
+<span class="sd">                Whether to transform points directly using the mapping. Normally &quot;True&quot; is fine.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setting Attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Mapping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">mapping</span>
+        <span class="k">if</span> <span class="n">transform</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transform_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Colors for plotting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors_diff_pred</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors_pred</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># BundDLeNet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Animation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">animation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Visualizer.change_mapping">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.change_mapping">[docs]</a>
+    <span class="k">def</span> <span class="nf">change_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                       <span class="n">new_mapping</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a different mapping should be used in the future.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - new_mapping: object, required</span>
+<span class="sd">                Some sort of dimensionality reduction, preferably to 3D space, so plotting is possible.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_points</span><span class="p">(</span><span class="n">new_mapping</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">new_mapping</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mapping was not changed.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="c1">### DIAGNOSTICS ###</span>
+<div class="viewcode-block" id="Visualizer.plot_mapping">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_mapping">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">quivers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses the mapping of the Visualizer to plot the datapoints into 3D space.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - show_legend: bool, optional</span>
+<span class="sd">                Whether the legend should be shown.</span>
+
+<span class="sd">            - grid_off: bool, optional</span>
+<span class="sd">                Whether the grid should be turned off.</span>
+
+<span class="sd">            - quivers: bool, optional</span>
+<span class="sd">                Whether to use quivers; otherwise, a scatterplot is created.</span>
+
+<span class="sd">            - show: bool, optional</span>
+<span class="sd">                Whether to display the plot. If False, the plot&#39;s components will be returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool or tuple</span>
+<span class="sd">                Either a boolean success indicator or a tuple containing the figure, axis, and legend handles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The mapping does not map into a 3D space.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+        <span class="c1"># We need to trim labs and colors if we have a BundDLe</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">quivers</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_quivers3D</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">:],</span> <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">:],</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="n">alpha</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+
+        <span class="c1"># plot the legend if wanted</span>
+        <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+            <span class="n">legend_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">legend_elements</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">grid_off</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Axes 1&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Axes 2&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;Axes 3&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mapping: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">legend_elements</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_transform_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                          <span class="n">mapping</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses the mapping given to transform the data points (Database.neuron_traces). Also checks if the mapping is a</span>
+<span class="sd">        neural network or any other sklearn dimensionality reduction.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - mapping: Dimensionality reduction mapping for the data points (for visualization mapping to 3D space). Type is either a tf-neural-network or any sklearn-object with method &quot;fit_transform&quot;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># This should not happen normally</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No mapping present. CREATING PCA MODEL ...&#39;</span><span class="p">)</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">transformed_points</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="c1"># If we are using the TAU model to map into 3D space</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">):</span>
+            <span class="c1"># If the mapping is BundDLeNet we use the &#39;windowed&#39; input</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mapping</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">transformed_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transformed_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+        <span class="c1"># This happens if we give some mapping which is not a NN</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="s1">&#39;fit_transform&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get_params</span><span class="p">()[</span><span class="s1">&#39;n_components&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1"># print(&#39;HAVE mapping MODEL&#39;)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">NMF</span><span class="p">):</span>
+                    <span class="n">scaler</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">(</span><span class="n">feature_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)))</span>
+                    <span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                    <span class="n">transformed_points</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">transformed_points</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The selected model does not project to a 3 dimensional space.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The selected mapping has no attribute </span><span class="se">\&#39;</span><span class="s1">fit_transform</span><span class="se">\&#39;</span><span class="s1">. (SKLEARN models are recommended)&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Points have coordinate shape: &#39;</span><span class="p">,</span> <span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># self.x, self.y, self.z = transformed_points.T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span> <span class="o">=</span> <span class="n">transformed_points</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">blabs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">diff</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates legend handles from earlier created `self.diff_label_counts` or from labels given as a parameter.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - blabs: numpy.ndarray, optional</span>
+<span class="sd">                Labels from which the legend handles should be created.</span>
+
+<span class="sd">            - diff: bool, optional</span>
+<span class="sd">                Whether to create a legend for different predictions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: list</span>
+<span class="sd">                List of legend handles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if the legend for the difference plot is requested</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+            <span class="n">y_labels_diff</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">label</span><span class="p">:</span> <span class="p">{</span><span class="n">wrong</span><span class="p">:</span> <span class="n">count</span> <span class="k">for</span> <span class="n">wrong</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff_label_counts</span><span class="p">[</span><span class="n">c_idx</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">count</span><span class="p">}</span>
+                <span class="k">for</span> <span class="n">c_idx</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">)</span>
+            <span class="p">}</span>
+
+            <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colordict</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+                                          <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mathbf{&#39;</span> <span class="o">+</span> <span class="n">keyval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span> <span class="o">+</span> <span class="s1">&#39; to &#39;</span> <span class="o">+</span>
+                                                <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                                    <span class="p">[</span><span class="sa">r</span><span class="s2">&quot;$\mathbf{&quot;</span> <span class="o">+</span> <span class="n">w_behav</span> <span class="o">+</span> <span class="s2">&quot;}$&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">)&quot;</span>
+                                                     <span class="k">for</span> <span class="n">w_behav</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">keyval</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+                                                <span class="p">)</span>
+                                          <span class="k">if</span> <span class="n">keyval</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="sa">r</span><span class="s1">&#39;$\mathbf{&#39;</span> <span class="o">+</span> <span class="n">keyval</span><span class="p">[</span>
+                                              <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span> <span class="o">+</span> <span class="s2">&quot; predictions were always correct&quot;</span><span class="p">)</span>
+                               <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">keyval</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y_labels_diff</span><span class="o">.</span><span class="n">items</span><span class="p">())]</span>
+
+            <span class="k">return</span> <span class="n">legend_elements</span>
+
+        <span class="c1"># Create custom legend handles</span>
+        <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colordict</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+                                      <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                      <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mathbf{&#39;</span> <span class="o">+</span> <span class="n">lab</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; (</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">blabs</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">legend_elements</span>
+
+    <span class="k">def</span> <span class="nf">_generate_diff_label_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                    <span class="n">diff_predict</span><span class="p">,</span>
+                                    <span class="n">window_true_trans</span><span class="p">,</span>
+                                    <span class="n">window_pred_trans</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the counts of wrong predictions by the model from a numpy array where correct predictions are marked as</span>
+<span class="sd">        &quot;-1&quot; and incorrect predictions are labeled with other values.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - diff_predict: numpy.ndarray, required</span>
+<span class="sd">                Array with correct predictions marked as &quot;-1&quot; and incorrect predictions marked with other values (e.g., &quot;0&quot;, &quot;1&quot;, ...).</span>
+
+<span class="sd">            - window_true_trans: int, required</span>
+<span class="sd">                Size difference between true labels and the number of transformed points.</span>
+
+<span class="sd">            - window_pred_trans: int, required</span>
+<span class="sd">                Size difference between predicted labels and the number of transformed points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Create dictionary to count different predictions for each label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diff_label_counts</span> <span class="o">=</span> <span class="p">{</span><span class="n">l</span><span class="p">:</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">}</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">wrong_predict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">diff_predict</span><span class="p">):</span>
+            <span class="n">pred_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="n">window_pred_trans</span><span class="p">]</span>
+            <span class="n">true_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="n">window_true_trans</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">wrong_predict</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">diff_label_counts</span><span class="p">[</span><span class="n">true_label</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">pred_label</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="Visualizer.attach_bundle">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.attach_bundle">[docs]</a>
+    <span class="k">def</span> <span class="nf">attach_bundle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">l_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                      <span class="n">epochs</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+                      <span class="n">window</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                      <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">use_predictor</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations, and if</span>
+<span class="sd">        specified, the predictor will be used as a prediction model for visualizations.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - l_dim: int, optional</span>
+<span class="sd">                Size of the latent dimension (for visualization, should be 3).</span>
+
+<span class="sd">            - epochs: int, optional</span>
+<span class="sd">                Number of epochs for training the neural network.</span>
+
+<span class="sd">            - window: int, optional</span>
+<span class="sd">                Window size used by BundDLeNet input.</span>
+
+<span class="sd">            - train: bool, optional</span>
+<span class="sd">                Whether the BundDLeNet should be trained.</span>
+
+<span class="sd">            - use_predictor: bool, optional</span>
+<span class="sd">                Whether the predictor should be used in future visualizations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;In order to attach the BundDLeNet </span><span class="se">\&#39;</span><span class="s1">self.data.fps</span><span class="se">\&#39;</span><span class="s1"> has to have a value!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">time</span><span class="p">,</span> <span class="n">newX</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B_</span> <span class="o">=</span> <span class="n">prep_data</span><span class="p">(</span><span class="n">newX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">win</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">BundDLeNet</span><span class="p">(</span><span class="n">latent_dim</span><span class="o">=</span><span class="n">l_dim</span><span class="p">,</span> <span class="n">behaviors</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">B_</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">optimizer</span><span class="p">,</span>
+                <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">n_epochs</span><span class="o">=</span><span class="n">epochs</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tau</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">change_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">use_predictor</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">use_bundle_predictor</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Visualizer.plot_loss">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_loss">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Will plot the loss over epochs as total loss, markov loss (loss for predicted Y-t+1 (=lower) and created Y-t+1</span>
+<span class="sd">        (=upper)) and behavior loss (loss for predicted B-t+1 (=upper) and true label at t+1).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;$\mathcal</span><span class="si">{L}</span><span class="s2">_{{Markov}}$&quot;</span><span class="p">,</span> <span class="s2">&quot;$\mathcal</span><span class="si">{L}</span><span class="s2">_{{Behavior}}$&quot;</span><span class="p">,</span> <span class="s2">&quot;Total loss $\mathcal</span><span class="si">{L}</span><span class="s2">$&quot;</span><span class="p">]):</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No model was trained. No loss saved.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Visualizer.train_model">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.train_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="n">epochs</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+                    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trains an attached BundDLeNet using the Adam optimizer.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - epochs: int, optional</span>
+<span class="sd">                Number of epochs for training.</span>
+
+<span class="sd">            - learning_rate: float, optional</span>
+<span class="sd">                Learning rate used by the Adam optimizer.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No model is attached/loaded.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">B_</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">optimizer</span><span class="p">,</span>
+            <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+            <span class="n">n_epochs</span><span class="o">=</span><span class="n">epochs</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tau</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Visualizer.use_mapping_as_input">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.use_mapping_as_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">use_mapping_as_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Will use the output from the attached tau-model as an input for a new Database object. This is used if the input</span>
+<span class="sd">        data of the current object could be too large or for exploratory uses</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: Database</span>
+<span class="sd">                A new Database object with the transformed points as neuron traces and labels without the first few</span>
+<span class="sd">                instances, since the window (needed for nc-mcm-training) is cut from them</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;axis</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;New X has shape: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;New Y have shape: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B_</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;New Y-names have shape: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;New X-names have shape: &#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING! No BundDLeNet!&#39;</span><span class="p">)</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;axis</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No mapping attached!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">Database</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_add_quivers3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                       <span class="n">ax</span><span class="p">,</span>
+                       <span class="n">x</span><span class="p">,</span>
+                       <span class="n">y</span><span class="p">,</span>
+                       <span class="n">z</span><span class="p">,</span>
+                       <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds 3D quivers with appropriate size to an axis using 3D input data.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - ax: matplotlib.axes.Axes, required</span>
+<span class="sd">                Matplotlib axis to which the quivers are added.</span>
+
+<span class="sd">            - x: numpy.ndarray or list, required</span>
+<span class="sd">                x-values.</span>
+
+<span class="sd">            - y: numpy.ndarray or list, required</span>
+<span class="sd">                y-values.</span>
+
+<span class="sd">            - z: numpy.ndarray or list, required</span>
+<span class="sd">                z-values.</span>
+
+<span class="sd">            - colors: numpy.ndarray or list, optional</span>
+<span class="sd">                Color values for the quivers.</span>
+
+<span class="sd">            - draw: bool, optional</span>
+<span class="sd">                Whether to draw the quivers on the axis.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: matplotlib.axes.Axes</span>
+<span class="sd">                Axis with quivers added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># Differences between x coordinates</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># Differences between y coordinates</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>  <span class="c1"># Differences between z coordinates</span>
+        <span class="c1"># we do this so each arrowhead has the same size independent of the size of the arrow</span>
+        <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">dz</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># We replace eventual zeros</span>
+        <span class="n">zero_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lengths</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span>
+        <span class="n">lengths</span><span class="p">[</span><span class="n">lengths</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon</span>
+
+        <span class="k">if</span> <span class="n">draw</span><span class="p">:</span>
+            <span class="n">lw</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lw</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">mean_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+        <span class="n">lengths</span> <span class="o">=</span> <span class="n">mean_length</span> <span class="o">/</span> <span class="n">lengths</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dx</span><span class="p">)):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">dx</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">dy</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">dz</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+                      <span class="n">arrow_length_ratio</span><span class="o">=</span><span class="n">lengths</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span>
+
+<div class="viewcode-block" id="Visualizer.make_movie">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.make_movie">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_movie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                   <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                   <span class="n">quivers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a movie from each frame in the imaging data. It uses the tau model or a mapping to project the data into</span>
+<span class="sd">        a 3-dimensional space.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - interval: float, optional</span>
+<span class="sd">                Number of milliseconds between each frame in the movie. Note: For movies with quivers, only the saved</span>
+<span class="sd">                version will adhere to this interval, as frame creation is too slow in view mode.</span>
+
+<span class="sd">            - save: bool, optional</span>
+<span class="sd">                Whether the GIF should be saved.</span>
+
+<span class="sd">            - show_legend: bool, optional</span>
+<span class="sd">                Whether the legend should be shown in the movie.</span>
+
+<span class="sd">            - grid_off: bool, optional</span>
+<span class="sd">                Whether the grid should be turned off.</span>
+
+<span class="sd">            - quivers: bool, optional</span>
+<span class="sd">                Whether to use quivers; otherwise, a scatterplot will be created.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The mapping does not map into a 3D space.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">interval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The movie well be played in real time.&#39;</span><span class="p">)</span>
+                <span class="n">interval</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fps</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interval</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_animation</span><span class="p">(</span><span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+                               <span class="n">grid_off</span><span class="o">=</span><span class="n">grid_off</span><span class="p">,</span>
+                               <span class="n">quivers</span><span class="o">=</span><span class="n">quivers</span><span class="p">,</span>
+                               <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;What should the movie be called?&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_animation</span><span class="p">(</span><span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+                                   <span class="n">grid_off</span><span class="o">=</span><span class="n">grid_off</span><span class="p">,</span>
+                                   <span class="n">quivers</span><span class="o">=</span><span class="n">quivers</span><span class="p">,</span>
+                                   <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_gif</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_create_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                          <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">quivers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="p">,</span> <span class="n">legend_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_mapping</span><span class="p">(</span><span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+                                                                <span class="n">grid_off</span><span class="o">=</span><span class="n">grid_off</span><span class="p">,</span>
+                                                                <span class="n">quivers</span><span class="o">=</span><span class="n">quivers</span><span class="p">,</span>
+                                                                <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">animation</span> <span class="o">=</span> <span class="n">anim</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">,</span>
+                                            <span class="n">fargs</span><span class="o">=</span><span class="p">(</span><span class="n">grid_off</span><span class="p">,</span> <span class="n">legend_elements</span><span class="p">,</span> <span class="n">quivers</span><span class="p">,</span> <span class="n">draw</span><span class="p">),</span>
+                                            <span class="n">frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                            <span class="n">interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">frame</span><span class="p">,</span>
+                <span class="n">grid_off</span><span class="p">,</span>
+                <span class="n">legend_elements</span><span class="p">,</span>
+                <span class="n">quivers</span><span class="p">,</span>
+                <span class="n">draw</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update function to create a frame in the movie.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - frame: int, required</span>
+<span class="sd">                Index of the frame.</span>
+
+<span class="sd">            - grid_off: bool, optional</span>
+<span class="sd">                Whether the grid is shown.</span>
+
+<span class="sd">            - legend_elements: list or bool, optional</span>
+<span class="sd">                Either legend handles or `False` if no legend is shown.</span>
+
+<span class="sd">            - quivers: bool, optional</span>
+<span class="sd">                Whether to use quivers in the frame.</span>
+
+<span class="sd">            - draw: bool, optional</span>
+<span class="sd">                Whether to draw the frame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: matplotlib.axes.Axes</span>
+<span class="sd">                The axis on which the movie is played.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">draw</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">quivers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_quivers3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">[:,</span> <span class="n">frame</span><span class="p">:</span><span class="n">frame</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span>
+                                                        <span class="n">colors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">:][</span><span class="n">frame</span><span class="p">:</span><span class="n">frame</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">[:,</span> <span class="n">frame</span><span class="p">],</span>
+                                          <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">:][</span><span class="n">frame</span><span class="p">],</span>
+                                          <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                          <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">[:,</span> <span class="n">frame</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+        <span class="c1"># self.scatter = self.movie_ax.scatter(self.x[frame], self.y[frame], self.z[frame], s=20, alpha=0.8, color=&#39;red&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Frame: </span><span class="si">{</span><span class="n">frame</span><span class="si">}</span><span class="se">\n</span><span class="s1">Behavior: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">frame</span><span class="p">]]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">legend_elements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">grid_off</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Axes 1&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Axes 2&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;Axes 3&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span>
+
+<div class="viewcode-block" id="Visualizer.save_gif">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.save_gif">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_gif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">,</span>
+                 <span class="n">bitrate</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span>
+                 <span class="n">dpi</span><span class="o">=</span><span class="mi">144</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the movie created earlier.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - name: str, required</span>
+<span class="sd">                Name under which the movie should be saved in the &quot;movies&quot; directory.</span>
+
+<span class="sd">            - bitrate: int, optional</span>
+<span class="sd">                Bits per second the movie is processed at by the PillowWriter.</span>
+
+<span class="sd">            - dpi: int, optional</span>
+<span class="sd">                Dots per inch (resolution) of the GIF.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">animation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No animation created yet.</span><span class="se">\n</span><span class="s1">To create one use </span><span class="se">\&#39;</span><span class="s1">.make_movie()</span><span class="se">\&#39;</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This may take a while...&#39;</span><span class="p">)</span>
+            <span class="c1"># self.movie_ax.remove()</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.gif&#39;</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.gif&#39;</span>
+            <span class="n">gif_writer</span> <span class="o">=</span> <span class="n">anim</span><span class="o">.</span><span class="n">PillowWriter</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">),</span> <span class="n">metadata</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">artist</span><span class="o">=</span><span class="s1">&#39;Me&#39;</span><span class="p">),</span> <span class="n">bitrate</span><span class="o">=</span><span class="n">bitrate</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">animation</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="n">gif_writer</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Visualizer.use_bundle_predictor">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.use_bundle_predictor">[docs]</a>
+    <span class="k">def</span> <span class="nf">use_bundle_predictor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tries to use the prediction model used in plots to the Predictor of the BundDLeNet. This is normally only used</span>
+<span class="sd">        if the upon BundDLeNet creation the &quot;use_predictor&quot; parameter was set to False.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn_tau</span><span class="p">:</span>
+            <span class="n">Yt1_upper</span><span class="p">,</span> <span class="n">Yt1_lower</span><span class="p">,</span> <span class="n">Bt1_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">)</span>
+            <span class="n">B_pred_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">Bt1_upper</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pred_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span> <span class="o">=</span> <span class="n">B_pred_new</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Accuracy of BundDLeNet: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]:],</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;It seems there is no BundDLeNet attached yet. Use </span><span class="se">\&#39;</span><span class="s1">Visualizer.attachBundDLeNet()</span><span class="se">\&#39;</span><span class="s1">!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Visualizer.make_comparison">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.make_comparison">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_comparison</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">quivers</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a comparison plot between the true labels and the prediction model that is added or selected. The legend</span>
+<span class="sd">        created corresponds only to the actually displayed points.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - show_legend: bool, optional</span>
+<span class="sd">                Whether the legend should be shown.</span>
+
+<span class="sd">            - quivers: bool, optional</span>
+<span class="sd">                Whether to use quivers; otherwise, a scatterplot is used.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The mapping does not map into a 3D space.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pred_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;There was no prediction model attached to the Database-object. Either use fit_model on the &#39;</span>
+                  <span class="s1">&#39;Database object or use useBundDLePredictor on the Visualizer if you attached a BundDLeNet&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Creating differences in lengths needed for correct plotting of the model/mapping</span>
+        <span class="n">reform</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">window_pred_trans</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">window_pred_trans</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># This handles the exception when a BundDLeNet predictor is used for prediction but the points are plotted</span>
+            <span class="c1"># using a dim-reduction that will not reduce the amount of points</span>
+            <span class="n">reform</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">window_pred_trans</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">[:,</span> <span class="n">t</span><span class="p">:]</span>
+            <span class="n">window_pred_trans</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The prediction has fewer points than the true labels. Therefore </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s1"> points are not plotted and also&#39;</span>
+                  <span class="sa">f</span><span class="s1">&#39; not used for accuracy calculation of the model&#39;</span><span class="p">)</span>
+        <span class="n">window_true_trans</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">window_true_pred</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">)</span>
+
+        <span class="c1"># Calculating differences between prediction and true label - generating the coloring for the 3 plots</span>
+        <span class="n">diff_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">window_true_trans</span><span class="p">:]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">window_pred_trans</span><span class="p">:]</span>
+        <span class="n">diff_predicts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diff_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">window_true_trans</span><span class="p">:],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors_pred</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colordict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">window_pred_trans</span><span class="p">:]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors_diff_pred</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colordict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span>
+                                 <span class="n">diff_predicts</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_diff_label_counts</span><span class="p">(</span><span class="n">diff_predicts</span><span class="p">,</span> <span class="n">window_true_trans</span><span class="p">,</span> <span class="n">window_pred_trans</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="c1"># First subplot</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">131</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">132</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">133</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+
+        <span class="c1"># True Labels</span>
+        <span class="n">remove_grid</span><span class="p">(</span><span class="n">ax1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quivers</span><span class="p">:</span>
+            <span class="n">ax1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_quivers3D</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">window_true_trans</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">window_true_trans</span><span class="p">:])</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;True Label&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Difference</span>
+        <span class="n">remove_grid</span><span class="p">(</span><span class="n">ax2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quivers</span><span class="p">:</span>
+            <span class="n">ax2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_quivers3D</span><span class="p">(</span><span class="n">ax2</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colors_diff_pred</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colors_diff_pred</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Model: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pred_model</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;Mapping: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;Accuracy at </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">window_true_pred</span><span class="p">:],</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Predictions</span>
+        <span class="n">remove_grid</span><span class="p">(</span><span class="n">ax3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quivers</span><span class="p">:</span>
+            <span class="n">ax3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_quivers3D</span><span class="p">(</span><span class="n">ax3</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colors_pred</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colors_pred</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Predicted Label&#39;</span><span class="p">)</span>
+
+        <span class="c1"># plot the legend if wanted</span>
+        <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+            <span class="n">legend_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">window_true_trans</span><span class="p">:])</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;True Labels&#39;</span><span class="p">,</span>
+                       <span class="n">handles</span><span class="o">=</span><span class="n">legend_1</span><span class="p">,</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
+                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
+                       <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">)</span>
+
+            <span class="n">legend_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">diff</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Incorrect Predictions&#39;</span><span class="p">,</span>
+                       <span class="n">handles</span><span class="o">=</span><span class="n">legend_2</span><span class="p">,</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
+                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
+                       <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">)</span>
+
+            <span class="n">legend_3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">window_pred_trans</span><span class="p">:])</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Predicted Labels&#39;</span><span class="p">,</span>
+                       <span class="n">handles</span><span class="o">=</span><span class="n">legend_3</span><span class="p">,</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
+                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
+                       <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> Frames&#39;</span><span class="p">,</span>
+                     <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;x-large&#39;</span><span class="p">,</span>
+                     <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">window_pred_trans</span><span class="p">:])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Some points </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">window_pred_trans</span><span class="p">:])</span><span class="si">}</span><span class="s1"> used for accuracy calculation of &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;the model are not plotted, since the mapping does not include them.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">reform</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transform_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Visualizer.save_weights">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.save_weights">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the weights of the BundDLeNet to a given path</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            - path: str, required</span>
+<span class="sd">                Relative path in the NeuronVisualizer directory with the file name attached.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No BundDLe-Net created yet.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CustomEnsembleModel">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel">[docs]</a>
+<span class="k">class</span> <span class="nc">CustomEnsembleModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This ensemble takes a model and creates binary predictors for each label-combination.</span>
+<span class="sd">    As a prediction for each instance it gives the most abundant prediction from its sub-models.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">base_model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            - base_model: model, required</span>
+<span class="sd">                A model from which the binary classifiers will be built (e.g. Logistic Regression). It needs to have the method &quot;fit&quot;, &quot;predict&quot; and &quot;predict_proba&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span> <span class="o">=</span> <span class="n">base_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combinatorics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_models</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="CustomEnsembleModel.fit">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">neuron_traces</span><span class="p">,</span>
+            <span class="n">labels</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combinatorics</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">class_mapping</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combinatorics</span><span class="p">):</span>
+            <span class="n">b_model</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">)</span>
+            <span class="n">mapped_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">class_mapping</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">])</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mapped_labels</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="c1"># apply mask to the dataset and only use instances of &#39;A&#39; or &#39;B&#39; to train</span>
+            <span class="n">neuron_traces_filtered</span> <span class="o">=</span> <span class="n">neuron_traces</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">mapped_labels_filtered</span> <span class="o">=</span> <span class="n">mapped_labels</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">b_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">neuron_traces_filtered</span><span class="p">,</span> <span class="n">mapped_labels_filtered</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="CustomEnsembleModel.predict">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.predict">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">neuron_traces</span><span class="p">):</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combinatorics</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">b_model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensemble_models</span><span class="p">):</span>
+            <span class="n">results</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">neuron_traces</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="p">:])</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span></div>
+
+
+<div class="viewcode-block" id="CustomEnsembleModel.predict_proba">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.predict_proba">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">neuron_traces</span><span class="p">):</span>
+
+        <span class="n">y_prob_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combinatorics</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensemble_models</span><span class="p">):</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">neuron_traces</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">y_prob_map</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span>
+        <span class="k">return</span> <span class="n">y_prob_map</span></div>
+
+
+<div class="viewcode-block" id="CustomEnsembleModel.classify">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.classify">[docs]</a>
+    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="CustomEnsembleModel.get_params">
+<a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;base_model&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_model</span><span class="p">}</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Hofer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ncmcm.ncmcm_classes package &mdash; NCMCM-Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="ncmcm.helpers package" href="ncmcm.helpers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            NCMCM-Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">ncmcm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ncmcm.bundlenet.html">ncmcm.bundlenet package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ncmcm.helpers.html">ncmcm.helpers package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ncmcm.ncmcm_classes package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.ncmcm_classes.CustomEnsembleModel">ncmcm.ncmcm_classes.CustomEnsembleModel module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel"><code class="docutils literal notranslate"><span class="pre">CustomEnsembleModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.ncmcm_classes.Database">ncmcm.ncmcm_classes.Database module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.ncmcm_classes.Database.Database"><code class="docutils literal notranslate"><span class="pre">Database</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.ncmcm_classes.Loader">ncmcm.ncmcm_classes.Loader module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.ncmcm_classes.Loader.Loader"><code class="docutils literal notranslate"><span class="pre">Loader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ncmcm.ncmcm_classes.Visualizer">ncmcm.ncmcm_classes.Visualizer module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel"><code class="docutils literal notranslate"><span class="pre">CustomEnsembleModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer"><code class="docutils literal notranslate"><span class="pre">Visualizer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">NCMCM-Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">ncmcm</a></li>
+      <li class="breadcrumb-item active">ncmcm.ncmcm_classes package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ncmcm.ncmcm_classes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ncmcm-ncmcm-classes-package">
+<h1>ncmcm.ncmcm_classes package<a class="headerlink" href="#ncmcm-ncmcm-classes-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-ncmcm.ncmcm_classes.CustomEnsembleModel">
+<span id="ncmcm-ncmcm-classes-customensemblemodel-module"></span><h2>ncmcm.ncmcm_classes.CustomEnsembleModel module<a class="headerlink" href="#module-ncmcm.ncmcm_classes.CustomEnsembleModel" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ncmcm.ncmcm_classes.CustomEnsembleModel.</span></span><span class="sig-name descname"><span class="pre">CustomEnsembleModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/CustomEnsembleModel.html#CustomEnsembleModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This ensemble takes a model and creates binary predictors for each label-combination.
+As a prediction for each instance it gives the most abundant prediction from its sub-models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.classify">
+<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/CustomEnsembleModel.html#CustomEnsembleModel.classify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.classify" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/CustomEnsembleModel.html#CustomEnsembleModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.fit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/CustomEnsembleModel.html#CustomEnsembleModel.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.get_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/CustomEnsembleModel.html#CustomEnsembleModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.predict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/CustomEnsembleModel.html#CustomEnsembleModel.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.CustomEnsembleModel.CustomEnsembleModel.predict_proba" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.ncmcm_classes.Database">
+<span id="ncmcm-ncmcm-classes-database-module"></span><h2>ncmcm.ncmcm_classes.Database module<a class="headerlink" href="#module-ncmcm.ncmcm_classes.Database" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ncmcm.ncmcm_classes.Database.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavioral_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nc-mcm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.behavioral_state_diagram">
+<span class="sig-name descname"><span class="pre">behavioral_state_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cog_stat_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustering_rep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.behavioral_state_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.behavioral_state_diagram" title="Link to this definition"></a></dt>
+<dd><p>Creates a behavioral state diagram using the defined states as a directed graph.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>cog_stat_num: int, optional</dt><dd><p>Number of cognitive states used.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>threshold: float, optional</dt><dd><p>A threshold used to display edges in the graph; edges with smaller values are not plotted.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>offset: float, optional</dt><dd><p>Distance between clusters in the plot.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>clustering_rep: int, optional</dt><dd><p>Specifies which clustering representation should be used.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>adj_matrix: bool, optional</dt><dd><p>Whether to plot the adjacency matrix.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>show: bool, optional</dt><dd><p>Whether to display the matplotlib plot.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>save: bool, optional</dt><dd><p>Whether to save the matplotlib plot.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>interactive: bool, optional</dt><dd><p>Whether to save an interactive HTML plot.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.cluster_BPT">
+<span class="sig-name descname"><span class="pre">cluster_BPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nrep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kmeans'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_markov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stationary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.cluster_BPT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.cluster_BPT" title="Link to this definition"></a></dt>
+<dd><p>Clusters behavioral probability trajectories if a model has been fitted on the data.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>nrep: int, optional</dt><dd><p>Repetitions of repeated clustering for each number of clusters.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>max_clusters: int, optional</dt><dd><p>Maximal number of clusters. Clustering will be done for 1 to “max_clusters” clusters.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_m: int, optional</dt><dd><p>Number of simulations for the test statistics of each memory-less test.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_s: int, optional</dt><dd><p>Number of simulations for the test statistics of each stationarity test.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>chunks: int, optional</dt><dd><p>Number of chunks created for the stationarity test (Frobenius norm of the chunks is used).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>clustering: str, optional</dt><dd><p>The clustering algorithm to use (e.g., ‘kmeans’).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>kmeans_init: str or int, optional</dt><dd><p>Value for the “n_init” parameter of KMeans, defining how often K-means is initialized after
+clustering (the best result is picked by the sklearn package).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>plot_markov: bool, optional</dt><dd><p>Whether to plot the result.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>stationary: bool, optional</dt><dd><p>Whether to also perform a stationarity test.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>verbose: int, optional</dt><dd><p>Level of verbosity for logging information.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.cluster_BPT_single">
+<span class="sig-name descname"><span class="pre">cluster_BPT_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nclusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kmeans'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stationary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.cluster_BPT_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.cluster_BPT_single" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.exclude_neurons">
+<span class="sig-name descname"><span class="pre">exclude_neurons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude_neurons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.exclude_neurons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.exclude_neurons" title="Link to this definition"></a></dt>
+<dd><p>Excludes specified neurons from the database.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>exclude_neurons: numpy.ndarray or list, required</dt><dd><p>List of neuron names to exclude.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.fit_model">
+<span class="sig-name descname"><span class="pre">fit_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv_folds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.fit_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.fit_model" title="Link to this definition"></a></dt>
+<dd><p>Allows to fit a model which is used to predict behaviors from the neuron traces (accuracy is printed). Its
+probabilities are used for an eventual clustering.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>base_model: object, required</dt><dd><p>The model to be fitted (no specific type provided).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>prob_map: numpy.ndarray or list, optional</dt><dd><p>A transform or array indicating if a probability map is created for each frame. This is used in the
+behavioral probability trajectory clustering (.cluster_BPT()).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ensemble: bool, optional</dt><dd><p>A boolean indicating if the CustomEnsembleModel should be created. It makes a set of models for
+each behavior, to differentiate it from each of the other behaviors.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>cv_folds: int, optional</dt><dd><p>If cross validation should be applied, this signals the number of cross-folds.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.map_names">
+<span class="sig-name descname"><span class="pre">map_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.map_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.map_names" title="Link to this definition"></a></dt>
+<dd><p>Used to generate a state-name from a number</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.plotting_neuronal_behavioral">
+<span class="sig-name descname"><span class="pre">plotting_neuronal_behavioral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.plotting_neuronal_behavioral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.plotting_neuronal_behavioral" title="Link to this definition"></a></dt>
+<dd><p>Plots neuronal data and behavioral data as a timeseries.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>vmin: int, optional</dt><dd><p>minimal value for neuronal data values</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>vmax: int, optional</dt><dd><p>maximal value for neuronal data values</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.set_colors">
+<span class="sig-name descname"><span class="pre">set_colors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_colors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.set_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.set_colors" title="Link to this definition"></a></dt>
+<dd><p>Allows to change the colors used.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>new_colors: numpy.ndarray or list, required</dt><dd><p>An array of new colors (same size as unique behaviors).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Database.Database.step_plot">
+<span class="sig-name descname"><span class="pre">step_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">png_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Database.html#Database.step_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Database.Database.step_plot" title="Link to this definition"></a></dt>
+<dd><p>Creates a plot consisting of 4 plots. The first one shows behavioral labels plotted onto the 2 principal
+components of the neuronal data. The second one shows behavioral labels plotted onto behavioral probability
+trajectories. The third one shows cognitive labels plotted onto behavioral probability trajectories. The
+last one shows cognitive labels plotted onto the 2 principal components of the neuronal data.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>clusters: int, optional</dt><dd><p>Number of cognitive states (clusters) to use.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>nrep: int, optional</dt><dd><p>Repetitions of repeated clustering for each number of clusters.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_m: int, optional</dt><dd><p>Number of simulations for the test statistics of each memory-less test.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sim_s: int, optional</dt><dd><p>Number of simulations for the test statistics of each stationarity test.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>save: bool, optional</dt><dd><p>Whether the plot should be saved.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>show: bool, optional</dt><dd><p>Whether the plot should be shown.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>png_name: str, optional</dt><dd><p>Name of the plot if it should be saved. If not provided, it will be named
+‘step_plot_&lt;self.name&gt;.png’.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.ncmcm_classes.Loader">
+<span id="ncmcm-ncmcm-classes-loader-module"></span><h2>ncmcm.ncmcm_classes.Loader module<a class="headerlink" href="#module-ncmcm.ncmcm_classes.Loader" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Loader.Loader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ncmcm.ncmcm_classes.Loader.</span></span><span class="sig-name descname"><span class="pre">Loader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_set_no</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data/NoStim_Data.mat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Loader.html#Loader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Loader.Loader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reads in the data from the all files corresponding to the selected dataset.
+It stores all values into numpy arrays.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>data_set_no: int, required</dt><dd><p>Defines which CSV files will be read.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>path: str, optional</dt><dd><p>Path to the matlab-file</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ncmcm.ncmcm_classes.Visualizer">
+<span id="ncmcm-ncmcm-classes-visualizer-module"></span><h2>ncmcm.ncmcm_classes.Visualizer module<a class="headerlink" href="#module-ncmcm.ncmcm_classes.Visualizer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ncmcm.ncmcm_classes.Visualizer.</span></span><span class="sig-name descname"><span class="pre">CustomEnsembleModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#CustomEnsembleModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This ensemble takes a model and creates binary predictors for each label-combination.
+As a prediction for each instance it gives the most abundant prediction from its sub-models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.classify">
+<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#CustomEnsembleModel.classify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.classify" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#CustomEnsembleModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.fit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#CustomEnsembleModel.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.get_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#CustomEnsembleModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.predict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#CustomEnsembleModel.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.CustomEnsembleModel.predict_proba" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ncmcm.ncmcm_classes.Visualizer.</span></span><span class="sig-name descname"><span class="pre">Visualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ncmcm.ncmcm_classes.Database.Database" title="ncmcm.ncmcm_classes.Database.Database"><span class="pre">Database</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.attach_bundle">
+<span class="sig-name descname"><span class="pre">attach_bundle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.attach_bundle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.attach_bundle" title="Link to this definition"></a></dt>
+<dd><p>Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations, and if
+specified, the predictor will be used as a prediction model for visualizations.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>l_dim: int, optional</dt><dd><p>Size of the latent dimension (for visualization, should be 3).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>epochs: int, optional</dt><dd><p>Number of epochs for training the neural network.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>window: int, optional</dt><dd><p>Window size used by BundDLeNet input.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>train: bool, optional</dt><dd><p>Whether the BundDLeNet should be trained.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>use_predictor: bool, optional</dt><dd><p>Whether the predictor should be used in future visualizations.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.change_mapping">
+<span class="sig-name descname"><span class="pre">change_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.change_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.change_mapping" title="Link to this definition"></a></dt>
+<dd><p>If a different mapping should be used in the future.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>new_mapping: object, required</dt><dd><p>Some sort of dimensionality reduction, preferably to 3D space, so plotting is possible.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.make_comparison">
+<span class="sig-name descname"><span class="pre">make_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quivers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.make_comparison"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.make_comparison" title="Link to this definition"></a></dt>
+<dd><p>Creates a comparison plot between the true labels and the prediction model that is added or selected. The legend
+created corresponds only to the actually displayed points.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>show_legend: bool, optional</dt><dd><p>Whether the legend should be shown.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>quivers: bool, optional</dt><dd><p>Whether to use quivers; otherwise, a scatterplot is used.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.make_movie">
+<span class="sig-name descname"><span class="pre">make_movie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quivers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.make_movie"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.make_movie" title="Link to this definition"></a></dt>
+<dd><p>Creates a movie from each frame in the imaging data. It uses the tau model or a mapping to project the data into
+a 3-dimensional space.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>interval: float, optional</dt><dd><p>Number of milliseconds between each frame in the movie. Note: For movies with quivers, only the saved
+version will adhere to this interval, as frame creation is too slow in view mode.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>save: bool, optional</dt><dd><p>Whether the GIF should be saved.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>show_legend: bool, optional</dt><dd><p>Whether the legend should be shown in the movie.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>grid_off: bool, optional</dt><dd><p>Whether the grid should be turned off.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>quivers: bool, optional</dt><dd><p>Whether to use quivers; otherwise, a scatterplot will be created.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_loss">
+<span class="sig-name descname"><span class="pre">plot_loss</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.plot_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_loss" title="Link to this definition"></a></dt>
+<dd><p>Will plot the loss over epochs as total loss, markov loss (loss for predicted Y-t+1 (=lower) and created Y-t+1
+(=upper)) and behavior loss (loss for predicted B-t+1 (=upper) and true label at t+1).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_mapping">
+<span class="sig-name descname"><span class="pre">plot_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quivers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.plot_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_mapping" title="Link to this definition"></a></dt>
+<dd><p>Uses the mapping of the Visualizer to plot the datapoints into 3D space.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>show_legend: bool, optional</dt><dd><p>Whether the legend should be shown.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>grid_off: bool, optional</dt><dd><p>Whether the grid should be turned off.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>quivers: bool, optional</dt><dd><p>Whether to use quivers; otherwise, a scatterplot is created.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>show: bool, optional</dt><dd><p>Whether to display the plot. If False, the plot’s components will be returned.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool or tuple</dt><dd><p>Either a boolean success indicator or a tuple containing the figure, axis, and legend handles.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.save_gif">
+<span class="sig-name descname"><span class="pre">save_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">144</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.save_gif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.save_gif" title="Link to this definition"></a></dt>
+<dd><p>Saves the movie created earlier.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>name: str, required</dt><dd><p>Name under which the movie should be saved in the “movies” directory.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>bitrate: int, optional</dt><dd><p>Bits per second the movie is processed at by the PillowWriter.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>dpi: int, optional</dt><dd><p>Dots per inch (resolution) of the GIF.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.save_weights">
+<span class="sig-name descname"><span class="pre">save_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.save_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.save_weights" title="Link to this definition"></a></dt>
+<dd><p>Saves the weights of the BundDLeNet to a given path</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>path: str, required</dt><dd><p>Relative path in the NeuronVisualizer directory with the file name attached.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.train_model">
+<span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.train_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.train_model" title="Link to this definition"></a></dt>
+<dd><p>Trains an attached BundDLeNet using the Adam optimizer.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>epochs: int, optional</dt><dd><p>Number of epochs for training.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>learning_rate: float, optional</dt><dd><p>Learning rate used by the Adam optimizer.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.use_bundle_predictor">
+<span class="sig-name descname"><span class="pre">use_bundle_predictor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.use_bundle_predictor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.use_bundle_predictor" title="Link to this definition"></a></dt>
+<dd><p>Tries to use the prediction model used in plots to the Predictor of the BundDLeNet. This is normally only used
+if the upon BundDLeNet creation the “use_predictor” parameter was set to False.</p>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: bool</dt><dd><p>Boolean success indicator</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ncmcm.ncmcm_classes.Visualizer.Visualizer.use_mapping_as_input">
+<span class="sig-name descname"><span class="pre">use_mapping_as_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ncmcm/ncmcm_classes/Visualizer.html#Visualizer.use_mapping_as_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ncmcm.ncmcm_classes.Visualizer.Visualizer.use_mapping_as_input" title="Link to this definition"></a></dt>
+<dd><p>Will use the output from the attached tau-model as an input for a new Database object. This is used if the input
+data of the current object could be too large or for exploratory uses</p>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>return: Database</dt><dd><p>A new Database object with the transformed points as neuron traces and labels without the first few
+instances, since the window (needed for nc-mcm-training) is cut from them</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ncmcm.helpers.html" class="btn btn-neutral float-left" title="ncmcm.helpers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Hofer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

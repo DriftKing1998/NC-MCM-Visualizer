@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ncmcm.helpers.markov_functions &mdash; NCMCM-Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            NCMCM-Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">NCMCM-Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ncmcm.helpers.markov_functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ncmcm.helpers.markov_functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">statsmodels.stats.multitest</span> <span class="k">as</span> <span class="nn">smt</span>
+<span class="kn">from</span> <span class="nn">ncmcm.helpers.sequence_functions</span> <span class="kn">import</span> <span class="n">simulate_markovian</span><span class="p">,</span> <span class="n">make_random_adj_matrices</span>
+
+
+<span class="c1"># Functions Markov #</span>
+
+
+<div class="viewcode-block" id="markovian">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.markov_functions.markovian">[docs]</a>
+<span class="k">def</span> <span class="nf">markovian</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">sim_memoryless</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test for 1st order Markovian behavior in a sequence. H0 is that the process is a 1st order markov process.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - sequence:  np.ndarray, required</span>
+<span class="sd">            Input sequence.</span>
+
+<span class="sd">        - sim_memoryless:  int, optional</span>
+<span class="sd">            Number of simulations for memoryless Markov behavior test statistic.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - p: float</span>
+<span class="sd">            Probability of Markovian behavior.</span>
+
+<span class="sd">        - P1: np.ndarray</span>
+<span class="sd">            Transition matrix for first-order Markov behavior.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sequence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">Pz0z1z2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">compute_transition_matrix_lag2</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+
+    <span class="c1"># This is done here at the start, so it does not need to be checked after each calculation</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span>
+    <span class="n">Pz0z1z2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Pz0z1z2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">Pz0z1z2</span><span class="p">)</span>
+    <span class="n">Pz0z1z2</span> <span class="o">=</span> <span class="n">Pz0z1z2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pz0z1z2</span><span class="p">)</span>  <span class="c1"># here I normalize it so the sum is 1 again</span>
+
+    <span class="c1"># P1 = P(z[t]|z[t-1]) = P(z[t],z[t-1]) / P(z[t-1]) = Pz0z1 / Pz1</span>
+    <span class="n">Pz0z1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pz0z1z2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">Pz1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pz0z1z2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">Pz1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This should not happen!!!&#39;</span><span class="p">)</span>
+    <span class="n">P1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pz0z1</span> <span class="o">/</span> <span class="n">Pz1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># P2 = P(z[t]|z[t-1],z[t-2]) = P(z[t],z[t-1],z[t-2]) / P(z[t-1],z[t-2]) = Pz0z1z2 / Pz1z2</span>
+    <span class="n">Pz1z2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pz0z1z2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">Pz1z2</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This should not happen!!!&#39;</span><span class="p">)</span>
+    <span class="n">P2</span> <span class="o">=</span> <span class="n">Pz0z1z2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">Pz1z2</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+
+    <span class="c1"># Testing</span>
+    <span class="n">TH0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">sim_memoryless</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">kperm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sim_memoryless</span><span class="p">):</span>
+        <span class="n">zH0</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P1</span><span class="p">)</span>
+        <span class="n">Pz0z1z2H0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">zH0</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>  <span class="c1"># col</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">zH0</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># row</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">zH0</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># depth</span>
+            <span class="n">Pz0z1z2H0</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">Pz0z1z2H0</span> <span class="o">=</span> <span class="n">Pz0z1z2H0</span> <span class="o">/</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">Pz1z2H0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pz0z1z2H0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># I am replacing zeros in Pz1z2H0 with epsilon, so we do not encounter RuntimeWarnings</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span>
+        <span class="n">Pz1z2H0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Pz1z2H0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">Pz1z2H0</span><span class="p">)</span>
+        <span class="n">Pz1z2H0</span> <span class="o">=</span> <span class="n">Pz1z2H0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pz1z2H0</span><span class="p">)</span>
+
+        <span class="c1"># P2H0 = P(z[t]|z[t-1],z[t-2]) = P(z[t],z[t-1],z[t-2]) / P(z[t-1],z[t-2]) = Pz0z1z2H0 / Pz1z2H0</span>
+        <span class="n">P2H0</span> <span class="o">=</span> <span class="n">Pz0z1z2H0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">Pz1z2H0</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="n">TH0</span><span class="p">[</span><span class="n">kperm</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">P2H0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+    <span class="c1"># compute p-value</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">P2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">T</span> <span class="o">&gt;=</span> <span class="n">TH0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">P1</span></div>
+
+
+
+<div class="viewcode-block" id="compute_transition_matrix_lag2">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.markov_functions.compute_transition_matrix_lag2">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_transition_matrix_lag2</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute a transition matrix for a lag-2 Markov process.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - sequence:  np.ndarray, required</span>
+<span class="sd">            Input sequence.</span>
+
+<span class="sd">        - normalize:  bool, optional</span>
+<span class="sd">            Boolean to normalize the transition matrix (default is True).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - P: np.ndarray</span>
+<span class="sd">            Transition matrix.</span>
+
+<span class="sd">        - states: np.ndarray</span>
+<span class="sd">            List of unique states in the sequence.</span>
+
+<span class="sd">        - M: int</span>
+<span class="sd">            Length of the sequence.</span>
+
+<span class="sd">        - N: int</span>
+<span class="sd">            Number of unique states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">sequence</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+    <span class="c1"># tensor is created</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">sequence</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">sequence</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">sequence</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># from k to j to i</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">P</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>  <span class="c1"># same as P / (M - 2)</span>
+    <span class="k">return</span> <span class="n">P</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span></div>
+
+
+
+<div class="viewcode-block" id="stationarity">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.markov_functions.stationarity">[docs]</a>
+<span class="k">def</span> <span class="nf">stationarity</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sim_stationary</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_states</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test stationarity in input sequence.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - sequence: np.ndarray, required</span>
+<span class="sd">            Input sequence.</span>
+
+<span class="sd">        - chunks: int, optional</span>
+<span class="sd">            Number of parts to split sequence.</span>
+
+<span class="sd">        - sim_stationary: int, optional</span>
+<span class="sd">            Number of simulations for stationary behavior.</span>
+
+<span class="sd">        - plot: bool, optional</span>
+<span class="sd">            Boolean indicating whether to plot the results.</span>
+
+<span class="sd">        - num_states: int, optional</span>
+<span class="sd">            If not every state of the state space is present here one can set the state space size.</span>
+
+<span class="sd">        - verbose: int, optional</span>
+<span class="sd">            Either 0 or 1 and gives additional print-outs for value 1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - mean_unadjusted_p_value: float</span>
+<span class="sd">            Mean unadjusted p-value.</span>
+
+<span class="sd">        - mean_FDR_adjusted_p_value: float</span>
+<span class="sd">            Mean False Discovery Rate (FDR) adjusted p-value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">num_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+        <span class="n">num_states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+    <span class="n">transition_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">sequence</span><span class="p">)}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">transition</span> <span class="o">=</span> <span class="p">(</span><span class="n">sequence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sequence</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">transition_dict</span><span class="p">[</span><span class="n">sequence</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="n">transition_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="c1"># approximate amount of transitions to each state from the least populated state</span>
+        <span class="n">per_state</span> <span class="o">=</span> <span class="n">min_length</span> <span class="o">/</span> <span class="n">num_states</span>
+        <span class="n">purposed_parts</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">per_state</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;We purpose </span><span class="si">{</span><span class="n">purposed_parts</span><span class="si">}</span><span class="s1"> parts&#39;</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">purposed_parts</span>
+
+    <span class="c1"># Split each type of transition for each state into parts</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chunks</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">transitions</span> <span class="ow">in</span> <span class="n">transition_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># random.shuffle(transitions)</span>
+        <span class="n">state_chunk_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">transitions</span><span class="p">)</span> <span class="o">//</span> <span class="n">chunks</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chunks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">state_chunk_length</span> <span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">state_chunk_length</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">p</span><span class="p">))</span>
+            <span class="n">parts</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">+=</span> <span class="n">transitions</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="n">parts</span><span class="p">[</span><span class="n">chunks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">transitions</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">state_chunk_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">chunks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):]</span>
+
+    <span class="c1"># Making test statistic</span>
+    <span class="n">test_stats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">test_matrices</span> <span class="o">=</span> <span class="n">make_random_adj_matrices</span><span class="p">(</span><span class="n">num_matrices</span><span class="o">=</span><span class="n">sim_stationary</span><span class="p">,</span> <span class="n">matrix_shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_states</span><span class="p">,</span> <span class="n">num_states</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">idx1</span><span class="p">,</span> <span class="n">m1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_matrices</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">m2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_matrices</span><span class="p">[</span><span class="n">idx1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">m_diff</span> <span class="o">=</span> <span class="n">m1</span> <span class="o">-</span> <span class="n">m2</span>
+            <span class="n">frobenius_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">m_diff</span><span class="p">,</span> <span class="s1">&#39;fro&#39;</span><span class="p">)</span>
+            <span class="n">test_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frobenius_norm</span><span class="p">)</span>
+
+    <span class="c1"># The 0.05 percentile for significance</span>
+    <span class="n">first_percentile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">test_stats</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="c1"># calculate the empirical transition matrices from the chunks</span>
+    <span class="n">emp_transition_matrices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="n">emp_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_states</span><span class="p">,</span> <span class="n">num_states</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">emp_m</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># Normalize rows to ensure they sum up to 1</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">emp_m</span><span class="p">:</span>
+            <span class="c1"># print(&#39;We fill 0 in the transition matrix with very small values.&#39;)</span>
+            <span class="n">emp_m</span><span class="p">[</span><span class="n">emp_m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-8</span>
+        <span class="n">row_sums</span> <span class="o">=</span> <span class="n">emp_m</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">emp_m</span> <span class="o">/=</span> <span class="n">row_sums</span>
+        <span class="n">emp_m_t1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">emp_m</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">emp_m</span> <span class="o">=</span> <span class="n">emp_m</span> <span class="o">/</span> <span class="n">emp_m_t1</span>
+        <span class="n">emp_transition_matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">emp_m</span><span class="p">)</span>
+
+    <span class="c1"># calculate frobenius norms between the empirical transition matrices</span>
+    <span class="n">frobenius_norms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx_1</span><span class="p">,</span> <span class="n">emp_P1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">emp_transition_matrices</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">idx_2</span><span class="p">,</span> <span class="n">emp_P2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">emp_transition_matrices</span><span class="p">[</span><span class="n">idx_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]):</span>
+            <span class="c1"># print(f&#39;We compare matrx {idx_1} to matrix {idx_1+idx_2+1}&#39;)</span>
+            <span class="n">m_test</span> <span class="o">=</span> <span class="n">emp_P1</span> <span class="o">-</span> <span class="n">emp_P2</span>
+            <span class="n">frobenius_empirical</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">m_test</span><span class="p">,</span> <span class="s1">&#39;fro&#39;</span><span class="p">)</span>
+            <span class="n">frobenius_norms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frobenius_empirical</span><span class="p">)</span>
+
+    <span class="c1"># plot all the results</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">test_stats</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>  <span class="c1"># Adjust the number of bins as needed</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True Norm&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frobenius_norms</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Frobenius Norm between chunks&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">first_percentile</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;First 0.05 percentile&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Values&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Histogram of Float Values&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>  <span class="c1"># Display the legend</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">p_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_stats</span> <span class="o">&gt;=</span> <span class="n">f</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_stats</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frobenius_norms</span><span class="p">]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">FDR_adjusted_p_values</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">p_values</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fdr_bh&#39;</span><span class="p">)</span>
+    <span class="n">mean_unadjusted_p_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_stats</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">frobenius_norms</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_stats</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">FDR_adjusted_p_values</span><span class="p">),</span> <span class="n">mean_unadjusted_p_value</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Hofer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
