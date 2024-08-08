@@ -4,93 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/BundDLeNet.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/classes.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/pickles/data_worm_1.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/pickles/data_worm_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/pickles/data_worm_3.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/pickles/data_worm_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/plots/Demonstration/ComaprisonBunDLeNet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/plots/Demonstration/InteractivePlot.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/plots/Demonstration/Worm_1_Interval_100.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/plots/Demonstration/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/data/plots/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/functions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/markov_mem_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/markov_memorylessness_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/markov_stationary_distribution_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/markov_stationary_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/markov_stationary_testing_new.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/test-Database.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/ncmcm/tests/test-Visualizer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.0.2-py3-none-any.whl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.0.2.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.1.0-py3-none-any.whl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.1.0.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.2.0-py3-none-any.whl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/ncmcm-1.2.0.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/PKG-INFO" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/SOURCES.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/dependency_links.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/requires.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm.egg-info/top_level.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/BundDLeNet.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/classes.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/NoStim_Data.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_0.data-00000-of-00001" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_0.index" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_1.data-00000-of-00001" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_1.index" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_2.data-00000-of-00001" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_2.index" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_3.data-00000-of-00001" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_3.index" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_4.data-00000-of-00001" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BunDLeNet_model_worm_4.index" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BundleNet_model_nc-mcm.data-00000-of-00001" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/BundleNet_model_nc-mcm.index" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/generated/checkpoint" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_1.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_3.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/data_worm_5.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_0_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_1_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_2_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_3_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/pickles/trash/data_worm_4_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/Demonstration/ComaprisonBunDLeNet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/Demonstration/InteractivePlot.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/Demonstration/Worm_1_Interval_100.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/Demonstration/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/data/plots/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/functions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/lib/bindings/utils.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/lib/tom-select/tom-select.complete.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/lib/tom-select/tom-select.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/lib/vis-9.1.2/vis-network.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/lib/vis-9.1.2/vis-network.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_mem_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_memorylessness_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_stationary_distribution_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_stationary_testing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/markov_stationary_testing_new.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/test-Database.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/tests/test-Visualizer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/Demo.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/lib/bindings/utils.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/lib/tom-select/tom-select.complete.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/lib/tom-select/tom-select.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/lib/vis-9.1.2/vis-network.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/lib/vis-9.1.2/vis-network.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/test.py" beforeDir="false" />
-    </list>
+    <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -132,23 +46,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;PyPi-Version&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/michaelhofer/Documents/GitHub/ncmcm&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "GitHub-Version",
+    "last_opened_file_path": "/Users/michaelhofer/Documents/GitHub/ncmcm",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/ncmcm/data/plots/Demonstration" />
