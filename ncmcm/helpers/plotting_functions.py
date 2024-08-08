@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ncmcm.helpers.markov_functions import stationarity, markovian
-from ncmcm.helpers.sequence_functions import simulate_random_sequence, simulate_markovian, non_stationary_process
+from .markov_functions import stationarity, markovian
+from .sequence_functions import simulate_random_sequence, simulate_markovian, non_stationary_process
 
 
 # Plotting #
@@ -15,6 +15,7 @@ def average_markov_plot(markov_array):
         Create a scatter plot of Markov p-values of each worm (input array) with a mean trendline.
 
         Parameters:
+       
         - markov_array: np.ndarray, required
             2D array of Markov p-values.
 
@@ -45,6 +46,7 @@ def parameter_testing_s(axes, parts=10, reps=3, N_states=10, M=3000, sim_s=400, 
         Test stationary behavior in Markov sequences.
 
         Parameters:
+       
         - axes: matplotlib.axes.Axes, required
             Matplotlib axes.
 
@@ -70,6 +72,7 @@ def parameter_testing_s(axes, parts=10, reps=3, N_states=10, M=3000, sim_s=400, 
             Boolean indicating whether to plot Markov sequences.
 
         Returns:
+       
         - axes: matplotlib.axes.Axes
             Updated Matplotlib axes.
     """
@@ -124,6 +127,7 @@ def parameter_testing_m(axes, reps=3, N_states=10, sim_markov=200):
         Test memoryless Markov behavior in sequences.
 
         Parameters:
+       
         - axes: matplotlib.axes.Axes, required
             Matplotlib axes.
 
@@ -137,6 +141,7 @@ def parameter_testing_m(axes, reps=3, N_states=10, sim_markov=200):
             Number of simulations for Markov behavior.
 
         Returns:
+       
         - axes: matplotlib.axes.Axes
             Updated Matplotlib axes.
     """

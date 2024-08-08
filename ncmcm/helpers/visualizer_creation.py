@@ -1,4 +1,5 @@
-from ncmcm.ncmcm_classes.Visualizer import *
+from ..bundlenet import *
+from ..ncmcm_classes.Visualizer import Visualizer
 
 
 def create_visualizer(database,
@@ -14,6 +15,7 @@ def create_visualizer(database,
     if it exists.
 
     Parameters:
+       
         - database: Database, required
             A database object from which the Visualizer will be generated
 
@@ -91,6 +93,7 @@ def load_bundle_visualizer(database,
     Database-object will be used (if present).
 
     Parameters:
+       
         - database: Database, required
             A Database-object with data from which to create the Visualizer.
 

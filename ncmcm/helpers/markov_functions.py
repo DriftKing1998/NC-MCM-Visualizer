@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.stats.multitest as smt
-from ncmcm.helpers.sequence_functions import simulate_markovian, make_random_adj_matrices
+from .sequence_functions import simulate_markovian, make_random_adj_matrices
 
 
 # Functions Markov #
@@ -12,14 +12,16 @@ def markovian(sequence, sim_memoryless=1000):
         Test for 1st order Markovian behavior in a sequence. H0 is that the process is a 1st order markov process.
 
         Parameters:
-        - sequence:  np.ndarray, required
+            
+            - sequence:  np.ndarray, required
             Input sequence.
 
         - sim_memoryless:  int, optional
             Number of simulations for memoryless Markov behavior test statistic.
 
         Returns:
-        - p: float
+            
+            - p: float
             Probability of Markovian behavior.
 
         - P1: np.ndarray
@@ -80,14 +82,16 @@ def compute_transition_matrix_lag2(sequence, normalize=True):
         Compute a transition matrix for a lag-2 Markov process.
 
         Parameters:
-        - sequence:  np.ndarray, required
+            
+            - sequence:  np.ndarray, required
             Input sequence.
 
         - normalize:  bool, optional
             Boolean to normalize the transition matrix (default is True).
 
         Returns:
-        - P: np.ndarray
+            
+            - P: np.ndarray
             Transition matrix.
 
         - states: np.ndarray
@@ -120,7 +124,8 @@ def stationarity(sequence, chunks=None, sim_stationary=1000, plot=False, verbose
         Test stationarity in input sequence.
 
         Parameters:
-        - sequence: np.ndarray, required
+            
+            - sequence: np.ndarray, required
             Input sequence.
 
         - chunks: int, optional
@@ -139,6 +144,7 @@ def stationarity(sequence, chunks=None, sim_stationary=1000, plot=False, verbose
             Either 0 or 1 and gives additional print-outs for value 1.
 
         Returns:
+            
         - mean_unadjusted_p_value: float
             Mean unadjusted p-value.
 

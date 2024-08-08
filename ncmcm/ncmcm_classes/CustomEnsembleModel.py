@@ -13,6 +13,7 @@ class CustomEnsembleModel:
                  base_model):
         """
         Parameters:
+            
             - base_model: model, required
                 A model from which the binary classifiers will be built (e.g. Logistic Regression). It needs to have the method "fit", "predict" and "predict_proba".
         """

@@ -1,17 +1,13 @@
-import json
-
-from ncmcm.ncmcm_classes.CustomEnsembleModel import CustomEnsembleModel
-from ncmcm.helpers.general_functions import *
-from ncmcm.helpers.plotting_functions import *
-from ncmcm.helpers.processing_functions import *
-from ncmcm.bundlenet.BundDLeNet import *
+from .CustomEnsembleModel import CustomEnsembleModel
+from ..helpers.general_functions import *
+from ..helpers.plotting_functions import *
+from ..helpers.processing_functions import *
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import os
+import os, json
 from sklearn.decomposition import PCA
 from typing import Optional, List, Union
-import mat73
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.cluster import KMeans, SpectralClustering
@@ -37,6 +33,7 @@ class Database:
         creates colors for plotting. The object can be seen as a container for all the data which is used to plot later.
 
         Parameters:
+            
             - neuron_traces: np.ndarray or list, required
                 Contains neuronal activity over time as float.
 
@@ -111,6 +108,7 @@ class Database:
         Allows to change the colors used.
 
         Parameters:
+            
             - new_colors: numpy.ndarray or list, required
                 An array of new colors (same size as unique behaviors).
         """
@@ -128,6 +126,7 @@ class Database:
         Excludes specified neurons from the database.
 
         Parameters:
+            
             - exclude_neurons: numpy.ndarray or list, required
                 List of neuron names to exclude.
         """
@@ -153,6 +152,7 @@ class Database:
         probabilities are used for an eventual clustering.
 
         Parameters:
+            
             - base_model: object, required
                 The model to be fitted (no specific type provided).
 
@@ -168,6 +168,7 @@ class Database:
                 If cross validation should be applied, this signals the number of cross-folds.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -230,10 +231,11 @@ class Database:
                            nrep=200,
                            sim_m=500,
                            sim_s=500,
-                           chunks=7,
+                           chunks=None,
                            clustering='kmeans',
                            kmeans_init='auto',
-                           stationary=False):
+                           stationary=False,
+                           verbose=1):
         if self.yp_map is None:
             print(f'You first need to fit a model (eg. Logistic Regression), '
                   f'which will be used to map to behavioral probability trajectories.\n'
@@ -251,7 +253,8 @@ class Database:
 
         for reps in range(nrep):
             print(f'Testing markovianity for {nclusters} clusters - repetition {reps + 1}')
-            self._test_clusters(nclusters, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary)
+            self._test_clusters(nclusters, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary,
+                                verbose=verbose)
         return True
 
     def cluster_BPT(self,
@@ -269,6 +272,7 @@ class Database:
         Clusters behavioral probability trajectories if a model has been fitted on the data.
 
         Parameters:
+            
             - nrep: int, optional
                 Repetitions of repeated clustering for each number of clusters.
 
@@ -301,6 +305,7 @@ class Database:
                 Level of verbosity for logging information.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -370,6 +375,7 @@ class Database:
         last one shows cognitive labels plotted onto the 2 principal components of the neuronal data.
 
         Parameters:
+            
             - clusters: int, optional
                 Number of cognitive states (clusters) to use.
 
@@ -393,6 +399,7 @@ class Database:
                 'step_plot_<self.name>.png'.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -475,11 +482,15 @@ class Database:
                                  save=False,
                                  interactive=False,
                                  physics=None,
-                                 clustering_rep=None):
+                                 weights_hist=False,
+                                 bins=15,
+                                 clustering_rep=None,
+                                 **kwargs):
         """
         Creates a behavioral state diagram using the defined states as a directed graph.
 
         Parameters:
+            
             - cog_stat_num: int, optional
                 Number of cognitive states used.
 
@@ -508,6 +519,7 @@ class Database:
                 A path to a JSON-File with physics for the pyvis-graph.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -515,31 +527,52 @@ class Database:
         if self.p_memoryless is None or self.p_memoryless.shape[0] < cog_stat_num:
             print('You need to run the behavioral probability trajectory clustering first (\'.cluster_BPT\').')
             return False
-        if threshold is None:
-            threshold = 1 / (500 * cog_stat_num)
-            print('Calcualted threshold is: ', threshold)
+
         # make the graph
-        G_old = nx.DiGraph()
         node_colors = list(self.colordict.values()) * cog_stat_num
-
         T, cog_beh_states = adj_matrix_ncmcm(self, cog_stat_num=cog_stat_num, clustering_rep=clustering_rep)
+
+        T_edges = T.copy()
+        T_edges[np.diag_indices_from(T_edges)] = 0
+        if threshold is None:
+            threshold = np.max(T_edges) / 10
+            print('Calculated threshold is: ', threshold)
+        T_edges[T_edges < threshold] = 0
+
+        # Plot transition distribution if wanted
+        if weights_hist:
+            tmp = T_edges.copy()
+            tmp[tmp == 0] = np.nan
+            plt.hist(tmp.reshape(-1, 1), bins=bins)
+            plt.title(f'Distribution of edges after removing ones with weight below {np.round(threshold, 5)}')
+            plt.ylabel('amount of edges')
+            plt.xlabel('edge weights before scaling')
+            plt.show(block=False)
+
+        # Create the graph
+        G_old = nx.DiGraph()
         G_old.add_nodes_from(cog_beh_states)
-
-        # adding edges
-        for idx1, n1 in enumerate(cog_beh_states):
-            for idx2, n2 in enumerate(cog_beh_states):
-                if n1 != n2:
-                    if T[idx1, idx2] > threshold:
-                        G_old.add_edge(n1, n2, weight=T[idx1, idx2] * 1000)
-
-        edge_colors = [node_colors[np.where(cog_beh_states == u)[0][0]] for u, v in G_old.edges()]
-        node_sizes = np.diag(T) * 500 * (np.sqrt(T.shape[0]) / offset)
-        mapping = {node: self.map_names(str(node)) for node in G_old.nodes()}
-
+        T_edges = T_edges / (np.max(T_edges) / 10)
+        nx.from_numpy_array(T_edges, create_using=G_old)
+        edge_colors = [node_colors[u] for u, v in G_old.edges()]
+        node_sizes = (np.diag(T) / np.max(np.diag(T)) * 250) * (np.sqrt(T.shape[0]) / offset)
+        mapping = {node: self.map_names(str(cog_beh_states[node])) for node in G_old.nodes()}
         G = nx.relabel_nodes(G_old, mapping)
 
+        # Reposition Nodes according to subgroups
+        cog_groups = []
+        for c_num in range(cog_stat_num):
+            cog_groups.append([n for n in np.unique(G.nodes) if n.split(':')[0] == 'C' + str(c_num + 1)])
+        all_pos = []
+        for c_node_group in cog_groups:
+            all_pos.append(nx.circular_layout(G.subgraph(c_node_group)))
+        adjusted_pos = {}
+        degrees_list = np.linspace(0, 360, num=cog_stat_num, endpoint=False)
+        for idx, current_pos in enumerate(all_pos):
+            adjusted_pos = shift_pos_by(current_pos, adjusted_pos, degrees_list[idx], offset)
+
         if adj_matrix:
-            fig, ax = plt.subplots(1, 2)
+            fig, ax = plt.subplots(1, 2, **kwargs)
             ax_a = ax[0]
             ax_g = ax[1]
             im_a = ax_a.imshow(T, cmap='Reds', interpolation='nearest', vmin=0, vmax=0.03)
@@ -549,20 +582,7 @@ class Database:
             ax_a.set_xlabel('Nodes')
             ax_a.set_ylabel('Nodes')
         else:
-            fig, ax_g = plt.subplots()
-
-        cog_groups = []
-        for c_num in range(cog_stat_num):
-            cog_groups.append([n for n in G.nodes if n.split(':')[0] == 'C' + str(c_num + 1)])
-
-        all_pos = []
-        for c_node_group in cog_groups:
-            all_pos.append(nx.circular_layout(G.subgraph(c_node_group)))
-
-        adjusted_pos = {}
-        degrees_list = np.linspace(0, 360, num=cog_stat_num, endpoint=False)
-        for idx, current_pos in enumerate(all_pos):
-            adjusted_pos = shift_pos_by(current_pos, adjusted_pos, degrees_list[idx], offset)
+            fig, ax_g = plt.subplots(**kwargs)
 
         # Plot graph
         edges = G.edges()
@@ -619,7 +639,7 @@ class Database:
             script_dir = os.path.dirname(os.path.abspath(__file__))
 
             if physics is None:
-                with open(os.path.join(script_dir, "..", "physics", "default_physic.json"), 'r') as file:
+                with open(os.path.join(script_dir, "..", "data", "default_physic.json"), 'r') as file:
                     physic = json.load(file)
             elif type(physics) is str:
                 with open(physics, 'r') as file:
@@ -641,7 +661,8 @@ class Database:
         """
         Used to generate a state-name from a number
         """
-        new_name = f'C{name[:-2]}:{self.states[int(name[-2:])]}'
+        c, b = name.split('-')
+        new_name = f'C{c}:{self.states[int(b)]}'
         return new_name
 
     def plotting_neuronal_behavioral(self,
@@ -651,6 +672,7 @@ class Database:
         Plots neuronal data and behavioral data as a timeseries.
 
         Parameters:
+            
             - vmin: int, optional
                 minimal value for neuronal data values
 
@@ -696,6 +718,7 @@ class Database:
         Plots neuronal data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
 
         Parameters:
+            
             - ax: matplotlib.axes.Axes, optional
                 Axes to plot the neuronal-timeseries on.
 

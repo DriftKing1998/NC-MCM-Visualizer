@@ -9,6 +9,7 @@ def adj_matrix_ncmcm(data, cog_stat_num=3, clustering_rep=None):
         Calculate the adjacency matrix and list of cognitive-behavioral states.
 
         Parameters:
+       
         - data: Database, required
             Data from the database.
 
@@ -19,6 +20,7 @@ def adj_matrix_ncmcm(data, cog_stat_num=3, clustering_rep=None):
             Defines which clustering should be used (by index), otherwise best p-value is used
 
         Returns:
+       
         - cog_beh_states: list
             List of all cognitive-behavioral states (coded as: CCBB).
 
@@ -30,27 +32,25 @@ def adj_matrix_ncmcm(data, cog_stat_num=3, clustering_rep=None):
     else:
         print('Clustering was chosen according to best p-memorylessness.')
         best_clustering_idx = np.argmax(data.p_memoryless[cog_stat_num - 1, :])  # according to mr.markov himself
-    cog_states = data.xc[:, cog_stat_num - 1, best_clustering_idx].astype(int)
 
+    C = data.xc[:, cog_stat_num - 1, best_clustering_idx].astype(int)
     b = np.unique(data.B)
-    c = np.unique(cog_states)  # =cog_stat_num
+    c = np.unique(C)
     T = np.zeros((len(c) * len(b), len(c) * len(b)))
-
-    # This allows for a maximum of 99 different behaviors
-    cog_beh_states = [(cs + 1) * 100 + bs for cs in c for bs in b]
+    C_B_states = np.asarray([str(cs + 1) + '-' + str(bs) for cs in c for bs in b])
 
     for m in range(len(data.B) - 1):
         cur_sample = m
         next_sample = m + 1
-        cur_state = np.where((cog_states[cur_sample] + 1) * 100 + data.B[cur_sample] == cog_beh_states)[0][0]
-        next_state = np.where((cog_states[next_sample] + 1) * 100 + data.B[next_sample] == cog_beh_states)[0][0]
+        cur_state = np.where(str(C[cur_sample] + 1) + '-' + str(data.B[cur_sample]) == C_B_states)[0][0]
+        next_state = np.where(str(C[next_sample] + 1) + '-' + str(data.B[next_sample]) == C_B_states)[0][0]
         T[next_state, cur_state] += 1
 
     # normalize T
     T = T / (len(data.B) - 1)
     T = T.T
 
-    return T, cog_beh_states
+    return T, C_B_states
 
 
 def make_integer_list(input_list):
@@ -58,10 +58,12 @@ def make_integer_list(input_list):
         Convert a list of strings to a list of integers and create a translation list.
 
         Parameters:
+       
         - input_list: list, required
             List of strings.
 
         Returns:
+       
         - integer_list: list
             List of integers corresponding to input_list.
 
@@ -86,6 +88,7 @@ def make_windowed_data(X, B, win=15):
         Create windowed data from input sequences. The format needed for BundDLeNet
 
         Parameters:
+       
         - X: np.ndarray, required
             Input sequences.
 
@@ -96,6 +99,7 @@ def make_windowed_data(X, B, win=15):
             Window size.
 
         Returns:
+       
         - newX: np.ndarray
             Windowed input sequences.
 

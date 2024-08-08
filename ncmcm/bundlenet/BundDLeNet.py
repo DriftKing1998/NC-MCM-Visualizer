@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras import layers
-
 import numpy as np
 from scipy import signal
 from tqdm import tqdm
@@ -84,6 +83,7 @@ class BundDLeNetTrainer:
     This class handles the training process for the BundDLeNet model.
 
     Parameters:
+       
         - model: BundDLeNet, required
             Instance of the BundDLeNet class.
 
@@ -113,12 +113,12 @@ class BundDLeNetTrainer:
         return DCC_loss, behaviour_loss, total_loss
 
 
-### FUNCTIONS ####
 def preprocess_data(X, fps):
     """
     Preprocesses the input data by applying bandpass filtering.
 
     Parameters:
+       
         - X: numpy.ndarray, required
             Input data to be preprocessed.
 
@@ -126,6 +126,7 @@ def preprocess_data(X, fps):
             Frames per second.
 
     Returns:
+       
         - return: numpy.ndarray
             Preprocessed data after bandpass filtering.
     """
@@ -141,6 +142,7 @@ def prep_data(X, B, win=15):
     Prepares the data for the BundDLeNet algorithm by formatting the input neuronal and behavioral traces.
 
     Parameters:
+       
         - X: np.ndarray, required
             Raw neuronal traces of shape (n, t), where n is the number of neurons and t is the number of time steps.
 
@@ -153,6 +155,7 @@ def prep_data(X, B, win=15):
             as input.
 
     Returns:
+       
         - X_paired: np.ndarray
             Paired neuronal traces of shape (m, 2, win, n), where m is the number of paired windows,
             2 represents the current and next time steps, win is the length of each window,
@@ -181,6 +184,7 @@ def bandpass(traces, f_l, f_h, sampling_freq):
     Apply a bandpass filter to the input traces.
 
     Parameters:
+       
         - traces: np.ndarray, required
             Input traces to be filtered.
 
@@ -194,6 +198,7 @@ def bandpass(traces, f_l, f_h, sampling_freq):
             Sampling frequency in Hz.
 
     Returns:
+       
         - filtered: np.ndarray
             Filtered traces.
 
@@ -216,6 +221,7 @@ def train_model(X_train, B_train_1, model, optimizer, gamma, n_epochs):
     Training BundDLeNet
 
     Parameters:
+       
         - X_train: np.ndarray, required
             Training input data.
 
@@ -235,6 +241,7 @@ def train_model(X_train, B_train_1, model, optimizer, gamma, n_epochs):
             Number of training epochs.
 
     Returns:
+       
         - return: numpy.ndarray
             Array of loss values during training.
     """
@@ -263,6 +270,7 @@ def tf_batch_prep(X_, B_, batch_size = 100):
     The function returns the prepared batch dataset, which will be used for training the TensorFlow model.
 
     Parameters:
+       
         - X_: np.ndarray, required
             Input data of shape (n_samples, ...).
 
@@ -273,6 +281,7 @@ def tf_batch_prep(X_, B_, batch_size = 100):
             Size of the batches to be created. Default is 100.
 
     Returns:
+       
         - batch_dataset: tf.data.Dataset
             TensorFlow dataset containing batches of input data and target data.
     """
@@ -286,6 +295,7 @@ def bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma, discrete=True
     Calculate the loss for the BundDLeNet.
 
     Parameters:
+       
         - yt1_upper: np.ndarray, required
             Output from the upper arm of the BundDLeNet.
 
@@ -305,6 +315,7 @@ def bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma, discrete=True
             Whether the loss should be calculated for discrete data.
 
     Returns:
+       
         - return: tuple
             A tuple containing the DCC loss, behavior loss, and total loss.
     """
@@ -319,6 +330,8 @@ def bccdcc_loss(yt1_upper, yt1_lower, bt1_upper, b_train_1, gamma, discrete=True
         behaviour_loss = mse(b_train_1, bt1_upper)
     total_loss = gamma * DCC_loss + (1 - gamma) * behaviour_loss
     return gamma * DCC_loss, (1 - gamma) * behaviour_loss, total_loss
+
+
 
 
 

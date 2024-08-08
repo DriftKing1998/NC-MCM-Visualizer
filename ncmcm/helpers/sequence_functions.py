@@ -8,6 +8,7 @@ def simulate_markovian(M, P=None, N=1, order=1):
         Simulate a higher-order Markovian process.
 
         Parameters:
+       
         - M: int, required
             Length of the sequence.
 
@@ -21,6 +22,7 @@ def simulate_markovian(M, P=None, N=1, order=1):
             Order of the Markov process (default is 1).
 
         Returns:
+       
         - z: np.ndarray
             Simulated sequence.
 
@@ -60,6 +62,7 @@ def make_random_adj_matrices(num_matrices=1000, matrix_shape=(10, 10), sparse=Fa
         Generate random adjacency matrices.
 
         Parameters:
+       
         - num_matrices: int, optional
             Number of matrices to generate.
 
@@ -70,6 +73,7 @@ def make_random_adj_matrices(num_matrices=1000, matrix_shape=(10, 10), sparse=Fa
             Can be applied to get more sparse transition matrices.
 
         Returns:
+       
         - transition_matrices: list
             List of generated matrices (np.ndarray).
     """

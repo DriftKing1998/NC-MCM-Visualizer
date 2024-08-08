@@ -1,21 +1,5 @@
-from ncmcm.ncmcm_classes.CustomEnsembleModel import CustomEnsembleModel
-from ncmcm.helpers.general_functions import *
-from ncmcm.helpers.plotting_functions import *
-from ncmcm.helpers.processing_functions import *
-from ncmcm.bundlenet.BundDLeNet import *
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import os
-from sklearn.decomposition import PCA
-from typing import Optional, List, Union
-import mat73
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.model_selection import cross_val_score
-import networkx as nx
-from pyvis.network import Network
+import os, mat73
 
 
 class Loader:
@@ -32,18 +16,24 @@ class Loader:
     """
     def __init__(self,
                  data_set_no,
-                 path='data/datasets/NoStim_Data.mat'):
+                 path=None):
         """
         Reads in the data from the all files corresponding to the selected dataset.
         It stores all values into numpy arrays.
 
         Parameters:
+            
             - data_set_no: int, required
                 Defines which CSV files will be read.
 
             - path: str, optional
                 Path to the matlab-file
         """
+
+        if path is None:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            path = os.path.join(script_dir, '..', 'data', 'datasets', 'NoStim_Data.mat')
+
         self.data_set_no = data_set_no
         data_dict = mat73.loadmat(path)
         data = data_dict['NoStim_Data']

@@ -1,14 +1,13 @@
-from ncmcm.helpers.plotting_functions import *
-from ncmcm.bundlenet.BundDLeNet import *
+from ..helpers.plotting_functions import *
+from ..bundlenet import *
+from .Database import Database
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA, NMF
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import accuracy_score
 import matplotlib.animation as anim  # FuncAnimation
-from sklearn.base import clone
-from itertools import combinations
-from ncmcm.ncmcm_classes.Database import Database
+
 
 class Visualizer():
 
@@ -20,6 +19,7 @@ class Visualizer():
         Creates a Visualizer object using a Database object and a mapping.
 
         Parameters:
+            
             - data: Database, required
                 Database object with data to be plotted later.
 
@@ -60,10 +60,12 @@ class Visualizer():
         If a different mapping should be used in the future.
 
         Parameters:
+            
             - new_mapping: object, required
                 Some sort of dimensionality reduction, preferably to 3D space, so plotting is possible.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -86,6 +88,7 @@ class Visualizer():
         Uses the mapping of the Visualizer to plot the datapoints into 3D space.
 
         Parameters:
+            
             - show_legend: bool, optional
                 Whether the legend should be shown.
 
@@ -99,6 +102,7 @@ class Visualizer():
                 Whether to display the plot. If False, the plot's components will be returned.
 
         Returns:
+            
             - return: bool or tuple
                 Either a boolean success indicator or a tuple containing the figure, axis, and legend handles.
         """
@@ -150,9 +154,11 @@ class Visualizer():
         neural network or any other sklearn dimensionality reduction.
 
         Parameters:
+            
             - mapping: Dimensionality reduction mapping for the data points (for visualization mapping to 3D space). Type is either a tf-neural-network or any sklearn-object with method "fit_transform"
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -197,6 +203,7 @@ class Visualizer():
         Generates legend handles from earlier created `self.diff_label_counts` or from labels given as a parameter.
 
         Parameters:
+            
             - blabs: numpy.ndarray, optional
                 Labels from which the legend handles should be created.
 
@@ -204,6 +211,7 @@ class Visualizer():
                 Whether to create a legend for different predictions.
 
         Returns:
+            
             - return: list
                 List of legend handles.
         """
@@ -245,6 +253,7 @@ class Visualizer():
         "-1" and incorrect predictions are labeled with other values.
 
         Parameters:
+            
             - diff_predict: numpy.ndarray, required
                 Array with correct predictions marked as "-1" and incorrect predictions marked with other values (e.g., "0", "1", ...).
 
@@ -274,6 +283,7 @@ class Visualizer():
         specified, the predictor will be used as a prediction model for visualizations.
 
         Parameters:
+            
             - l_dim: int, optional
                 Size of the latent dimension (for visualization, should be 3).
 
@@ -290,6 +300,7 @@ class Visualizer():
                 Whether the predictor should be used in future visualizations.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator.
         """
@@ -344,6 +355,7 @@ class Visualizer():
         Trains an attached BundDLeNet using the Adam optimizer.
 
         Parameters:
+            
             - epochs: int, optional
                 Number of epochs for training.
 
@@ -351,6 +363,7 @@ class Visualizer():
                 Learning rate used by the Adam optimizer.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator.
         """
@@ -379,6 +392,7 @@ class Visualizer():
         Parameters:
 
         Returns:
+            
             - return: Database
                 A new Database object with the transformed points as neuron traces and labels without the first few
                 instances, since the window (needed for nc-mcm-training) is cut from them
@@ -414,6 +428,7 @@ class Visualizer():
         Adds 3D quivers with appropriate size to an axis using 3D input data.
 
         Parameters:
+            
             - ax: matplotlib.axes.Axes, required
                 Matplotlib axis to which the quivers are added.
 
@@ -433,6 +448,7 @@ class Visualizer():
                 Whether to draw the quivers on the axis.
 
         Returns:
+            
             - return: matplotlib.axes.Axes
                 Axis with quivers added.
         """
@@ -474,6 +490,7 @@ class Visualizer():
         a 3-dimensional space.
 
         Parameters:
+            
             - interval: float, optional
                 Number of milliseconds between each frame in the movie. Note: For movies with quivers, only the saved
                 version will adhere to this interval, as frame creation is too slow in view mode.
@@ -491,6 +508,7 @@ class Visualizer():
                 Whether to use quivers; otherwise, a scatterplot will be created.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator.
         """
@@ -548,6 +566,7 @@ class Visualizer():
         Update function to create a frame in the movie.
 
         Parameters:
+            
             - frame: int, required
                 Index of the frame.
 
@@ -564,6 +583,7 @@ class Visualizer():
                 Whether to draw the frame.
 
         Returns:
+            
             - return: matplotlib.axes.Axes
                 The axis on which the movie is played.
         """
@@ -603,6 +623,7 @@ class Visualizer():
         Saves the movie created earlier.
 
         Parameters:
+            
             - name: str, required
                 Name under which the movie should be saved in the "movies" directory.
 
@@ -633,6 +654,7 @@ class Visualizer():
         Parameters:
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -657,6 +679,7 @@ class Visualizer():
         created corresponds only to the actually displayed points.
 
         Parameters:
+            
             - show_legend: bool, optional
                 Whether the legend should be shown.
 
@@ -664,6 +687,7 @@ class Visualizer():
                 Whether to use quivers; otherwise, a scatterplot is used.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator.
         """
@@ -723,7 +747,7 @@ class Visualizer():
             ax2.scatter(*self.transformed_points, label=self.data.states, s=1, alpha=0.5, color=self.colors_diff_pred)
         ax2.set_title(f'\nModel: {type(self.data.pred_model)}\n'
                       f'Mapping: {type(self.mapping)}\n\n'
-                      f'Accuracy at {round(accuracy_score(self.data.B[window_true_pred:], self.data.B_pred), 3)}\n')
+                      f'In-sample accuracy at {round(accuracy_score(self.data.B[window_true_pred:], self.data.B_pred), 3)}\n')
 
         # Predictions
         remove_grid(ax3)
@@ -775,10 +799,12 @@ class Visualizer():
         Saves the weights of the BundDLeNet to a given path
 
         Parameters:
+            
             - path: str, required
                 Relative path in the NeuronVisualizer directory with the file name attached.
 
         Returns:
+            
             - return: bool
                 Boolean success indicator
         """
@@ -789,60 +815,3 @@ class Visualizer():
             print('No BundDLe-Net created yet.')
             return False
 
-
-class CustomEnsembleModel:
-    """
-    This ensemble takes a model and creates binary predictors for each label-combination.
-    As a prediction for each instance it gives the most abundant prediction from its sub-models.
-    """
-
-    def __init__(self,
-                 base_model):
-        """
-        Parameters:
-            - base_model: model, required
-                A model from which the binary classifiers will be built (e.g. Logistic Regression). It needs to have the method "fit", "predict" and "predict_proba".
-        """
-        self.base_model = base_model
-        self.combinatorics = []
-        self.ensemble_models = []
-
-    def fit(self,
-            neuron_traces,
-            labels):
-
-        self.ensemble_models = []
-        self.combinatorics = list(combinations(np.unique(labels), 2))
-        for idx, class_mapping in enumerate(self.combinatorics):
-            b_model = clone(self.base_model)
-            mapped_labels = np.array([label if label in class_mapping else -1 for label in labels])
-            mask = mapped_labels != -1
-            # apply mask to the dataset and only use instances of 'A' or 'B' to train
-            neuron_traces_filtered = neuron_traces[mask]
-            mapped_labels_filtered = mapped_labels[mask]
-            b_model.fit(neuron_traces_filtered, mapped_labels_filtered)
-            self.ensemble_models.append(b_model)
-        return self
-
-    def predict(self,
-                neuron_traces):
-
-        results = np.zeros((neuron_traces.shape[0], len(self.combinatorics))).astype(int)
-        for idx, b_model in enumerate(self.ensemble_models):
-            results[:, idx] = b_model.predict(neuron_traces)
-        return [np.bincount(results[row, :]).argmax() for row in range(results.shape[0])]
-
-    def predict_proba(self,
-                      neuron_traces):
-
-        y_prob_map = np.zeros((neuron_traces.shape[0], len(self.combinatorics)))
-        for idx, model in enumerate(self.ensemble_models):
-            prob = model.predict_proba(neuron_traces)[:, 0]
-            y_prob_map[:, idx] = prob
-        return y_prob_map
-
-    def classify(self, inputs):
-        return np.sign(self.predict(inputs))
-
-    def get_params(self, deep=False):
-        return {'base_model': self.base_model}
