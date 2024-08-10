@@ -5,17 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ncmcm/data/datasets/mouse_10/sub-10_ses-mouse-10-session-date-2017-09-21-area-V1-L23-multi-plane-imaging_behavior+ophys.nwb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demos/Demo_Usage.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/demos/Demo_Usage.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demos/Demo_mouse_dataset.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/demos/Demo_mouse_dataset.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demos/Interactive_C3.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_1.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_2.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_3.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_5.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/Interactive_C3.html" beforeDir="false" afterPath="$PROJECT_DIR$/demos/Interactive_C3.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Visualizer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -359,6 +352,17 @@
       </map>
     </option>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
+          <url>notebook:///Users/michaelhofer/Documents/GitHub/ncmcm/demos/Demo_Usage.ipynb</url>
+          <line>3</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ncmcm$.coverage" NAME=" Coverage Results" MODIFIED="1722772192673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$testing.coverage" NAME="testing Coverage Results" MODIFIED="1704623819887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -398,6 +402,7 @@
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$main.coverage" NAME="main Coverage Results" MODIFIED="1706359030516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$SequenceMarkovTest.coverage" NAME="SequenceMarkovTest Coverage Results" MODIFIED="1704722183470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$comparable.coverage" NAME="comparable Coverage Results" MODIFIED="1707405556456" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$tetststst.coverage" NAME="tetststst Coverage Results" MODIFIED="1723298248431" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ncmcm$power_curves_discrete.coverage" NAME="power_curves_discrete Coverage Results" MODIFIED="1720772366369" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
     <SUITE FILE_PATH="coverage/ncmcm$markov_mem_testing.coverage" NAME="markov_mem_testing Coverage Results" MODIFIED="1712229092178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
     <SUITE FILE_PATH="coverage/ncmcm_iml$dummy_mouse.coverage" NAME="dummy_mouse Coverage Results" MODIFIED="1715959208547" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />

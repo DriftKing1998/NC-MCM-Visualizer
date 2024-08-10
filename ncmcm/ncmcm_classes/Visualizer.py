@@ -769,22 +769,22 @@ class Visualizer():
             legend_1 = self._generate_legend(self.data.B[window_true_trans:])
             ax1.legend(title='True Labels',
                        handles=legend_1,
-                       loc='upper center',
-                       bbox_to_anchor=(0.5, 0.),
+                       loc='lower center',
+                       bbox_to_anchor=(0, 0.),
                        fontsize='small')
 
             legend_2 = self._generate_legend(None, diff=True)
             ax2.legend(title='Incorrect Predictions',
                        handles=legend_2,
-                       loc='upper center',
+                       loc='lower center',
                        bbox_to_anchor=(0.5, 0.),
                        fontsize='small')
 
             legend_3 = self._generate_legend(self.data.B_pred[window_pred_trans:])
             ax3.legend(title='Predicted Labels',
                        handles=legend_3,
-                       loc='upper center',
-                       bbox_to_anchor=(0.5, 0.),
+                       loc='lower center',
+                       bbox_to_anchor=(1, 0.),
                        fontsize='small')
 
         fig.suptitle(f'{self.transformed_points.shape[1]} Frames',
