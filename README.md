@@ -17,10 +17,23 @@ This is a toolbox uses neuronal & behavioral data and visualizes it. NCMCM stand
     ```
 2. **Importing the package:** In your Python script or notebook, import the package
     ```
-    import ncmcm
+    import ncmcm as nc
     ```
-3. **Usage:** the `ncmcm.ncmcm_classes.Database` class as a container for your neuronal and behavioral dataset
-4. **Tutorial:** Check out the demo-notebooks on the GitHub (<a href=https://github.com/DriftKing1998/NC-MCM-Visualizer/tree/main/demos>here</a>). They serve as a useful starting point to explore the functionalities of `ncmcm`.
+3. **Usage:** Now you can already start with creating a `Database` instance with your data, to start your analysis:
+   ```
+   db = nc.Database(neuron_traces=X, behavior=B, neuron_names=x_names, states=b_names, fps=fps)
+   ```
+   Or you can use one of the 5 the included C.elegans dataset to explore the package:
+   ```
+   loaded_data = Loader(data_set_no=1)
+   nc.Database(*loaded_data.data)
+   ```
+4. **Structure:** the framework is divided into three main parts which can be imported separately:
+   - **Cognitive Graphs and 3D Visualizations:** This includes the classes necessary for creating cognitive graphs and 3D visualizations. These are available under the module: `ncmcm.ncmcm_classes` 
+   - **Helper Functions:** These are functions that are used by some of the classes and can also be accessed independently. You can find them under: `ncmcm.helpers` 
+   - **BunDLe-Net:** This module is used to create Markovian 3D embeddings and is accessible via: `ncmcm.bundlenet`
+
+5. **Tutorial:** Check out the demo-notebooks on the GitHub (<a href=https://github.com/DriftKing1998/NC-MCM-Visualizer/tree/main/demos>here</a>). They serve as a useful starting point to explore the functionalities of `ncmcm`.
 
 ## Installation and usage information (for contributors)
 
