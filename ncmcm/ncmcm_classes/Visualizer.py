@@ -83,7 +83,8 @@ class Visualizer():
                      grid_off=True,
                      quivers=False,
                      show=True,
-                     draw=True):
+                     draw=True,
+                     **kwargs):
         """
         Uses the mapping of the Visualizer to plot the datapoints into 3D space.
 
@@ -111,7 +112,7 @@ class Visualizer():
             print('The mapping does not map into a 3D space.')
             return False
 
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = fig.add_subplot(111, projection='3d')
         # We need to trim labs and colors if we have a BundDLe
         if self.transformed_points.shape[1] < len(self.data.colors):
@@ -333,13 +334,14 @@ class Visualizer():
 
         return True
 
-    def plot_loss(self):
+    def plot_loss(self,
+                  **kwargs):
         """
         Will plot the loss over epochs as total loss, markov loss (loss for predicted Y-t+1 (=lower) and created Y-t+1
         (=upper)) and behavior loss (loss for predicted B-t+1 (=upper) and true label at t+1).
         """
         if self.loss_array is not None:
-            plt.figure()
+            plt.figure(**kwargs)
             for i, label in enumerate(
                     ["$\mathcal{L}_{{Markov}}$", "$\mathcal{L}_{{Behavior}}$", "Total loss $\mathcal{L}$"]):
                 plt.semilogy(self.loss_array[:, i], label=label)
@@ -484,7 +486,8 @@ class Visualizer():
                    show_legend=False,
                    grid_off=True,
                    quivers=False,
-                   draw=True):
+                   draw=True,
+                   **kwargs):
         """
         Creates a movie from each frame in the imaging data. It uses the tau model or a mapping to project the data into
         a 3-dimensional space.
@@ -534,7 +537,8 @@ class Visualizer():
             self._create_animation(show_legend=show_legend,
                                    grid_off=grid_off,
                                    quivers=quivers,
-                                   draw=draw)
+                                   draw=draw,
+                                   **kwargs)
             self.save_gif(name)
 
         return True
@@ -543,14 +547,16 @@ class Visualizer():
                           show_legend=False,
                           grid_off=True,
                           quivers=False,
-                          draw=True):
+                          draw=True,
+                          **kwargs):
 
         self.scatter = None
         fig, self.movie_ax, legend_elements = self.plot_mapping(show_legend=show_legend,
                                                                 grid_off=grid_off,
                                                                 quivers=quivers,
                                                                 show=False,
-                                                                draw=draw)
+                                                                draw=draw,
+                                                                **kwargs)
         self.animation = anim.FuncAnimation(fig, self._update,
                                             fargs=(grid_off, legend_elements, quivers, draw),
                                             frames=self.transformed_points.shape[1],
@@ -673,7 +679,8 @@ class Visualizer():
 
     def make_comparison(self,
                         show_legend=True,
-                        quivers=True):
+                        quivers=True,
+                        **kwargs):
         """
         Creates a comparison plot between the true labels and the prediction model that is added or selected. The legend
         created corresponds only to the actually displayed points.
@@ -724,7 +731,7 @@ class Visualizer():
                                  diff_predicts]
         self._generate_diff_label_counts(diff_predicts, window_true_trans, window_pred_trans)
 
-        fig = plt.figure(figsize=(12, 8))
+        fig = plt.figure(**kwargs)
         # First subplot
         ax1 = fig.add_subplot(131, projection='3d')
         ax2 = fig.add_subplot(132, projection='3d')

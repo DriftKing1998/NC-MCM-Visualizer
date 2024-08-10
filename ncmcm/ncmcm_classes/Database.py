@@ -267,7 +267,8 @@ class Database:
                     kmeans_init='auto',
                     plot_markov=True,
                     stationary=False,
-                    verbose=1):
+                    verbose=1,
+                    **kwargs):
         """
         Clusters behavioral probability trajectories if a model has been fitted on the data.
 
@@ -330,14 +331,14 @@ class Database:
                                     verbose=verbose)
 
         if plot_markov:
-            self._plot_markov(stationary)
+            self._plot_markov(stationary, **kwargs)
         return True
 
-    def _plot_markov(self, stationary=False):
+    def _plot_markov(self, stationary=False, **kwargs):
         """
         Creates the markovian plot.
         """
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(**kwargs)
         # Plotting Memorylessness
         data_m = self.p_memoryless[:, :].T
         boxplot_m = ax.boxplot(data_m, patch_artist=True, boxprops=dict(facecolor='lightblue', edgecolor='blue'))
@@ -367,7 +368,8 @@ class Database:
                   sim_s=300,
                   save=False,
                   show=True,
-                  png_name=None):
+                  png_name=None,
+                  **kwargs):
         """
         Creates a plot consisting of 4 plots. The first one shows behavioral labels plotted onto the 2 principal
         components of the neuronal data. The second one shows behavioral labels plotted onto behavioral probability
@@ -410,7 +412,8 @@ class Database:
             self.cluster_BPT_single(nrep=nrep, nclusters=clusters, sim_m=sim_m, sim_s=sim_s)
 
         # Neuronal trajectories preprocessing
-        fig, ax = plt.subplots(2, 2, figsize=(16, 8))
+        f_size = kwargs.pop('figsize', (16, 8))
+        fig, ax = plt.subplots(2, 2, figsize=f_size, **kwargs)
 
         pca = PCA(n_components=2)
         plot_values = pca.fit_transform(self.neuron_traces.T)
@@ -667,7 +670,8 @@ class Database:
 
     def plotting_neuronal_behavioral(self,
                                      vmin=0,
-                                     vmax=2):
+                                     vmax=2,
+                                     **kwargs):
         """
         Plots neuronal data and behavioral data as a timeseries.
 
@@ -679,21 +683,24 @@ class Database:
             - vmax: int, optional
                 maximal value for neuronal data values
         """
-        fig, axs = plt.subplots(2, 1, figsize=(10, 4))
+        f_size = kwargs.pop('figsize', (10, 4))
+        fig, axs = plt.subplots(2, 1, figsize=f_size, **kwargs)
         self._neurons(ax=axs[0], vmin=vmin, vmax=vmax)
         self._behavior(ax=axs[1])
         plt.subplots_adjust(hspace=0.5)
         plt.show()
 
     def _behavior(self,
-                  ax=None):
+                  ax=None,
+                  **kwargs):
         """
         Plots behavioral data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
         """
         show = False
         if ax is None:
             show = True
-            fig, ax = plt.subplots(figsize=(10, 2))
+            f_size = kwargs.pop('figsize', (10, 2))
+            fig, ax = plt.subplots(figsize=f_size, **kwargs)
 
         cmap = plt.get_cmap('Pastel1', np.max(self.B) - np.min(self.B) + 1)
         im1 = ax.imshow([self.B], cmap=cmap, vmin=np.min(self.B) - 0.5, vmax=np.max(self.B) + 0.5,
@@ -713,7 +720,8 @@ class Database:
     def _neurons(self,
                  ax=None,
                  vmin=0,
-                 vmax=2):
+                 vmax=2,
+                 **kwargs):
         """
         Plots neuronal data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
 
@@ -731,7 +739,8 @@ class Database:
         show = False
         if ax is None:
             show = True
-            fig, ax = plt.subplots(figsize=(10, 2))
+            f_size = kwargs.pop('figsize', (10, 2))
+            fig, ax = plt.subplots(figsize=f_size, **kwargs)
 
         im0 = ax.imshow(self.neuron_traces, aspect='auto', vmin=vmin, vmax=vmax, interpolation='None')
         # tell the colorbar to tick at integers
