@@ -2,26 +2,20 @@ from ..bundlenet import *
 from ..ncmcm_classes.Visualizer import Visualizer
 
 
-def create_visualizer(database,
-                      mapping=None,
-                      l_dim=3,
-                      epochs=2000,
-                      window=15,
-                      use_predictor=True):
+def create_bundle_visualizer(database,
+                             l_dim=3,
+                             epochs=2000,
+                             window=15,
+                             use_predictor=True):
     """
-    Takes a Database object and either a mapping to visualize the data (e.g.: PCA) or parameters for a BundDLeNet
-    (l_dim, epochs, window) which will be used to visualize the data. If a BundDLeNet is created, it will be used to
-    predict behaviors in future plots. Otherwise, the model fitted on the Database-object, will be used as a predictor,
-    if it exists.
+    Takes a Database object and parameters for a BundDLeNet (l_dim, epochs, window) which will be used to visualize the
+    data. If a BundDLeNet is created, it will be used to predict behaviors in future plots. Otherwise, the model fitted
+    on the Database-object, will be used as a predictor, if it exists.
 
     Parameters:
        
         - database: Database, required
             A database object from which the Visualizer will be generated
-
-        - mapping: object, required
-            A mapping (such as PCA) which is used for the projection into three dimension. It needs to have the
-            method 'fit_transform'.
 
         - l_dim: int, optional
             Latent dimension the BundDLeNet maps to (for visualisation: 3D; For further use: XD)
@@ -45,39 +39,35 @@ def create_visualizer(database,
     """
 
     # If a mapping is provided
-    if mapping is not None:
-        vs = Visualizer(database, mapping)
-    # otherwise a BundDLeNet is created
-    else:
-        if database.fps is None:
-            print('Give \'self.fps\' a value (float) first!')
-            return None
-        time, newX = preprocess_data(database.neuron_traces.T, database.fps)
-        X_, B_ = prep_data(newX, database.B, win=window)
-        model = BundDLeNet(latent_dim=l_dim, behaviors=len(database.states))
-        model.build(input_shape=X_.shape)
+    if database.fps is None:
+        print('Give \'self.fps\' a value (float) first!')
+        return None
+    time, newX = preprocess_data(database.neuron_traces.T, database.fps)
+    X_, B_ = prep_data(newX, database.B, win=window)
+    model = BundDLeNet(latent_dim=l_dim, behaviors=len(database.states))
+    model.build(input_shape=X_.shape)
 
-        optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=0.001)
-        loss_array = train_model(
-            X_,
-            B_,
-            model,
-            optimizer,
-            gamma=0.9,
-            n_epochs=epochs
-        )
+    optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=0.001)
+    loss_array = train_model(
+        X_,
+        B_,
+        model,
+        optimizer,
+        gamma=0.9,
+        n_epochs=epochs
+    )
 
-        vs = Visualizer(database, model.tau, transform=False)
-        vs.X_ = X_
-        vs.B_ = B_
-        vs.model = model
-        vs.loss_array = loss_array
-        vs.tau_model = model.tau
-        vs.bn_tau = True
-        # I need to do this later, since X_ is not defined yet
-        vs._transform_points(vs.mapping)
-        if use_predictor:
-            vs.use_bundle_predictor()
+    vs = Visualizer(database, model.tau, transform=False)
+    vs.X_ = X_
+    vs.B_ = B_
+    vs.model = model
+    vs.loss_array = loss_array
+    vs.tau_model = model.tau
+    vs.bn_tau = True
+    # I need to do this later, since X_ is not defined yet
+    vs._transform_points(vs.mapping)
+    if use_predictor:
+        vs.use_bundle_predictor()
 
     return vs
 

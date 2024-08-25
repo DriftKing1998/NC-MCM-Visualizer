@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 from ncmcm.ncmcm_classes.Database import *
 from sklearn.decomposition import PCA
-from ncmcm.helpers.visualizer_creation import create_visualizer
+from ncmcm.helpers.visualizer_creation import create_bundle_visualizer
 
 
 class TestDatabase(unittest.TestCase):
@@ -69,13 +69,13 @@ class TestDatabase(unittest.TestCase):
 
     def test_createVisualizer(self):
         # Without mapping
-        visualizer_no_mapping = create_visualizer(self.db, window=3, epochs=20)
+        visualizer_no_mapping = create_bundle_visualizer(self.db, window=3, epochs=20)
         self.assertIsNotNone(visualizer_no_mapping)
         self.assertIsNotNone(visualizer_no_mapping.mapping)
         self.assertIsNotNone(visualizer_no_mapping.tau_model)
         # With PCA mapping
         mapping_pca = PCA(n_components=2)
-        visualizer_with_mapping = create_visualizer(self.db, mapping=mapping_pca)
+        visualizer_with_mapping = create_bundle_visualizer(self.db, mapping=mapping_pca)
         self.assertIsNotNone(visualizer_with_mapping)
         self.assertEqual(visualizer_with_mapping.mapping, mapping_pca)
         self.assertIsNone(visualizer_with_mapping.tau_model)

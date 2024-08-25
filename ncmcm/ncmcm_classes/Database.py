@@ -144,7 +144,6 @@ class Database:
 
     def fit_model(self,
                   base_model,
-                  prob_map=True,
                   ensemble=True,
                   cv_folds=0):
         """
@@ -155,10 +154,6 @@ class Database:
             
             - base_model: object, required
                 The model to be fitted (no specific type provided).
-
-            - prob_map: numpy.ndarray or list, optional
-                A transform or array indicating if a probability map is created for each frame. This is used in the
-                behavioral probability trajectory clustering (.cluster_BPT()).
 
             - ensemble: bool, optional
                 A boolean indicating if the CustomEnsembleModel should be created. It makes a set of models for
@@ -191,9 +186,7 @@ class Database:
         self.pred_model.fit(self.neuron_traces.T, self.B)
         self.B_pred = np.asarray(self.pred_model.predict(self.neuron_traces.T))
         print("Accuracy for full training data:", accuracy_score(self.B, self.B_pred))
-        if prob_map:
-            # get probabilities and weights
-            self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
+        self.yp_map = self.pred_model.predict_proba(self.neuron_traces.T)
         return True
 
     def _test_clusters(self,
