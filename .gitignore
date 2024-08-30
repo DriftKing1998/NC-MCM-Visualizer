@@ -1,1 +1,4 @@
 /notebooks/
+demos/data/data_mouse_db.pkl
+demos/data/data_mouse_vis.pkl
+ncmcm/data/datasets/mouse_10/sub-10_ses-mouse-10-session-date-2017-09-21-area-V1-L23-multi-plane-imaging_behavior+ophys.nwb
