@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import MagicMock
-from ncmcm.ncmcm_classes.Database import *
+import ncmcm as nc
+import numpy as np
 from sklearn.decomposition import PCA
-from ncmcm.helpers.visualizer_creation import create_bundle_visualizer
 
 
 class TestDatabase(unittest.TestCase):
 
     def setUp(self):
-        self.db = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 6, 7, 8, 1, 1, 1, 8, 9, 10],
+        self.db = nc.Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 6, 7, 8, 1, 1, 1, 8, 9, 10],
                                           [2, 4, 6, 8, 10, 4, 5, 6, 7, 8, 12, 14, 16, 6, 7, 8, 1, 1, 1, 18, 20],
                                           [1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 6, 7, 8, 1, 1, 1, 10],
                                           [1, 1, 4, 5, 6, 7, 8, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1]],
@@ -17,10 +17,9 @@ class TestDatabase(unittest.TestCase):
                            fps=1)
 
     def test_init(self):
-        db_default = Database(neuron_traces=[[1, 2], [3, 4]], behavior=[0, 1])
+        db_default = nc.Database(neuron_traces=[[1, 2], [3, 4]], behavior=[0, 1])
         self.assertTrue(np.array_equal(db_default.neuron_traces, np.array([[1, 2], [3, 4]])))
         self.assertIsNone(db_default.fps)
-        self.assertEqual(db_default.name, 'nc-mcm')
         self.assertTrue(np.array_equal(db_default.B, np.array([0, 1])))
         self.assertIsNotNone(db_default.states)
         self.assertTrue(np.array_equal(db_default.neuron_names, np.array(['0', '1'])))
@@ -34,7 +33,7 @@ class TestDatabase(unittest.TestCase):
         fps_custom = 30.0
         name_custom = 'custom-name'
 
-        db_custom = Database(
+        db_custom = nc.Database(
             neuron_traces=neuron_traces_custom,
             behavior=behavior_custom,
             neuron_names=neuron_names_custom,
@@ -69,13 +68,13 @@ class TestDatabase(unittest.TestCase):
 
     def test_createVisualizer(self):
         # Without mapping
-        visualizer_no_mapping = create_bundle_visualizer(self.db, window=3, epochs=20)
+        visualizer_no_mapping = nc.create_bundle_visualizer(self.db, window=3, epochs=20)
         self.assertIsNotNone(visualizer_no_mapping)
         self.assertIsNotNone(visualizer_no_mapping.mapping)
         self.assertIsNotNone(visualizer_no_mapping.tau_model)
         # With PCA mapping
         mapping_pca = PCA(n_components=2)
-        visualizer_with_mapping = create_bundle_visualizer(self.db, mapping=mapping_pca)
+        visualizer_with_mapping = nc.Visualizer(self.db, mapping_pca)
         self.assertIsNotNone(visualizer_with_mapping)
         self.assertEqual(visualizer_with_mapping.mapping, mapping_pca)
         self.assertIsNone(visualizer_with_mapping.tau_model)
@@ -87,7 +86,7 @@ class TestDatabase(unittest.TestCase):
         base_model_mock.predict.side_effect = lambda x: np.zeros(x.shape[0])  # Mocking the predict method
         base_model_mock.predict_proba.side_effect = lambda x: np.zeros(len(self.db.states))  # Mocking predict_proba
         # Call the fit_model without CustomModel activated
-        result = self.db.fit_model(base_model_mock, prob_map=True, ensemble=False)
+        result = self.db.fit_model(base_model_mock, ensemble=False)
         self.assertTrue(result)  # Assuming fit_model returns True on success
         self.assertTrue(hasattr(self.db, 'pred_model'))  # Check if pred_model attribute is set
         self.assertTrue(hasattr(self.db, 'B_pred'))  # Check if B_pred attribute is set
@@ -96,7 +95,7 @@ class TestDatabase(unittest.TestCase):
     def test_cluster_BPT(self):
         self.db.yp_map = np.zeros((self.db.neuron_traces.shape[0], len(np.unique(self.db.B))))
         result = self.db.cluster_BPT(nrep=5,
-                                     max_clusters=2,
+                                     cluster_num=2,
                                      sim_m=10,
                                      sim_s=10,
                                      chunks=2,
@@ -109,7 +108,7 @@ class TestDatabase(unittest.TestCase):
 
         self.db.yp_map = None
         result = self.db.cluster_BPT(nrep=5,
-                                     max_clusters=2,
+                                     cluster_num=2,
                                      sim_m=10,
                                      sim_s=10,
                                      chunks=2,

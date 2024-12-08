@@ -76,11 +76,11 @@
 
 <span class="c1"># Sequence Generation #</span>
 
-<div class="viewcode-block" id="simulate_markovian">
-<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.simulate_markovian">[docs]</a>
-<span class="k">def</span> <span class="nf">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="simulate_markov_sequence">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.simulate_markov_sequence">[docs]</a>
+<span class="k">def</span> <span class="nf">simulate_markov_sequence</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Simulate a higher-order Markovian process.</span>
+<span class="sd">        Simulates a Markov process of a given order and samples probabilities from a uniform distribution.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">       </span>
@@ -133,47 +133,9 @@
 
 
 
-<div class="viewcode-block" id="make_random_adj_matrices">
-<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.make_random_adj_matrices">[docs]</a>
-<span class="k">def</span> <span class="nf">make_random_adj_matrices</span><span class="p">(</span><span class="n">num_matrices</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">matrix_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate random adjacency matrices.</span>
-
-<span class="sd">        Parameters:</span>
-<span class="sd">       </span>
-<span class="sd">        - num_matrices: int, optional</span>
-<span class="sd">            Number of matrices to generate.</span>
-
-<span class="sd">        - matrix_shape: tuple, optional</span>
-<span class="sd">            Shape of each matrix.</span>
-
-<span class="sd">        - sparse: bool, optional</span>
-<span class="sd">            Can be applied to get more sparse transition matrices.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">       </span>
-<span class="sd">        - transition_matrices: list</span>
-<span class="sd">            List of generated matrices (np.ndarray).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">transition_matrices</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_matrices</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
-            <span class="n">random_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">dirichlet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">matrix_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">size</span><span class="o">=</span><span class="n">matrix_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">random_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">matrix_shape</span><span class="p">)</span>
-
-        <span class="c1"># Normalize rows to ensure they add up to 1</span>
-        <span class="n">transition_matrix</span> <span class="o">=</span> <span class="n">random_matrix</span> <span class="o">/</span> <span class="n">random_matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">transition_matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transition_matrix</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">transition_matrices</span></div>
-
-
-
-<div class="viewcode-block" id="non_stationary_process">
-<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.non_stationary_process">[docs]</a>
-<span class="k">def</span> <span class="nf">non_stationary_process</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">changes</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<div class="viewcode-block" id="discrete_non_stationary_process">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.discrete_non_stationary_process">[docs]</a>
+<span class="k">def</span> <span class="nf">discrete_non_stationary_process</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">changes</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a non-stationary Markov process. Changes in the process are equally split within length M.</span>
 
@@ -192,23 +154,23 @@
 <span class="sd">        Generated sequence.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">changes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">simulate_markov_sequence</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">l</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">M</span> <span class="o">/</span> <span class="p">(</span><span class="n">changes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
     <span class="n">last</span> <span class="o">=</span> <span class="n">M</span> <span class="o">-</span> <span class="p">(</span><span class="n">changes</span> <span class="o">*</span> <span class="n">l</span><span class="p">)</span>
     <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">changes</span><span class="p">):</span>
-        <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">last</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markov_sequence</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markov_sequence</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">last</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">seq</span></div>
 
 
 
-<div class="viewcode-block" id="non_stationary_process2">
-<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.non_stationary_process2">[docs]</a>
-<span class="k">def</span> <span class="nf">non_stationary_process2</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">changes</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="pseudo_cont_non_stationary_process">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.pseudo_cont_non_stationary_process">[docs]</a>
+<span class="k">def</span> <span class="nf">pseudo_cont_non_stationary_process</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">changes</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a non-stationary Markov process. Changes in the process are equally split within length M.</span>
 
@@ -233,7 +195,6 @@
     <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
     <span class="c1"># Normalize transition matrix probabilities</span>
     <span class="n">P</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1">#print(&#39;Original: \n&#39;, P)</span>
 
     <span class="n">l</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">M</span> <span class="o">/</span> <span class="p">(</span><span class="n">changes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
     <span class="n">last</span> <span class="o">=</span> <span class="n">M</span> <span class="o">-</span> <span class="p">(</span><span class="n">changes</span> <span class="o">*</span> <span class="n">l</span><span class="p">)</span>
@@ -245,21 +206,18 @@
     <span class="n">row_means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">perturbation</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">perturbation</span> <span class="o">-=</span> <span class="n">row_means</span>
 
-    <span class="c1"># Step 3: Scale to fit within [-1, 1]</span>
-    <span class="c1">#max_val = np.max(np.abs(perturbation), axis=1, keepdims=True)</span>
-    <span class="c1">#perturbation /= max_val</span>
+    <span class="c1"># This makes that the maximum is exactly epsilon</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">perturbation</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">perturbation</span> <span class="o">/=</span> <span class="n">max_val</span>
+    <span class="n">perturbation</span> <span class="o">=</span> <span class="n">perturbation</span> <span class="o">*</span> <span class="n">epsilon</span>
 
-    <span class="n">perturbation</span> <span class="o">=</span> <span class="p">(</span><span class="n">perturbation</span><span class="p">)</span> <span class="o">*</span> <span class="n">epsilon</span>
-    <span class="c1">#print(&#39;Perturbation: \n&#39;, perturbation)</span>
-
-    <span class="k">def</span> <span class="nf">adjust_transition_matrix</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">perturbation</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">adjust_transition_matrix</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">pert</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adjusts the transition matrix P by a perturbation matrix and normalizes the rows.</span>
+<span class="sd">        Adjusts the transition matrix P by a perturbation matrix (pert) and normalizes the rows.</span>
 <span class="sd">        Ensures no NaN values and values are clipped between 0 and 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">P</span> <span class="o">+=</span> <span class="n">perturbation</span>
+        <span class="n">P</span> <span class="o">+=</span> <span class="n">pert</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Ensure values are within [0, 1]</span>
-        <span class="c1">#P = np.nan_to_num(P, nan=0.0)  # Replace NaNs with 0</span>
         <span class="n">P</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Normalize to ensure the sum of probabilities is 1</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span>  <span class="c1"># Replace NaNs after normalization</span>
         <span class="n">P</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Normalize to ensure the sum of probabilities is 1</span>
@@ -268,11 +226,9 @@
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">changes</span><span class="p">):</span>
         <span class="c1"># Adjust each row of the transition matrix P by a value epsilon</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">adjust_transition_matrix</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">perturbation</span><span class="p">)</span>
-        <span class="c1">#print(&#39;NEW: \n&#39;, P)</span>
+        <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markov_sequence</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-
-    <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markovian</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">last</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">seq</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simulate_markov_sequence</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">last</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">seq</span></div>
 
@@ -282,10 +238,61 @@
 <a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.simulate_random_sequence">[docs]</a>
 <span class="k">def</span> <span class="nf">simulate_random_sequence</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Simulate a random sequence with N states and length M.</span>
+<span class="sd">        Simulate a random sequence with N states and length M. Equates to a Markov process of 1st order with equal</span>
+<span class="sd">        transition probabilities.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">random_sequence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">random_sequence</span></div>
+
+
+
+<div class="viewcode-block" id="simulate_stationary_ou">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.simulate_stationary_ou">[docs]</a>
+<span class="k">def</span> <span class="nf">simulate_stationary_ou</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulates a stationary discrete Markov sequence based on the Ornstein-Uhlenbeck process.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        M (int): Length of the sequence.</span>
+<span class="sd">        N (int): Number of possible states (quantized levels).</span>
+<span class="sd">        theta (float): Mean-reversion strength.</span>
+<span class="sd">        mu (float): Long-term mean.</span>
+<span class="sd">        sigma (float): Standard deviation of noise.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: A discrete stationary Markov sequence of length M with N states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">mu</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">N</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">discrete_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">discrete_X</span></div>
+
+
+
+<div class="viewcode-block" id="simulate_non_stationary_rw">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.sequence_functions.simulate_non_stationary_rw">[docs]</a>
+<span class="k">def</span> <span class="nf">simulate_non_stationary_rw</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulates a non-stationary discrete sequence using a random walk model.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        M (int): Length of the sequence.</span>
+<span class="sd">        N (int): Number of possible states (quantized levels).</span>
+<span class="sd">        sigma (float): Standard deviation of normal distributed noise.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: A discrete non-stationary sequence of length M with N states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">N</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">discrete_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">discrete_X</span></div>
+
 
 
 </pre></div>

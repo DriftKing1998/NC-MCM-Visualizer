@@ -2,3 +2,9 @@
 demos/data/data_mouse_db.pkl
 demos/data/data_mouse_vis.pkl
 ncmcm/data/datasets/mouse_10/sub-10_ses-mouse-10-session-date-2017-09-21-area-V1-L23-multi-plane-imaging_behavior+ophys.nwb
+ncmcm/statisitical_test_plots/power_curve_pseudo_cont_justplot.py
+ncmcm/statisitical_test_plots/power_curve_memoryless_justplot.py.py
+ncmcm/statisitical_test_plots/Viability_Chunk_justplot.py.py
+ncmcm/statisitical_test_plots/Viability_Testing_justplot.py.py.py
+ncmcm/trash/*
+ncmcm/trash

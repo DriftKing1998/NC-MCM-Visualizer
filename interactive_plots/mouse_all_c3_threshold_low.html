@@ -1,0 +1,582 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="C1:standing still">C1:standing still</option>
+                                
+                                    <option value="C2:standing still">C2:standing still</option>
+                                
+                                    <option value="C1:moving forward">C1:moving forward</option>
+                                
+                                    <option value="C1:moving backward">C1:moving backward</option>
+                                
+                                    <option value="C1:going right">C1:going right</option>
+                                
+                                    <option value="C1:going left">C1:going left</option>
+                                
+                                    <option value="C1:invisible">C1:invisible</option>
+                                
+                                    <option value="C2:moving forward">C2:moving forward</option>
+                                
+                                    <option value="C2:going right">C2:going right</option>
+                                
+                                    <option value="C3:moving forward">C3:moving forward</option>
+                                
+                                    <option value="C3:moving backward">C3:moving backward</option>
+                                
+                                    <option value="C3:going left">C3:going left</option>
+                                
+                                    <option value="C3:standing still">C3:standing still</option>
+                                
+                                    <option value="C2:moving backward">C2:moving backward</option>
+                                
+                                    <option value="C2:going left">C2:going left</option>
+                                
+                                    <option value="C1:moving forward-right">C1:moving forward-right</option>
+                                
+                                    <option value="C1:moving forward-left">C1:moving forward-left</option>
+                                
+                                    <option value="C1:moving backward-right">C1:moving backward-right</option>
+                                
+                                    <option value="C1:moving backward-left">C1:moving backward-left</option>
+                                
+                                    <option value="C2:invisible">C2:invisible</option>
+                                
+                                    <option value="C2:moving forward-right">C2:moving forward-right</option>
+                                
+                                    <option value="C2:moving forward-left">C2:moving forward-left</option>
+                                
+                                    <option value="C2:moving backward-right">C2:moving backward-right</option>
+                                
+                                    <option value="C2:moving backward-left">C2:moving backward-left</option>
+                                
+                                    <option value="C3:going right">C3:going right</option>
+                                
+                                    <option value="C3:invisible">C3:invisible</option>
+                                
+                                    <option value="C3:moving forward-right">C3:moving forward-right</option>
+                                
+                                    <option value="C3:moving forward-left">C3:moving forward-left</option>
+                                
+                                    <option value="C3:moving backward-right">C3:moving backward-right</option>
+                                
+                                    <option value="C3:moving backward-left">C3:moving backward-left</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"behavior": "standing still", "cog_state": "C1", "color": "rgb(255.0,0.0,0.0)", "id": "C1:standing still", "label": "C1:standing still", "shape": "dot", "size": 2, "title": "C1:standing still:10\nC2:standing still:122\nC2:moving forward:1\nC2:going right:1\nC3:standing still:6\n"}, {"behavior": "standing still", "cog_state": "C2", "color": "rgb(255.0,0.0,0.0)", "id": "C2:standing still", "label": "C2:standing still", "shape": "dot", "size": 23.40347319320716, "title": "C1:standing still:62\nC1:moving forward:2\nC1:going right:1\nC2:standing still:12750\nC2:moving forward:228\nC2:moving backward:4\nC2:going right:142\nC2:going left:4\nC2:invisible:18\nC2:moving forward-right:3\nC3:standing still:97\n"}, {"behavior": "moving forward", "cog_state": "C1", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C1:moving forward", "label": "C1:moving forward", "shape": "dot", "size": 19.320133361619828, "title": "C1:standing still:21\nC1:moving forward:8689\nC1:moving backward:77\nC1:going right:226\nC1:going left:67\nC1:invisible:66\nC1:moving forward-right:2\nC1:moving backward-right:4\nC2:standing still:52\nC2:moving forward:1660\nC2:moving backward:13\nC2:going right:50\nC2:going left:10\nC2:invisible:4\nC2:moving backward-right:3\nC3:standing still:5\nC3:moving forward:457\nC3:moving backward:49\nC3:going right:12\nC3:going left:54\nC3:invisible:2\nC3:moving forward-right:1\nC3:moving backward-right:1\n"}, {"behavior": "moving backward", "cog_state": "C1", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C1:moving backward", "label": "C1:moving backward", "shape": "dot", "size": 2, "title": "C1:standing still:2\nC1:moving forward:68\nC1:moving backward:79\nC1:going right:3\nC1:going left:7\nC1:moving backward-right:1\nC2:standing still:2\nC2:moving forward:20\nC2:moving backward:31\nC2:going right:1\nC2:going left:3\nC3:standing still:1\nC3:moving forward:13\nC3:moving backward:207\nC3:going left:6\nC3:moving forward-right:1\n"}, {"behavior": "going right", "cog_state": "C1", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C1:going right", "label": "C1:going right", "shape": "dot", "size": 3.017818744685004, "title": "C1:moving forward:243\nC1:moving backward:8\nC1:going right:212\nC1:going left:5\nC1:invisible:52\nC1:moving forward-right:7\nC1:moving forward-left:2\nC1:moving backward-right:7\nC2:moving forward:61\nC2:moving backward:5\nC2:going right:64\nC2:going left:2\nC2:invisible:17\nC2:moving forward-right:2\nC2:moving backward-left:1\nC3:moving forward:16\nC3:going right:10\nC3:invisible:4\n"}, {"behavior": "going left", "cog_state": "C1", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C1:going left", "label": "C1:going left", "shape": "dot", "size": 2, "title": "C1:moving forward:60\nC1:moving backward:4\nC1:going right:3\nC1:going left:7\nC1:invisible:1\nC1:moving forward-left:1\nC2:moving forward:14\nC2:moving backward:2\nC2:going right:1\nC2:going left:9\nC2:moving forward-right:1\nC3:moving forward:3\nC3:moving backward:16\nC3:going left:62\nC3:moving backward-left:1\n"}, {"behavior": "invisible", "cog_state": "C1", "color": "rgb(0.0,255.0,255.0)", "id": "C1:invisible", "label": "C1:invisible", "shape": "dot", "size": 2, "title": "C1:moving forward:73\nC1:moving backward:1\nC1:going right:49\nC1:going left:2\nC1:invisible:8\nC2:moving forward:21\nC2:going right:10\nC2:going left:1\nC2:invisible:6\nC2:moving forward-right:1\nC2:moving forward-left:1\nC2:moving backward-right:1\nC3:moving forward:3\nC3:going right:3\nC3:invisible:1\n"}, {"behavior": "moving forward", "cog_state": "C2", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C2:moving forward", "label": "C2:moving forward", "shape": "dot", "size": 7.9168582172081035, "title": "C1:standing still:15\nC1:moving forward:1893\nC1:moving backward:15\nC1:going right:62\nC1:going left:16\nC1:invisible:14\nC1:moving forward-right:2\nC1:moving backward-right:2\nC2:standing still:86\nC2:moving forward:1459\nC2:moving backward:16\nC2:going right:73\nC2:going left:9\nC2:invisible:28\nC2:moving forward-right:5\nC2:moving forward-left:1\nC2:moving backward-right:1\nC2:moving backward-left:1\nC3:standing still:8\nC3:moving forward:91\nC3:moving backward:5\nC3:going right:1\nC3:going left:13\nC3:invisible:1\n"}, {"behavior": "going right", "cog_state": "C2", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C2:going right", "label": "C2:going right", "shape": "dot", "size": 3.348462772955742, "title": "C1:moving forward:90\nC1:moving backward:2\nC1:going right:123\nC1:going left:2\nC1:invisible:30\nC1:moving forward-right:1\nC1:moving backward-right:1\nC2:moving forward:99\nC2:moving backward:3\nC2:going right:261\nC2:going left:5\nC2:invisible:28\nC2:moving forward-right:2\nC2:moving forward-left:1\nC2:moving backward-right:4\nC3:moving forward:1\n"}, {"behavior": "moving forward", "cog_state": "C3", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C3:moving forward", "label": "C3:moving forward", "shape": "dot", "size": 3.4245739188116135, "title": "C1:standing still:16\nC1:moving forward:292\nC1:moving backward:16\nC1:going right:6\nC1:going left:21\nC1:invisible:1\nC1:moving forward-right:1\nC2:standing still:80\nC2:moving forward:123\nC2:moving backward:6\nC2:going left:2\nC2:invisible:1\nC3:standing still:39\nC3:moving forward:273\nC3:moving backward:100\nC3:going right:2\nC3:going left:105\nC3:invisible:3\nC3:moving backward-left:1\n"}, {"behavior": "moving backward", "cog_state": "C3", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C3:moving backward", "label": "C3:moving backward", "shape": "dot", "size": 9.89892112825803, "title": "C1:standing still:2\nC1:moving forward:28\nC1:moving backward:180\nC1:going left:9\nC1:moving backward-right:1\nC2:standing still:12\nC2:moving forward:41\nC2:moving backward:131\nC2:going left:10\nC2:moving forward-right:1\nC2:moving backward-right:2\nC2:moving backward-left:1\nC3:standing still:50\nC3:moving forward:178\nC3:moving backward:2281\nC3:going left:97\nC3:invisible:2\nC3:moving forward-right:5\nC3:moving forward-left:5\nC3:moving backward-right:1\nC3:moving backward-left:5\n"}, {"behavior": "going left", "cog_state": "C3", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C3:going left", "label": "C3:going left", "shape": "dot", "size": 6.798785773227444, "title": "C1:moving forward:2\nC1:moving backward:12\nC1:going left:43\nC1:invisible:1\nC1:moving backward-right:2\nC1:moving backward-left:1\nC2:moving forward:1\nC2:moving backward:14\nC2:going left:61\nC3:standing still:4\nC3:moving forward:15\nC3:moving backward:235\nC3:going left:1076\nC3:invisible:1\nC3:moving forward-right:6\nC3:moving forward-left:2\nC3:moving backward-right:6\nC3:moving backward-left:3\n"}, {"behavior": "standing still", "cog_state": "C3", "color": "rgb(255.0,0.0,0.0)", "id": "C3:standing still", "label": "C3:standing still", "shape": "dot", "size": 2, "title": "C1:standing still:9\nC2:standing still:203\nC3:standing still:83\n"}, {"behavior": "moving backward", "cog_state": "C2", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C2:moving backward", "label": "C2:moving backward", "shape": "dot", "size": 2, "title": "C1:standing still:2\nC1:moving forward:21\nC1:moving backward:42\nC1:going left:1\nC2:standing still:3\nC2:moving forward:34\nC2:moving backward:26\nC2:going right:2\nC2:going left:5\nC3:standing still:2\nC3:moving forward:21\nC3:moving backward:104\nC3:going left:3\nC3:moving backward-left:1\n"}, {"behavior": "going left", "cog_state": "C2", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C2:going left", "label": "C2:going left", "shape": "dot", "size": 2, "title": "C1:moving forward:13\nC1:moving backward:1\nC1:going right:1\nC1:going left:3\nC2:moving forward:12\nC2:moving backward:13\nC2:going right:1\nC2:going left:43\nC2:invisible:3\nC2:moving forward-right:8\nC2:moving backward-left:2\nC3:moving forward:1\nC3:moving backward:34\nC3:going left:45\nC3:moving forward-right:3\nC3:moving backward-right:1\nC3:moving backward-left:3\n"}, {"behavior": "moving forward-right", "cog_state": "C1", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C1:moving forward-right", "label": "C1:moving forward-right", "shape": "dot", "size": 2, "title": "C1:moving forward:4\nC1:going right:5\nC1:moving backward-left:1\nC2:moving forward:1\nC2:going right:3\nC2:moving forward-right:1\nC2:moving backward-right:1\n"}, {"behavior": "moving forward-left", "cog_state": "C1", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C1:moving forward-left", "label": "C1:moving forward-left", "shape": "dot", "size": 2, "title": "C1:going right:1\nC2:moving backward:1\nC2:moving forward-right:1\nC3:going right:1\n"}, {"behavior": "moving backward-right", "cog_state": "C1", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C1:moving backward-right", "label": "C1:moving backward-right", "shape": "dot", "size": 2, "title": "C1:moving forward:6\nC1:moving backward:1\nC1:going right:2\nC1:invisible:1\nC1:moving forward-right:2\nC2:moving forward:1\nC2:moving backward:1\nC2:going right:2\nC2:moving backward-right:1\nC3:moving forward-right:1\nC3:moving backward-right:2\n"}, {"behavior": "moving backward-left", "cog_state": "C1", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C1:moving backward-left", "label": "C1:moving backward-left", "shape": "dot", "size": 2, "title": "C2:moving forward:1\nC2:going left:1\nC3:moving forward-right:1\n"}, {"behavior": "invisible", "cog_state": "C2", "color": "rgb(0.0,255.0,255.0)", "id": "C2:invisible", "label": "C2:invisible", "shape": "dot", "size": 2, "title": "C1:moving forward:24\nC1:going right:7\nC1:invisible:6\nC2:moving forward:31\nC2:moving backward:1\nC2:going right:32\nC2:invisible:23\nC2:moving forward-right:1\nC2:moving backward-right:2\nC2:moving backward-left:2\nC3:moving forward:2\n"}, {"behavior": "moving forward-right", "cog_state": "C2", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C2:moving forward-right", "label": "C2:moving forward-right", "shape": "dot", "size": 2, "title": "C1:moving forward:2\nC1:going right:4\nC1:invisible:2\nC1:moving forward-right:1\nC1:moving forward-left:1\nC2:moving forward:1\nC2:moving backward:1\nC2:going right:5\nC2:going left:9\nC2:invisible:1\nC2:moving forward-right:15\nC2:moving forward-left:5\nC2:moving backward-left:2\nC3:moving backward:1\nC3:moving forward-right:3\nC3:moving backward-left:1\n"}, {"behavior": "moving forward-left", "cog_state": "C2", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C2:moving forward-left", "label": "C2:moving forward-left", "shape": "dot", "size": 2, "title": "C1:going right:2\nC2:going left:2\nC2:moving forward-right:2\nC2:moving backward-right:1\nC3:moving backward:1\n"}, {"behavior": "moving backward-right", "cog_state": "C2", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C2:moving backward-right", "label": "C2:moving backward-right", "shape": "dot", "size": 2, "title": "C1:moving forward:1\nC1:going right:4\nC1:moving backward-right:1\nC2:moving forward:2\nC2:going right:3\nC2:going left:1\nC2:moving forward-right:3\nC3:moving backward:2\nC3:going left:2\n"}, {"behavior": "moving backward-left", "cog_state": "C2", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C2:moving backward-left", "label": "C2:moving backward-left", "shape": "dot", "size": 2, "title": "C1:going right:1\nC2:moving forward:2\nC2:going right:1\nC2:going left:2\nC2:moving forward-right:1\nC3:going left:1\nC3:moving forward-right:3\nC3:moving forward-left:1\n"}, {"behavior": "going right", "cog_state": "C3", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C3:going right", "label": "C3:going right", "shape": "dot", "size": 2, "title": "C1:moving forward:10\nC1:moving backward:2\nC1:going right:5\nC2:moving forward:2\nC2:invisible:1\nC3:moving forward:9\nC3:going right:5\nC3:invisible:1\n"}, {"behavior": "invisible", "cog_state": "C3", "color": "rgb(0.0,255.0,255.0)", "id": "C3:invisible", "label": "C3:invisible", "shape": "dot", "size": 2, "title": "C1:moving forward:3\nC1:moving backward:1\nC2:moving forward:2\nC2:going right:1\nC3:moving forward:4\nC3:going right:2\nC3:going left:3\nC3:invisible:1\n"}, {"behavior": "moving forward-right", "cog_state": "C3", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C3:moving forward-right", "label": "C3:moving forward-right", "shape": "dot", "size": 2, "title": "C1:moving backward:1\nC1:going left:1\nC1:moving backward-left:1\nC2:going left:6\nC2:moving forward-right:5\nC2:moving backward-left:1\nC3:moving backward:4\nC3:going left:5\nC3:invisible:1\nC3:moving forward-right:10\nC3:moving forward-left:1\nC3:moving backward-right:1\n"}, {"behavior": "moving forward-left", "cog_state": "C3", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C3:moving forward-left", "label": "C3:moving forward-left", "shape": "dot", "size": 2, "title": "C1:moving backward:1\nC2:moving backward-right:1\nC2:moving backward-left:1\nC3:moving backward:3\nC3:going left:1\nC3:moving backward-left:2\n"}, {"behavior": "moving backward-right", "cog_state": "C3", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C3:moving backward-right", "label": "C3:moving backward-right", "shape": "dot", "size": 2, "title": "C1:going right:1\nC1:moving backward-right:1\nC2:going left:1\nC2:moving backward-right:2\nC3:moving backward:2\nC3:going left:3\nC3:moving forward-right:2\nC3:moving backward-right:3\n"}, {"behavior": "moving backward-left", "cog_state": "C3", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C3:moving backward-left", "label": "C3:moving backward-left", "shape": "dot", "size": 2, "title": "C1:moving backward:2\nC1:going left:1\nC2:moving forward-right:2\nC2:moving backward-left:1\nC3:moving backward:1\nC3:going left:9\nC3:moving forward-right:1\nC3:moving backward-left:2\n"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "C1:standing still", "to": "C2:standing still", "width": 0.6444796619123085}, {"arrows": "to", "from": "C1:moving forward", "to": "C1:moving backward", "width": 0.40676175382989965}, {"arrows": "to", "from": "C1:moving forward", "to": "C1:going right", "width": 1.1938721605916536}, {"arrows": "to", "from": "C1:moving forward", "to": "C1:going left", "width": 0.3539355520338088}, {"arrows": "to", "from": "C1:moving forward", "to": "C1:invisible", "width": 0.3486529318541997}, {"arrows": "to", "from": "C1:moving forward", "to": "C2:standing still", "width": 0.2746962493396725}, {"arrows": "to", "from": "C1:moving forward", "to": "C2:moving forward", "width": 8.769149498151084}, {"arrows": "to", "from": "C1:moving forward", "to": "C2:going right", "width": 0.26413100898045433}, {"arrows": "to", "from": "C1:moving forward", "to": "C3:moving forward", "width": 2.4141574220813524}, {"arrows": "to", "from": "C1:moving forward", "to": "C3:moving backward", "width": 0.2588483888008452}, {"arrows": "to", "from": "C1:moving forward", "to": "C3:going left", "width": 0.28526148969889065}, {"arrows": "to", "from": "C1:moving backward", "to": "C1:moving forward", "width": 0.35921817221341784}, {"arrows": "to", "from": "C1:moving backward", "to": "C3:moving backward", "width": 1.0935023771790808}, {"arrows": "to", "from": "C1:going right", "to": "C1:moving forward", "width": 1.2836767036450079}, {"arrows": "to", "from": "C1:going right", "to": "C1:invisible", "width": 0.2746962493396725}, {"arrows": "to", "from": "C1:going right", "to": "C2:moving forward", "width": 0.32223983095615427}, {"arrows": "to", "from": "C1:going right", "to": "C2:going right", "width": 0.3380876914949815}, {"arrows": "to", "from": "C1:going left", "to": "C1:moving forward", "width": 0.31695721077654515}, {"arrows": "to", "from": "C1:going left", "to": "C3:going left", "width": 0.3275224511357634}, {"arrows": "to", "from": "C1:invisible", "to": "C1:moving forward", "width": 0.38563127311146334}, {"arrows": "to", "from": "C1:invisible", "to": "C1:going right", "width": 0.2588483888008452}, {"arrows": "to", "from": "C2:standing still", "to": "C1:standing still", "width": 0.3275224511357634}, {"arrows": "to", "from": "C2:standing still", "to": "C2:moving forward", "width": 1.2044374009508716}, {"arrows": "to", "from": "C2:standing still", "to": "C2:going right", "width": 0.7501320655044903}, {"arrows": "to", "from": "C2:standing still", "to": "C3:standing still", "width": 0.5124141574220814}, {"arrows": "to", "from": "C2:moving forward", "to": "C1:moving forward", "width": 10.0}, {"arrows": "to", "from": "C2:moving forward", "to": "C1:going right", "width": 0.3275224511357634}, {"arrows": "to", "from": "C2:moving forward", "to": "C2:standing still", "width": 0.4543053354463814}, {"arrows": "to", "from": "C2:moving forward", "to": "C2:going right", "width": 0.38563127311146334}, {"arrows": "to", "from": "C2:moving forward", "to": "C3:moving forward", "width": 0.48071843634442685}, {"arrows": "to", "from": "C2:moving backward", "to": "C1:moving backward", "width": 0.22187004754358164}, {"arrows": "to", "from": "C2:moving backward", "to": "C3:moving backward", "width": 0.549392498679345}, {"arrows": "to", "from": "C2:going right", "to": "C1:moving forward", "width": 0.4754358161648178}, {"arrows": "to", "from": "C2:going right", "to": "C1:going right", "width": 0.6497622820919176}, {"arrows": "to", "from": "C2:going right", "to": "C2:moving forward", "width": 0.5229793977812995}, {"arrows": "to", "from": "C2:going left", "to": "C3:going left", "width": 0.2377179080824089}, {"arrows": "to", "from": "C3:standing still", "to": "C2:standing still", "width": 1.0776545166402536}, {"arrows": "to", "from": "C3:moving forward", "to": "C1:moving forward", "width": 1.5425250924458533}, {"arrows": "to", "from": "C3:moving forward", "to": "C2:standing still", "width": 0.42260961436872685}, {"arrows": "to", "from": "C3:moving forward", "to": "C2:moving forward", "width": 0.6497622820919176}, {"arrows": "to", "from": "C3:moving forward", "to": "C3:standing still", "width": 0.20602218700475436}, {"arrows": "to", "from": "C3:moving forward", "to": "C3:moving backward", "width": 0.5282620179609087}, {"arrows": "to", "from": "C3:moving forward", "to": "C3:going left", "width": 0.554675118858954}, {"arrows": "to", "from": "C3:moving backward", "to": "C1:moving backward", "width": 0.9508716323296356}, {"arrows": "to", "from": "C3:moving backward", "to": "C2:moving forward", "width": 0.21658742736397255}, {"arrows": "to", "from": "C3:moving backward", "to": "C2:moving backward", "width": 0.6920232435287903}, {"arrows": "to", "from": "C3:moving backward", "to": "C3:standing still", "width": 0.2694136291600634}, {"arrows": "to", "from": "C3:moving backward", "to": "C3:moving forward", "width": 0.9403063919704174}, {"arrows": "to", "from": "C3:moving backward", "to": "C3:going left", "width": 0.5124141574220814}, {"arrows": "to", "from": "C3:going left", "to": "C1:going left", "width": 0.2271526677231907}, {"arrows": "to", "from": "C3:going left", "to": "C2:going left", "width": 0.32223983095615427}, {"arrows": "to", "from": "C3:going left", "to": "C3:moving backward", "width": 1.2414157422081353}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"0": {"edges": {"color": {"inherit": true}, "selfReferenceSize": null, "selfReference": {"angle": 0.8}, "smooth": {"forceDirection": "none"}}, "physics": {"minVelocity": 0.75}}, "2": {"edges": {"color": {"inherit": true}, "scaling": {"max": 6}, "selfReferenceSize": null, "selfReference": {"angle": 0.5}, "smooth": {"forceDirection": "none"}}, "physics": {"barnesHut": {"theta": 0.2, "springConstant": 0.001, "centralGravity": 0.001, "springLength": 10, "nodeDistance": 10, "damping": 0.8}, "maxVelocity": 5, "minVelocity": 0.5}}, "1": {"nodes": {"physics": false}, "edges": {"color": {"inherit": true}, "selfReferenceSize": null, "selfReference": {"angle": 0.7853981633974483}, "smooth": {"forceDirection": "none"}}, "physics": {"barnesHut": {"theta": 1, "springConstant": 0.005}, "minVelocity": 0.75}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

@@ -32,7 +32,7 @@ class Loader:
 
         if path is None:
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            path = os.path.join(script_dir, '..', 'data', 'datasets', 'NoStim_Data.mat')
+            path = os.path.join(script_dir, '..', 'data', 'datasets', 'c_elegans.mat')
 
         self.data_set_no = data_set_no
         data_dict = mat73.loadmat(path)

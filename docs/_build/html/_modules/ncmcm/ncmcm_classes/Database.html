@@ -72,7 +72,6 @@
              
   <h1>Source code for ncmcm.ncmcm_classes.Database</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.CustomEnsembleModel</span> <span class="kn">import</span> <span class="n">CustomEnsembleModel</span>
-<span class="kn">from</span> <span class="nn">..helpers.general_functions</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">..helpers.plotting_functions</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">..helpers.processing_functions</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -227,7 +226,6 @@
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Database.Database.fit_model">[docs]</a>
     <span class="k">def</span> <span class="nf">fit_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">base_model</span><span class="p">,</span>
-                  <span class="n">prob_map</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                   <span class="n">ensemble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                   <span class="n">cv_folds</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -238,10 +236,6 @@
 <span class="sd">            </span>
 <span class="sd">            - base_model: object, required</span>
 <span class="sd">                The model to be fitted (no specific type provided).</span>
-
-<span class="sd">            - prob_map: numpy.ndarray or list, optional</span>
-<span class="sd">                A transform or array indicating if a probability map is created for each frame. This is used in the</span>
-<span class="sd">                behavioral probability trajectory clustering (.cluster_BPT()).</span>
 
 <span class="sd">            - ensemble: bool, optional</span>
 <span class="sd">                A boolean indicating if the CustomEnsembleModel should be created. It makes a set of models for</span>
@@ -274,9 +268,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pred_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">B_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pred_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy for full training data:&quot;</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B_pred</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">prob_map</span><span class="p">:</span>
-            <span class="c1"># get probabilities and weights</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yp_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yp_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
@@ -301,11 +293,12 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid value for &#39;clustering&#39; parameter. &quot;</span>
                              <span class="s2">&quot;It should be either &#39;kmeans&#39; or &#39;spectral&#39;. &quot;</span><span class="p">)</span>
 
-        <span class="n">p</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">markovian</span><span class="p">(</span><span class="n">xctmp</span><span class="p">,</span> <span class="n">sim_memoryless</span><span class="o">=</span><span class="n">sim_m</span><span class="p">)</span>
+        <span class="n">p</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">markov_property_test</span><span class="p">(</span><span class="n">xctmp</span><span class="p">,</span> <span class="n">simulations</span><span class="o">=</span><span class="n">sim_m</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span><span class="p">[</span><span class="n">nclusters</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">reps</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
 
         <span class="k">if</span> <span class="n">stationary</span><span class="p">:</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">p_adj_s</span> <span class="o">=</span> <span class="n">stationarity</span><span class="p">(</span><span class="n">xctmp</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sim_stationary</span><span class="o">=</span><span class="n">sim_s</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">p_adj_s</span> <span class="o">=</span> <span class="n">stationary_property_test</span><span class="p">(</span><span class="n">xctmp</span><span class="p">,</span> <span class="n">chunks_num</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">simulations</span><span class="o">=</span><span class="n">sim_s</span><span class="p">,</span>
+                                                  <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">p_stationary</span><span class="p">[</span><span class="n">nclusters</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">reps</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_adj_s</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">[:,</span> <span class="n">nclusters</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">reps</span><span class="p">]</span> <span class="o">=</span> <span class="n">xctmp</span>
@@ -313,15 +306,53 @@
 <div class="viewcode-block" id="Database.cluster_BPT_single">
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Database.Database.cluster_BPT_single">[docs]</a>
     <span class="k">def</span> <span class="nf">cluster_BPT_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                           <span class="n">nclusters</span><span class="p">,</span>
+                           <span class="n">cluster_num</span><span class="p">,</span>
                            <span class="n">nrep</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-                           <span class="n">sim_m</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
-                           <span class="n">sim_s</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                           <span class="n">sim_m</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                           <span class="n">sim_s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                            <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">clustering</span><span class="o">=</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span>
                            <span class="n">kmeans_init</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span>
                            <span class="n">stationary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                            <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clusters behavioral probability trajectories for a given state space if a model has been fit on the data.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">            - nrep: int, optional</span>
+<span class="sd">                Repetitions of clustering.</span>
+
+<span class="sd">            - cluster_num: int, optional</span>
+<span class="sd">                Number of clusters. Clustering will only be done for this state space size.</span>
+
+<span class="sd">            - sim_m: int, optional</span>
+<span class="sd">                Number of simulations for the test statistics of each markov_property_test.</span>
+
+<span class="sd">            - sim_s: int, optional</span>
+<span class="sd">                Number of simulations for the test statistics of each stationary_property_test.</span>
+
+<span class="sd">            - chunks: int, optional</span>
+<span class="sd">                Number of chunks created for the stationary_property_test (Frobenius norm of the chunks is used).</span>
+
+<span class="sd">            - clustering: str, optional</span>
+<span class="sd">                The clustering algorithm to use (e.g., &#39;kmeans&#39;).</span>
+
+<span class="sd">            - kmeans_init: str or int, optional</span>
+<span class="sd">                Value for the &quot;n_init&quot; parameter of KMeans, defining how often K-means is initialized after</span>
+<span class="sd">                clustering (the best result is picked by the sklearn package).</span>
+
+<span class="sd">            - stationary: bool, optional</span>
+<span class="sd">                Whether to also perform a stationary_property_test.</span>
+
+<span class="sd">            - verbose: int, optional</span>
+<span class="sd">                Level of verbosity for logging information.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You first need to fit a model (eg. Logistic Regression), &#39;</span>
                   <span class="sa">f</span><span class="s1">&#39;which will be used to map to behavioral probability trajectories.</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -330,16 +361,17 @@
         <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_map</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nclusters</span> <span class="ow">or</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">cluster_num</span> <span class="ow">or</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nrep</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating new&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nclusters</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">p_stationary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nclusters</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">nclusters</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">cluster_num</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_stationary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">cluster_num</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">cluster_num</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">reps</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrep</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Testing markovianity for </span><span class="si">{</span><span class="n">nclusters</span><span class="si">}</span><span class="s1"> clusters - repetition </span><span class="si">{</span><span class="n">reps</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_test_clusters</span><span class="p">(</span><span class="n">nclusters</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">kmeans_init</span><span class="p">,</span> <span class="n">clustering</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">sim_m</span><span class="p">,</span> <span class="n">sim_s</span><span class="p">,</span> <span class="n">stationary</span><span class="p">,</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Testing markovianity for </span><span class="si">{</span><span class="n">cluster_num</span><span class="si">}</span><span class="s1"> clusters - repetition </span><span class="si">{</span><span class="n">reps</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_clusters</span><span class="p">(</span><span class="n">cluster_num</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">kmeans_init</span><span class="p">,</span> <span class="n">clustering</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">sim_m</span><span class="p">,</span> <span class="n">sim_s</span><span class="p">,</span> <span class="n">stationary</span><span class="p">,</span>
                                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
@@ -348,15 +380,16 @@
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Database.Database.cluster_BPT">[docs]</a>
     <span class="k">def</span> <span class="nf">cluster_BPT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">nrep</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-                    <span class="n">max_clusters</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                    <span class="n">sim_m</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
-                    <span class="n">sim_s</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                    <span class="n">cluster_num</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                    <span class="n">sim_m</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                    <span class="n">sim_s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                     <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">clustering</span><span class="o">=</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span>
                     <span class="n">kmeans_init</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span>
                     <span class="n">plot_markov</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">stationary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clusters behavioral probability trajectories if a model has been fitted on the data.</span>
 
@@ -365,17 +398,17 @@
 <span class="sd">            - nrep: int, optional</span>
 <span class="sd">                Repetitions of repeated clustering for each number of clusters.</span>
 
-<span class="sd">            - max_clusters: int, optional</span>
-<span class="sd">                Maximal number of clusters. Clustering will be done for 1 to &quot;max_clusters&quot; clusters.</span>
+<span class="sd">            - cluster_num: int, optional</span>
+<span class="sd">                Maximal number of clusters. Clustering will be done for 1 to &quot;cluster_num&quot; clusters.</span>
 
 <span class="sd">            - sim_m: int, optional</span>
-<span class="sd">                Number of simulations for the test statistics of each memory-less test.</span>
+<span class="sd">                Number of simulations for the test statistics of each markov_property_test.</span>
 
 <span class="sd">            - sim_s: int, optional</span>
-<span class="sd">                Number of simulations for the test statistics of each stationarity test.</span>
+<span class="sd">                Number of simulations for the test statistics of each stationary_property_test.</span>
 
 <span class="sd">            - chunks: int, optional</span>
-<span class="sd">                Number of chunks created for the stationarity test (Frobenius norm of the chunks is used).</span>
+<span class="sd">                Number of chunks created for the stationary_property_test (Frobenius norm of the chunks is used).</span>
 
 <span class="sd">            - clustering: str, optional</span>
 <span class="sd">                The clustering algorithm to use (e.g., &#39;kmeans&#39;).</span>
@@ -388,7 +421,7 @@
 <span class="sd">                Whether to plot the result.</span>
 
 <span class="sd">            - stationary: bool, optional</span>
-<span class="sd">                Whether to also perform a stationarity test.</span>
+<span class="sd">                Whether to also perform a stationary_property_test.</span>
 
 <span class="sd">            - verbose: int, optional</span>
 <span class="sd">                Level of verbosity for logging information.</span>
@@ -406,44 +439,65 @@
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_map</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_clusters</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">p_stationary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_clusters</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">max_clusters</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">cluster_num</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_stationary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">cluster_num</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">cluster_num</span><span class="p">,</span> <span class="n">nrep</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">reps</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrep</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">verbose</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Testing markovianity - repetition &quot;</span><span class="p">,</span> <span class="n">reps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">nrclusters</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_clusters</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">nrclusters</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cluster_num</span><span class="p">):</span>
                 <span class="c1"># print(f&#39;Clusters: {nrclusters}&#39;)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_test_clusters</span><span class="p">(</span><span class="n">nrclusters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">kmeans_init</span><span class="p">,</span> <span class="n">clustering</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">sim_m</span><span class="p">,</span> <span class="n">sim_s</span><span class="p">,</span> <span class="n">stationary</span><span class="p">,</span>
                                     <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plot_markov</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_markov</span><span class="p">(</span><span class="n">stationary</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_markov</span><span class="p">(</span><span class="n">stationary</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_plot_markov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stationary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_plot_markov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stationary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates the markovian plot.</span>
+<span class="sd">        Creates the plot of Markov properties test results.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">            - stationary: bool, optional</span>
+<span class="sd">                If results of stationary_property_test are also plotted.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            - return: bool</span>
+<span class="sd">                Boolean success indicator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># Plotting Memorylessness</span>
         <span class="n">data_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span><span class="p">[:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">boxplot_m</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data_m</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">boxprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;lightblue&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">))</span>
-        <span class="n">box_label_m</span> <span class="o">=</span> <span class="s1">&#39;Memoryless&#39;</span>
+        <span class="n">positions_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Default positions</span>
+        <span class="n">boxplot_m</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data_m</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">positions_m</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                               <span class="n">medianprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">),</span>
+                               <span class="n">flierprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+                               <span class="n">boxprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;lightblue&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">))</span>
+        <span class="n">box_label_m</span> <span class="o">=</span> <span class="s1">&#39;Markov Property&#39;</span>
         <span class="n">boxplot_m</span><span class="p">[</span><span class="s1">&#39;boxes&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">box_label_m</span><span class="p">)</span>
         <span class="n">boxplot_m</span><span class="p">[</span><span class="s1">&#39;boxes&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">box_label_m</span><span class="p">)</span>
         <span class="c1"># Plotting Stationarity if wanted</span>
         <span class="k">if</span> <span class="n">stationary</span><span class="p">:</span>
             <span class="n">data_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_stationary</span><span class="p">[:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">boxplot_s</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data_s</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">boxprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;salmon&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">))</span>
-            <span class="n">box_label_s</span> <span class="o">=</span> <span class="s1">&#39;not Stationary&#39;</span>
+            <span class="n">positions_s</span> <span class="o">=</span> <span class="n">positions_m</span> <span class="o">+</span> <span class="mf">0.3</span>  <span class="c1"># Add a small offset to the x-positions</span>
+            <span class="n">boxplot_s</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data_s</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">positions_s</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">medianprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">),</span>
+                                   <span class="n">flierprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+                                   <span class="n">boxprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;salmon&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">))</span>
+            <span class="n">box_label_s</span> <span class="o">=</span> <span class="s1">&#39;Stationary Property&#39;</span>
             <span class="n">boxplot_s</span><span class="p">[</span><span class="s1">&#39;boxes&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">box_label_s</span><span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;P-value for signs against the Markov property in the sequence of cognitive states&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of States/Clusters&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Probability&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">positions_m</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">positions_m</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
@@ -455,11 +509,12 @@
     <span class="k">def</span> <span class="nf">step_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">clusters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                   <span class="n">nrep</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                  <span class="n">sim_m</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
-                  <span class="n">sim_s</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                  <span class="n">sim_m</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                  <span class="n">sim_s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                   <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                  <span class="n">png_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                  <span class="n">png_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a plot consisting of 4 plots. The first one shows behavioral labels plotted onto the 2 principal</span>
 <span class="sd">        components of the neuronal data. The second one shows behavioral labels plotted onto behavioral probability</span>
@@ -499,10 +554,11 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_memoryless</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">clusters</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;There were no BPT-clusterings computed. It will be done now...&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span> <span class="n">ensemble</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cluster_BPT_single</span><span class="p">(</span><span class="n">nrep</span><span class="o">=</span><span class="n">nrep</span><span class="p">,</span> <span class="n">nclusters</span><span class="o">=</span><span class="n">clusters</span><span class="p">,</span> <span class="n">sim_m</span><span class="o">=</span><span class="n">sim_m</span><span class="p">,</span> <span class="n">sim_s</span><span class="o">=</span><span class="n">sim_s</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cluster_BPT_single</span><span class="p">(</span><span class="n">nrep</span><span class="o">=</span><span class="n">nrep</span><span class="p">,</span> <span class="n">cluster_num</span><span class="o">=</span><span class="n">clusters</span><span class="p">,</span> <span class="n">sim_m</span><span class="o">=</span><span class="n">sim_m</span><span class="p">,</span> <span class="n">sim_s</span><span class="o">=</span><span class="n">sim_s</span><span class="p">)</span>
 
         <span class="c1"># Neuronal trajectories preprocessing</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">f_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;figsize&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">f_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">plot_values</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
@@ -558,6 +614,25 @@
     <span class="k">def</span> <span class="nf">_add_quivers2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to add 2D quivers of correct size to an axis.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">            - ax: matplotlib.axes.Axes, required</span>
+<span class="sd">                Matplotlib axis to which the quivers are added.</span>
+
+<span class="sd">            - x: numpy.ndarray or list, required</span>
+<span class="sd">                x-values.</span>
+
+<span class="sd">            - y: numpy.ndarray or list, required</span>
+<span class="sd">                y-values.</span>
+
+<span class="sd">            - colors: numpy.ndarray or list, optional</span>
+<span class="sd">                Color values for the quivers.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            - return: matplotlib.axes.Axes</span>
+<span class="sd">                Axis with quivers added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -576,6 +651,7 @@
                                  <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                  <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                  <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                 <span class="n">xml_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                  <span class="n">physics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">weights_hist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                  <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
@@ -584,7 +660,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a behavioral state diagram using the defined states as a directed graph.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Arguments:</span>
 <span class="sd">            </span>
 <span class="sd">            - cog_stat_num: int, optional</span>
 <span class="sd">                Number of cognitive states used.</span>
@@ -594,9 +670,6 @@
 
 <span class="sd">            - offset: float, optional</span>
 <span class="sd">                Distance between clusters in the plot.</span>
-
-<span class="sd">            - clustering_rep: int, optional</span>
-<span class="sd">                Specifies which clustering representation should be used.</span>
 
 <span class="sd">            - adj_matrix: bool, optional</span>
 <span class="sd">                Whether to plot the adjacency matrix.</span>
@@ -610,8 +683,21 @@
 <span class="sd">            - interactive: bool, optional</span>
 <span class="sd">                Whether to save an interactive HTML plot.</span>
 
-<span class="sd">            - physics: str, optional</span>
-<span class="sd">                A path to a JSON-File with physics for the pyvis-graph.</span>
+<span class="sd">            - xml_file: bool, optional</span>
+<span class="sd">                Whether to generate a GML/XML-file.</span>
+
+<span class="sd">            - physics: str or int, optional</span>
+<span class="sd">                A path to a JSON-File with physics for the pyvis-graph or an integer [0,1] to select either static or</span>
+<span class="sd">                repelling nodes in the interactive graph.</span>
+
+<span class="sd">            - weight_hist: bool, optional</span>
+<span class="sd">                If a histogram of transition weights should be plotted</span>
+
+<span class="sd">            - bins: int, optional</span>
+<span class="sd">                Amount of bins in histogram if &quot;weights_hist&quot;=True</span>
+
+<span class="sd">            - clustering_rep: int, optional</span>
+<span class="sd">                Defines which clustering should be used (by index), otherwise best p-value is used</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
@@ -714,6 +800,7 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plot has been saved under: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
         <span class="c1"># This right here will create the interactive HTML plot</span>
         <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
             <span class="n">net</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_menu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">select_menu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cdn_resources</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
@@ -734,8 +821,19 @@
             <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">physics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;default_physic.json&quot;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;default_physic_static.json&quot;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
                     <span class="n">physic</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">physics</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">physics</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;default_physic_static.json&quot;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                        <span class="n">physic</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">physics</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;default_physic_bounce.json&quot;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                        <span class="n">physic</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Option not available. Static physics used.&#39;</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;default_physic_static.json&quot;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                        <span class="n">physic</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">physics</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">physics</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
                     <span class="n">physic</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
@@ -749,6 +847,26 @@
             <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;File name for the html-plot? &#39;</span><span class="p">))</span>
             <span class="n">net</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.html&#39;</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plot has been saved under: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.html&#39;</span><span class="p">)</span>
+
+        <span class="c1"># xml file for cytoscape</span>
+        <span class="k">if</span> <span class="n">xml_file</span><span class="p">:</span>
+            <span class="n">new_nodes_names</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">nodedata</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">c</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="n">new_node_name</span> <span class="o">=</span> <span class="n">c</span> <span class="o">+</span> <span class="n">b</span>
+                <span class="n">c_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">b_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">)</span> <span class="o">==</span> <span class="n">b</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">n_idx</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">)</span> <span class="o">*</span> <span class="n">c_int</span> <span class="o">+</span> <span class="n">b_int</span><span class="p">)</span>
+                <span class="n">transitions</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="n">n_idx</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span>
+                               <span class="nb">enumerate</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">)}</span>
+                <span class="n">nodedata</span><span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+                <span class="n">nodedata</span><span class="p">[</span><span class="s1">&#39;cog_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+                <span class="n">nodedata</span><span class="p">[</span><span class="s1">&#39;transitions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transitions</span>
+                <span class="n">new_nodes_names</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_node_name</span>
+            <span class="c1"># Update names for XML-format</span>
+            <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">new_nodes_names</span><span class="p">)</span>
+            <span class="n">xml_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;File name for the XML-file? &#39;</span><span class="p">))</span>
+            <span class="n">nx</span><span class="o">.</span><span class="n">write_gml</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">xml_name</span><span class="si">}</span><span class="s1">.gml&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
@@ -757,8 +875,9 @@
     <span class="k">def</span> <span class="nf">map_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Used to generate a state-name from a number</span>
+<span class="sd">        Used to generate a state-name from an integer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">c</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
         <span class="n">new_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)]</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">return</span> <span class="n">new_name</span></div>
@@ -768,7 +887,8 @@
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Database.Database.plotting_neuronal_behavioral">[docs]</a>
     <span class="k">def</span> <span class="nf">plotting_neuronal_behavioral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                      <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                                     <span class="n">vmax</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+                                     <span class="n">vmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots neuronal data and behavioral data as a timeseries.</span>
 
@@ -780,7 +900,9 @@
 <span class="sd">            - vmax: int, optional</span>
 <span class="sd">                maximal value for neuronal data values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+        <span class="n">f_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;figsize&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">f_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_neurons</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_behavior</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -788,14 +910,22 @@
 
 
     <span class="k">def</span> <span class="nf">_behavior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                  <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                  <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots behavioral data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">            - ax: matplotlib.axes.Axes, optional</span>
+<span class="sd">                Axes to plot the neuronal-timeseries on.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">show</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">show</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">f_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;figsize&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">f_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;Pastel1&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">im1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span>
@@ -815,7 +945,8 @@
     <span class="k">def</span> <span class="nf">_neurons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">vmax</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+                 <span class="n">vmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots neuronal data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.</span>
 
@@ -833,7 +964,8 @@
         <span class="n">show</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">show</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">f_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;figsize&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">f_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">im0</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neuron_traces</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">)</span>
         <span class="c1"># tell the colorbar to tick at integers</span>

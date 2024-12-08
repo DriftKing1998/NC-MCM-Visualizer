@@ -3,9 +3,9 @@ import numpy as np
 
 # Sequence Generation #
 
-def simulate_markovian(M, P=None, N=1, order=1):
+def simulate_markov_sequence(M, P=None, N=1, order=1):
     """
-        Simulate a higher-order Markovian process.
+        Simulates a Markov process of a given order and samples probabilities from a uniform distribution.
 
         Parameters:
        
@@ -57,42 +57,7 @@ def simulate_markovian(M, P=None, N=1, order=1):
     return z, P
 
 
-def make_random_adj_matrices(num_matrices=1000, matrix_shape=(10, 10), sparse=False):
-    """
-        Generate random adjacency matrices.
-
-        Parameters:
-       
-        - num_matrices: int, optional
-            Number of matrices to generate.
-
-        - matrix_shape: tuple, optional
-            Shape of each matrix.
-
-        - sparse: bool, optional
-            Can be applied to get more sparse transition matrices.
-
-        Returns:
-       
-        - transition_matrices: list
-            List of generated matrices (np.ndarray).
-    """
-    transition_matrices = []
-
-    for _ in range(num_matrices):
-        if sparse:
-            random_matrix = np.random.dirichlet(np.ones(matrix_shape[0]), size=matrix_shape[0])
-        else:
-            random_matrix = np.random.rand(*matrix_shape)
-
-        # Normalize rows to ensure they add up to 1
-        transition_matrix = random_matrix / random_matrix.sum(axis=1, keepdims=True)
-        transition_matrices.append(transition_matrix)
-
-    return transition_matrices
-
-
-def non_stationary_process(M, N, changes=4):
+def discrete_non_stationary_process(M, N, changes=4):
     """
     Generate a non-stationary Markov process. Changes in the process are equally split within length M.
 
@@ -111,20 +76,20 @@ def non_stationary_process(M, N, changes=4):
         Generated sequence.
     """
     if changes == 0:
-        return simulate_markovian(M=M, N=N, order=1)[0]
+        return simulate_markov_sequence(M=M, N=N, order=1)[0]
 
     l = int(np.floor(M / (changes + 1)))
     last = M - (changes * l)
     seq = []
 
     for c in range(changes):
-        seq += list(simulate_markovian(M=l, N=N, order=1)[0])
-    seq += list(simulate_markovian(M=last, N=N, order=1)[0])
+        seq += list(simulate_markov_sequence(M=l, N=N, order=1)[0])
+    seq += list(simulate_markov_sequence(M=last, N=N, order=1)[0])
 
     return seq
 
 
-def non_stationary_process2(M, N, changes=4, epsilon=0.01):
+def pseudo_cont_non_stationary_process(M, N, changes=4, epsilon=0.02):
     """
     Generate a non-stationary Markov process. Changes in the process are equally split within length M.
 
@@ -149,7 +114,6 @@ def non_stationary_process2(M, N, changes=4, epsilon=0.01):
     P = np.random.rand(N, N)
     # Normalize transition matrix probabilities
     P /= np.sum(P, axis=-1, keepdims=True)
-    #print('Original: \n', P)
 
     l = int(np.floor(M / (changes + 1)))
     last = M - (changes * l)
@@ -161,21 +125,18 @@ def non_stationary_process2(M, N, changes=4, epsilon=0.01):
     row_means = np.mean(perturbation, axis=1, keepdims=True)
     perturbation -= row_means
 
-    # Step 3: Scale to fit within [-1, 1]
-    #max_val = np.max(np.abs(perturbation), axis=1, keepdims=True)
-    #perturbation /= max_val
+    # This makes that the maximum is exactly epsilon
+    max_val = np.max(np.abs(perturbation), axis=1, keepdims=True)
+    perturbation /= max_val
+    perturbation = perturbation * epsilon
 
-    perturbation = (perturbation) * epsilon
-    #print('Perturbation: \n', perturbation)
-
-    def adjust_transition_matrix(P, perturbation):
+    def adjust_transition_matrix(P, pert):
         """
-        Adjusts the transition matrix P by a perturbation matrix and normalizes the rows.
+        Adjusts the transition matrix P by a perturbation matrix (pert) and normalizes the rows.
         Ensures no NaN values and values are clipped between 0 and 1.
         """
-        P += perturbation
+        P += pert
         P = np.clip(P, 0, 1)  # Ensure values are within [0, 1]
-        #P = np.nan_to_num(P, nan=0.0)  # Replace NaNs with 0
         P /= np.sum(P, axis=-1, keepdims=True)  # Normalize to ensure the sum of probabilities is 1
         P = np.nan_to_num(P, nan=1.0 / N)  # Replace NaNs after normalization
         P /= np.sum(P, axis=-1, keepdims=True)  # Normalize to ensure the sum of probabilities is 1
@@ -184,19 +145,62 @@ def non_stationary_process2(M, N, changes=4, epsilon=0.01):
     for c in range(changes):
         # Adjust each row of the transition matrix P by a value epsilon
         P = adjust_transition_matrix(P, perturbation)
-        #print('NEW: \n', P)
+        seq += list(simulate_markov_sequence(M=l, N=N, P=P)[0])
 
-        seq += list(simulate_markovian(M=l, N=N, P=P)[0])
-
-    seq += list(simulate_markovian(M=last, N=N, P=P)[0])
+    seq += list(simulate_markov_sequence(M=last, N=N, P=P)[0])
 
     return seq
 
 
 def simulate_random_sequence(M, N):
     """
-        Simulate a random sequence with N states and length M.
+        Simulate a random sequence with N states and length M. Equates to a Markov process of 1st order with equal
+        transition probabilities.
     """
     random_sequence = np.random.randint(0, N, size=M)
     return random_sequence
+
+
+def simulate_stationary_ou(M, N, theta=0.5, mu=0.0, sigma=1):
+    """
+    Simulates a stationary discrete Markov sequence based on the Ornstein-Uhlenbeck process.
+
+    Parameters:
+        M (int): Length of the sequence.
+        N (int): Number of possible states (quantized levels).
+        theta (float): Mean-reversion strength.
+        mu (float): Long-term mean.
+        sigma (float): Standard deviation of noise.
+
+    Returns:
+        np.ndarray: A discrete stationary Markov sequence of length M with N states.
+    """
+    X = np.zeros(M)
+    for t in range(1, M):
+        X[t] = theta * (mu - X[t - 1]) + np.random.normal(scale=sigma)
+    states = np.linspace(X.min(), X.max(), N, endpoint=False)
+    discrete_X = np.digitize(X, states) - 1
+    return discrete_X
+
+
+def simulate_non_stationary_rw(M, N, sigma=1):
+    """
+    Simulates a non-stationary discrete sequence using a random walk model.
+
+    Parameters:
+        M (int): Length of the sequence.
+        N (int): Number of possible states (quantized levels).
+        sigma (float): Standard deviation of normal distributed noise.
+
+
+    Returns:
+        np.ndarray: A discrete non-stationary sequence of length M with N states.
+    """
+    X = np.zeros(M)
+    for t in range(1, M):
+        X[t] = X[t - 1] + np.random.normal(scale=sigma)
+    states = np.linspace(X.min(), X.max(), N, endpoint=False)
+    discrete_X = np.digitize(X, states) - 1
+    return discrete_X
+
 

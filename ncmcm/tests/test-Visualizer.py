@@ -1,15 +1,17 @@
 import unittest
 from unittest.mock import MagicMock
 from sklearn.linear_model import LogisticRegression
-from ncmcm.ncmcm_classes.Visualizer import *
+import ncmcm as nc
+import numpy as np
 from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA, NMF
 
 
 class TestVisualizerMethods(unittest.TestCase):
 
     def setUp(self):
         # You can create a mock Database object for testing
-        self.mock_database = Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        self.mock_database = nc.Database(neuron_traces=[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                                                      [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
                                                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                                                      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
@@ -21,7 +23,7 @@ class TestVisualizerMethods(unittest.TestCase):
         self.mock_mapping = PCA(n_components=3)
 
         # Initialize Visualizer with the mock Database and mapping
-        self.visualizer = Visualizer(data=self.mock_database, mapping=self.mock_mapping)
+        self.visualizer = nc.Visualizer(data=self.mock_database, mapping=self.mock_mapping)
 
     def test_change_mapping_NMF(self):
         new_mapping = NMF(n_components=3)
@@ -106,7 +108,7 @@ class TestVisualizerMethods(unittest.TestCase):
         result = self.visualizer.make_movie()
         self.assertTrue(result)
 
-        result = self.visualizer.make_movie(quivers=True, show_legend=True, grid_off=False)
+        result = self.visualizer.make_movie(quivers=True, legend=True, grid_off=False)
         self.assertTrue(result)
 
     def test_make_movie_failure(self):
@@ -117,7 +119,7 @@ class TestVisualizerMethods(unittest.TestCase):
         self.assertFalse(result)
 
         with unittest.mock.patch('builtins.print') as mock_print:
-            result = self.visualizer.make_movie(quivers=True, show_legend=True, grid_off=False)
+            result = self.visualizer.make_movie(quivers=True, legend=True, grid_off=False)
             mock_print.assert_called_once_with('The mapping does not map into a 3D space.')
         self.assertFalse(result)
 

@@ -4,14 +4,89 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+    <list default="true" id="71021b12-1cd1-409b-8f5b-8aef42119d3e" name="Changes" comment="a">
+      <change afterPath="$PROJECT_DIR$/demos/.gml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demos/Worm_4_C3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demos/Worm_4_C5.gml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demos/Worm_4_C5.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/_build/doctrees/ncmcm.doctree" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/_build/html/_sources/ncmcm.rst.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/_build/html/ncmcm.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ncmcm.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/TEST_C3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/TEST_c5.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/TEst2.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/TEst3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/mouse_all_c3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/mouse_all_c3_low_threshold.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/mouse_all_c3_threshold_low.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/mouse_part_4_c3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_plots/mouse_part_6_c30.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/data/default_physic_bounce.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/Viability_Chunk.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/Viability_Chunk_justplot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/Viability_Testing.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/Viability_Testing_justplot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/power_curve_discrete.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/power_curve_memoryless.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/power_curve_memoryless_justplot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/power_curve_pseudo_cont.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ncmcm/statisitical_test_plots/power_curve_pseudo_cont_justplot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ncmcm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ncmcm.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/general_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/general_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Interactive_mouse_C3.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_plots/Interactive_mouse_C3.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/Demo_Usage.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/demos/Demo_Usage.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/Interactive_C3.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_plots/Interactive_C3.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/Mouse_C3_plane0.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_plots/Mouse_C3_plane0.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/Mouse_interactive_C3.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_plots/Mouse_interactive_C3.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_1.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_2.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_3.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_4.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demos/data/data_worm_5.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/doctrees/environment.pickle" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/doctrees/environment.pickle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/doctrees/ncmcm.helpers.doctree" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/doctrees/ncmcm.helpers.doctree" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/doctrees/ncmcm.ncmcm_classes.doctree" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/doctrees/ncmcm.ncmcm_classes.doctree" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/markov_functions.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/markov_functions.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/plotting_functions.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/plotting_functions.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/processing_functions.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/processing_functions.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/sequence_functions.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/sequence_functions.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/visualizer_creation.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/helpers/visualizer_creation.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/ncmcm_classes/Database.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/ncmcm_classes/Database.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/ncmcm_classes/Loader.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/ncmcm_classes/Loader.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/ncmcm_classes/Visualizer.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/_modules/ncmcm/ncmcm_classes/Visualizer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/genindex.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/genindex.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/modules.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/modules.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/ncmcm.bundlenet.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/ncmcm.bundlenet.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/ncmcm.helpers.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/ncmcm.helpers.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/ncmcm.ncmcm_classes.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/ncmcm.ncmcm_classes.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/objects.inv" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/objects.inv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/py-modindex.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/py-modindex.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_build/html/searchindex.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_build/html/searchindex.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/datasets/NoStim_Data.mat" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/datasets/c_elegans.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/data/default_physic.json" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/data/default_physic_static.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/general_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/markov_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/markov_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/plotting_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/plotting_functions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ncmcm/helpers/processing_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/processing_functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/visualizer_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/visualizer_creation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/helpers/sequence_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/helpers/sequence_functions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/ncmcm_classes/Visualizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/markov_mem_testing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/markov_memorylessness_testing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/markov_stationary_distribution_testing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/markov_stationary_testing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/power_curves_discrete.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/power_curves_memorylessness.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/stats_tests/power_curves_pseudo_cont.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ncmcm/tests/test-Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/tests/test-Database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ncmcm/tests/test-Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/ncmcm/tests/test-Visualizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +116,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file:///Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/scipy/stats/_stats_py.py" root0="SKIP_INSPECTION" />
     <setting file="file:///Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/unittest/mock.py" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -54,37 +130,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;GitHub-Version&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/michaelhofer/Documents/GitHub/ncmcm&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "GitHub-Version",
+    "last_opened_file_path": "/Users/michaelhofer/Documents/GitHub/ncmcm/ncmcm/statisitical_test_plots",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+      <recent name="$PROJECT_DIR$/demos" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/ncmcm/data/plots/Demonstration" />
       <recent name="$PROJECT_DIR$/ncmcm/data/pickles" />
-      <recent name="$PROJECT_DIR$/src/data/plots/Demonstration" />
-      <recent name="$PROJECT_DIR$/src/data/plots" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ncmcm/trash" />
+      <recent name="$PROJECT_DIR$/interactive_plots" />
+      <recent name="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
       <recent name="$PROJECT_DIR$/demos" />
       <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/tests" />
-      <recent name="$PROJECT_DIR$/data/plots/Demonstration" />
     </key>
   </component>
   <component name="RunManager">
@@ -135,6 +211,29 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="timing" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ncmcmvis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11 (ncmcm)" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/demos" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="false" />
+      <option name="ADD_SOURCE_ROOTS" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ncmcm/trash/timing.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -202,6 +301,21 @@
       <option name="docutils_open_in_browser" value="false" />
       <method v="2" />
     </configuration>
+    <configuration name="Python tests for test-Database.TestDatabase.test_init" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="ncmcm" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ncmcm/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test-Database.TestDatabase.test_init&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="tests" factoryName="Autodetect">
       <module name="ncmcmvis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -236,6 +350,11 @@
       <option name="USE_PATTERN" value="false" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.Python tests for test-Database.TestDatabase.test_init" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -337,11 +456,56 @@
       <workItem from="1714658147106" duration="33000" />
       <workItem from="1715274196318" duration="330000" />
       <workItem from="1715583049736" duration="606000" />
+      <workItem from="1725090990699" duration="14785000" />
+      <workItem from="1725264878941" duration="608000" />
+      <workItem from="1725785610160" duration="8911000" />
+      <workItem from="1725811026472" duration="821000" />
+      <workItem from="1726219335327" duration="31467000" />
+      <workItem from="1726479765926" duration="29371000" />
+      <workItem from="1726652142575" duration="827000" />
+      <workItem from="1726661608572" duration="12315000" />
+      <workItem from="1726727010261" duration="20000" />
+      <workItem from="1726727043924" duration="5679000" />
+      <workItem from="1727082743879" duration="609000" />
+      <workItem from="1728556963182" duration="30679000" />
+      <workItem from="1728889812937" duration="625000" />
+      <workItem from="1728976769849" duration="598000" />
+      <workItem from="1729009597841" duration="5927000" />
+      <workItem from="1729073728316" duration="2264000" />
+      <workItem from="1729088567772" duration="14000" />
+      <workItem from="1729166593826" duration="14796000" />
+      <workItem from="1729500366838" duration="3000" />
+      <workItem from="1729527399358" duration="1298000" />
+      <workItem from="1729761483479" duration="18588000" />
+      <workItem from="1730109577558" duration="4000" />
+      <workItem from="1730223570089" duration="1637000" />
+      <workItem from="1730364266614" duration="10475000" />
+      <workItem from="1730539976759" duration="8626000" />
+      <workItem from="1730707989613" duration="12000" />
+      <workItem from="1730991989443" duration="845000" />
+      <workItem from="1731056932517" duration="30985000" />
+      <workItem from="1731313320974" duration="10000" />
+      <workItem from="1731333476370" duration="306000" />
+      <workItem from="1731614697978" duration="12684000" />
+      <workItem from="1731841831096" duration="14096000" />
+      <workItem from="1731936764264" duration="23000" />
+      <workItem from="1732178972871" duration="36376000" />
+      <workItem from="1732527279249" duration="17000" />
+      <workItem from="1732903780404" duration="41644000" />
+      <workItem from="1733304273475" duration="3326000" />
+      <workItem from="1733331183505" duration="24275000" />
+      <workItem from="1733409610727" duration="10310000" />
+      <workItem from="1733477399646" duration="2512000" />
+      <workItem from="1733498257768" duration="39552000" />
+      <workItem from="1733649682097" duration="37581000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.jl" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -354,63 +518,83 @@
       </map>
     </option>
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
-          <url>notebook:///Users/michaelhofer/Documents/GitHub/ncmcm/demos/Demo_Usage.ipynb</url>
-          <line>3</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ncmcm$.coverage" NAME=" Coverage Results" MODIFIED="1722772192673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$testing.coverage" NAME="testing Coverage Results" MODIFIED="1704623819887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/classes_py$test.coverage" NAME="test Coverage Results" MODIFIED="1724591017838" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_testing.coverage" NAME="markov_testing Coverage Results" MODIFIED="1704621148089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$test.coverage" NAME="test Coverage Results" MODIFIED="1728653909306" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$power_curve_pseudo_cont.coverage" NAME="power_curve_pseudo_cont Coverage Results" MODIFIED="1733661830438" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_mem_testing.coverage" NAME="markov_mem_testing Coverage Results" MODIFIED="1706283973467" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ncmcm$markov_stationary_testing.coverage" NAME="markov_stationary_testing Coverage Results" MODIFIED="1712829821406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_memorylessness_testing.coverage" NAME="markov_memorylessness_testing Coverage Results" MODIFIED="1704964888585" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_stationary_testing.coverage" NAME="markov_stationary_testing Coverage Results" MODIFIED="1707391711694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ncmcm_iml$test.coverage" NAME="test Coverage Results" MODIFIED="1718644084436" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/notebooks" />
-    <SUITE FILE_PATH="coverage/ncmcm_iml$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1717759490152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$TestingNew.coverage" NAME="TestingNew Coverage Results" MODIFIED="1706359048519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$Visualizer.coverage" NAME="Visualizer Coverage Results" MODIFIED="1733418095263" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/ncmcm_classes" />
     <SUITE FILE_PATH="coverage/ncmcm$power_curves_stat.coverage" NAME="power_curves_stat Coverage Results" MODIFIED="1720278429935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
-    <SUITE FILE_PATH="coverage/ncmcm$power_curves.coverage" NAME="power_curves Coverage Results" MODIFIED="1720280440969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$test_Database.coverage" NAME="test-Database Coverage Results" MODIFIED="1706267096949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/classes_py$plotting_functions.coverage" NAME="plotting_functions Coverage Results" MODIFIED="1729782320127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/helpers" />
     <SUITE FILE_PATH="coverage/ncmcm$markov_stationary_testing_new.coverage" NAME="markov_stationary_testing_new Coverage Results" MODIFIED="1712783332912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$toolbox.coverage" NAME="toolbox Coverage Results" MODIFIED="1699609650266" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../Uni/Bioinformatik/Master" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1707420359506" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$Viability_Testing2.coverage" NAME="Viability_Testing2 Coverage Results" MODIFIED="1733685024467" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
     <SUITE FILE_PATH="coverage/ncmcm$functions.coverage" NAME="functions Coverage Results" MODIFIED="1720800784944" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
-    <SUITE FILE_PATH="coverage/ncmcm$power_curves_pseudo_cont.coverage" NAME="power_curves_pseudo_cont Coverage Results" MODIFIED="1720777487760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
     <SUITE FILE_PATH="coverage/ncmcm$markov_stationary_distribution_testing.coverage" NAME="markov_stationary_distribution_testing Coverage Results" MODIFIED="1712237580931" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$Code_mgw.coverage" NAME="Code_mgw Coverage Results" MODIFIED="1699605996642" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$test_Visualizer.coverage" NAME="test-Visualizer Coverage Results" MODIFIED="1705755052191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/ncmcm_iml$BundDLeNet.coverage" NAME="BundDLeNet Coverage Results" MODIFIED="1718643988312" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
-    <SUITE FILE_PATH="coverage/ncmcm$dummy_monkey.coverage" NAME="dummy_monkey Coverage Results" MODIFIED="1713017971562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$classes.coverage" NAME="classes Coverage Results" MODIFIED="1700217549860" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/classes_py$power_curve_memoryless.coverage" NAME="power_curve_memoryless Coverage Results" MODIFIED="1733589130315" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/classes_py$timing.coverage" NAME="timing Coverage Results" MODIFIED="1733509694163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/demos" />
+    <SUITE FILE_PATH="coverage/classes_py$sequence_functions.coverage" NAME="sequence_functions Coverage Results" MODIFIED="1733676951199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/helpers" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$.coverage" NAME=" Coverage Results" MODIFIED="1706267678494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/ncmcm$example.coverage" NAME="example Coverage Results" MODIFIED="1709303794191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ncmcm$classes.coverage" NAME="classes Coverage Results" MODIFIED="1711791700973" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
     <SUITE FILE_PATH="coverage/ncmcm$markov_memorylessness_testing.coverage" NAME="markov_memorylessness_testing Coverage Results" MODIFIED="1712248171448" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$setup.coverage" NAME="setup Coverage Results" MODIFIED="1707771250494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ncmcm$power_curves_memorylessness.coverage" NAME="power_curves_memorylessness Coverage Results" MODIFIED="1720808586991" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
+    <SUITE FILE_PATH="coverage/classes_py$PowerCurve.coverage" NAME="PowerCurve Coverage Results" MODIFIED="1733675972766" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/trash" />
     <SUITE FILE_PATH="coverage/classes_py$setup.coverage" NAME="setup Coverage Results" MODIFIED="1714037082207" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$.coverage" NAME=" Coverage Results" MODIFIED="1733680007082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$main.coverage" NAME="main Coverage Results" MODIFIED="1706359030516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$effect_size_test_mem.coverage" NAME="effect_size_test_mem Coverage Results" MODIFIED="1733563313070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$SequenceMarkovTest.coverage" NAME="SequenceMarkovTest Coverage Results" MODIFIED="1704722183470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$effect_size_test_stat_chang.coverage" NAME="effect_size_test_stat_chang Coverage Results" MODIFIED="1733255948735" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$tetststst.coverage" NAME="tetststst Coverage Results" MODIFIED="1723298248431" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm$markov_mem_testing.coverage" NAME="markov_mem_testing Coverage Results" MODIFIED="1712229092178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
+    <SUITE FILE_PATH="coverage/classes_py$stat.coverage" NAME="stat Coverage Results" MODIFIED="1726570742531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$effect_size_test_stat_eps.coverage" NAME="effect_size_test_stat_eps Coverage Results" MODIFIED="1733247153966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$TEST.coverage" NAME="TEST Coverage Results" MODIFIED="1707401417251" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm$.coverage" NAME=" Coverage Results" MODIFIED="1722772192673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$testing.coverage" NAME="testing Coverage Results" MODIFIED="1704623819887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$effect_size_test_stat.coverage" NAME="effect_size_test_stat Coverage Results" MODIFIED="1729169185627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_testing.coverage" NAME="markov_testing Coverage Results" MODIFIED="1704621148089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm$markov_stationary_testing.coverage" NAME="markov_stationary_testing Coverage Results" MODIFIED="1712829821406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
+    <SUITE FILE_PATH="coverage/classes_py$markov_functions.coverage" NAME="markov_functions Coverage Results" MODIFIED="1730384392126" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/helpers" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$markov_stationary_testing.coverage" NAME="markov_stationary_testing Coverage Results" MODIFIED="1707391711694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm_iml$test.coverage" NAME="test Coverage Results" MODIFIED="1718644084436" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/notebooks" />
+    <SUITE FILE_PATH="coverage/ncmcm_iml$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1717759490152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
+    <SUITE FILE_PATH="coverage/classes_py$markov_mem_testing.coverage" NAME="markov_mem_testing Coverage Results" MODIFIED="1731857052442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$TestingNew.coverage" NAME="TestingNew Coverage Results" MODIFIED="1706359048519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm$power_curves.coverage" NAME="power_curves Coverage Results" MODIFIED="1720280440969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
+    <SUITE FILE_PATH="coverage/classes_py$markov_stationary_testing.coverage" NAME="markov_stationary_testing Coverage Results" MODIFIED="1732209678858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1707420359506" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$power_curve_discrete.coverage" NAME="power_curve_discrete Coverage Results" MODIFIED="1733681631477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/classes_py$effect_size_test_stat_eps_NEW.coverage" NAME="effect_size_test_stat_eps_NEW Coverage Results" MODIFIED="1731076224025" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ncmcm$power_curves_pseudo_cont.coverage" NAME="power_curves_pseudo_cont Coverage Results" MODIFIED="1720777487760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
+    <SUITE FILE_PATH="coverage/classes_py$Plot_Creation.coverage" NAME="Plot_Creation Coverage Results" MODIFIED="1733333233108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/demos" />
+    <SUITE FILE_PATH="coverage/ncmcm$dummy_monkey.coverage" NAME="dummy_monkey Coverage Results" MODIFIED="1713017971562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
+    <SUITE FILE_PATH="coverage/classes_py$Viability_Chunk_justplot.coverage" NAME="Viability_Chunk_justplot Coverage Results" MODIFIED="1733686037516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$classes.coverage" NAME="classes Coverage Results" MODIFIED="1700217549860" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/ncmcm$example.coverage" NAME="example Coverage Results" MODIFIED="1709303794191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$markov_memorylessness_testing.coverage" NAME="markov_memorylessness_testing Coverage Results" MODIFIED="1732201248151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/ncmcm$power_curves_memorylessness.coverage" NAME="power_curves_memorylessness Coverage Results" MODIFIED="1720808586991" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
+    <SUITE FILE_PATH="coverage/classes_py$Viability_Testing_justplot.coverage" NAME="Viability_Testing_justplot Coverage Results" MODIFIED="1733689243362" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$Stationarity_Test_Distribution.coverage" NAME="Stationarity_Test_Distribution Coverage Results" MODIFIED="1707402185563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ncmcm$power_curves_discrete_stat.coverage" NAME="power_curves_discrete_stat Coverage Results" MODIFIED="1720279189900" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
     <SUITE FILE_PATH="coverage/ncmcm$dummy_mouse.coverage" NAME="dummy_mouse Coverage Results" MODIFIED="1713110265259" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$main.coverage" NAME="main Coverage Results" MODIFIED="1706359030516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$SequenceMarkovTest.coverage" NAME="SequenceMarkovTest Coverage Results" MODIFIED="1704722183470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$Testing.coverage" NAME="Testing Coverage Results" MODIFIED="1733391256054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/demos" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$comparable.coverage" NAME="comparable Coverage Results" MODIFIED="1707405556456" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/classes_py$tetststst.coverage" NAME="tetststst Coverage Results" MODIFIED="1723298248431" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$power_curve_memoryless_justplot.coverage" NAME="power_curve_memoryless_justplot Coverage Results" MODIFIED="1733650362742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
     <SUITE FILE_PATH="coverage/ncmcm$power_curves_discrete.coverage" NAME="power_curves_discrete Coverage Results" MODIFIED="1720772366369" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/stats_tests" />
-    <SUITE FILE_PATH="coverage/ncmcm$markov_mem_testing.coverage" NAME="markov_mem_testing Coverage Results" MODIFIED="1712229092178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/tests" />
+    <SUITE FILE_PATH="coverage/classes_py$Viability_Testing.coverage" NAME="Viability_Testing Coverage Results" MODIFIED="1733677529640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
     <SUITE FILE_PATH="coverage/ncmcm_iml$dummy_mouse.coverage" NAME="dummy_mouse Coverage Results" MODIFIED="1715959208547" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
+    <SUITE FILE_PATH="coverage/classes_py$Viability_Chunk.coverage" NAME="Viability_Chunk Coverage Results" MODIFIED="1733398945458" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
     <SUITE FILE_PATH="coverage/ncmcm$dummy.coverage" NAME="dummy Coverage Results" MODIFIED="1720785693635" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
+    <SUITE FILE_PATH="coverage/classes_py$power_curves_discrete.coverage" NAME="power_curves_discrete Coverage Results" MODIFIED="1733563244725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm/statisitical_test_plots" />
+    <SUITE FILE_PATH="coverage/classes_py$mem.coverage" NAME="mem Coverage Results" MODIFIED="1726491240166" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes_py$tttttt.coverage" NAME="tttttt Coverage Results" MODIFIED="1733261090064" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$functions.coverage" NAME="functions Coverage Results" MODIFIED="1706269767715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
-    <SUITE FILE_PATH="coverage/NeuronVisualizer2_0$TEST.coverage" NAME="TEST Coverage Results" MODIFIED="1707401417251" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/classes_py$ttt.coverage" NAME="ttt Coverage Results" MODIFIED="1714036539887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ncmcm" />
+    <SUITE FILE_PATH="coverage/classes_py$effect_size_test_mem_NEW.coverage" NAME="effect_size_test_mem_NEW Coverage Results" MODIFIED="1733224776999" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

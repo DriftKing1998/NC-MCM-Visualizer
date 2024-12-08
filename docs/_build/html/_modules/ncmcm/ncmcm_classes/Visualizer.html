@@ -159,17 +159,18 @@
 <div class="viewcode-block" id="Visualizer.plot_mapping">
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_mapping">[docs]</a>
     <span class="k">def</span> <span class="nf">plot_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                     <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                      <span class="n">quivers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                     <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                     <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses the mapping of the Visualizer to plot the datapoints into 3D space.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
-<span class="sd">            - show_legend: bool, optional</span>
+<span class="sd">            - legend: bool, optional</span>
 <span class="sd">                Whether the legend should be shown.</span>
 
 <span class="sd">            - grid_off: bool, optional</span>
@@ -180,6 +181,9 @@
 
 <span class="sd">            - show: bool, optional</span>
 <span class="sd">                Whether to display the plot. If False, the plot&#39;s components will be returned.</span>
+<span class="sd">                </span>
+<span class="sd">            - draw: bool, optional</span>
+<span class="sd">                Not to be used for normal plot_mapping(). Only relevant in make_movie().</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
@@ -191,7 +195,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The mapping does not map into a 3D space.&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
         <span class="c1"># We need to trim labs and colors if we have a BundDLe</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colors</span><span class="p">):</span>
@@ -206,7 +210,7 @@
                        <span class="n">alpha</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
 
         <span class="c1"># plot the legend if wanted</span>
-        <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
             <span class="n">legend_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -229,20 +233,23 @@
 
 
     <span class="k">def</span> <span class="nf">_transform_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                          <span class="n">mapping</span><span class="p">):</span>
+                          <span class="n">mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses the mapping given to transform the data points (Database.neuron_traces). Also checks if the mapping is a</span>
 <span class="sd">        neural network or any other sklearn dimensionality reduction.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
-<span class="sd">            - mapping: Dimensionality reduction mapping for the data points (for visualization mapping to 3D space). Type is either a tf-neural-network or any sklearn-object with method &quot;fit_transform&quot;</span>
+<span class="sd">            - mapping: object, optional</span>
+<span class="sd">                Dimensionality reduction mapping for the data points (for visualization mapping to 3D space). Type is </span>
+<span class="sd">                either a tf-neural-network or any sklearn-object with method &quot;fit_transform&quot;</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
 <span class="sd">            - return: bool</span>
 <span class="sd">                Boolean success indicator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># This should not happen normally</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No mapping present. CREATING PCA MODEL ...&#39;</span><span class="p">)</span>
             <span class="n">mapping</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -258,7 +265,6 @@
         <span class="c1"># This happens if we give some mapping which is not a NN</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="s1">&#39;fit_transform&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get_params</span><span class="p">()[</span><span class="s1">&#39;n_components&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="c1"># print(&#39;HAVE mapping MODEL&#39;)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">NMF</span><span class="p">):</span>
                     <span class="n">scaler</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">(</span><span class="n">feature_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)))</span>
                     <span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
@@ -273,19 +279,18 @@
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Points have coordinate shape: &#39;</span><span class="p">,</span> <span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="c1"># self.x, self.y, self.z = transformed_points.T</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span> <span class="o">=</span> <span class="n">transformed_points</span><span class="o">.</span><span class="n">T</span>
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                         <span class="n">blabs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">b_labs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">diff</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates legend handles from earlier created `self.diff_label_counts` or from labels given as a parameter.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
-<span class="sd">            - blabs: numpy.ndarray, optional</span>
+<span class="sd">            - b_labs: numpy.ndarray, optional</span>
 <span class="sd">                Labels from which the legend handles should be created.</span>
 
 <span class="sd">            - diff: bool, optional</span>
@@ -294,7 +299,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
 <span class="sd">            - return: list</span>
-<span class="sd">                List of legend handles.</span>
+<span class="sd">                A list of legend handles.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># if the legend for the difference plot is requested</span>
@@ -320,7 +325,7 @@
         <span class="c1"># Create custom legend handles</span>
         <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">colordict</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
                                       <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                                      <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mathbf{&#39;</span> <span class="o">+</span> <span class="n">lab</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; (</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">blabs</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                                      <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mathbf{&#39;</span> <span class="o">+</span> <span class="n">lab</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; (</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">b_labs</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
                            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">legend_elements</span>
@@ -330,13 +335,13 @@
                                     <span class="n">window_true_trans</span><span class="p">,</span>
                                     <span class="n">window_pred_trans</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generates the counts of wrong predictions by the model from a numpy array where correct predictions are marked as</span>
-<span class="sd">        &quot;-1&quot; and incorrect predictions are labeled with other values.</span>
+<span class="sd">        Generates the counts of wrong predictions by the model from a numpy array where correct predictions are marked </span>
+<span class="sd">        as &quot;-1&quot; and incorrect predictions are labeled with other values.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
 <span class="sd">            - diff_predict: numpy.ndarray, required</span>
-<span class="sd">                Array with correct predictions marked as &quot;-1&quot; and incorrect predictions marked with other values (e.g., &quot;0&quot;, &quot;1&quot;, ...).</span>
+<span class="sd">                Array with correct predictions marked as &quot;-1&quot; and incorrect predictions marked with other values (e.g.: 0, 1, ...).</span>
 
 <span class="sd">            - window_true_trans: int, required</span>
 <span class="sd">                Size difference between true labels and the number of transformed points.</span>
@@ -362,8 +367,8 @@
                       <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                       <span class="n">use_predictor</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations, and if</span>
-<span class="sd">        specified, the predictor will be used as a prediction model for visualizations.</span>
+<span class="sd">        Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations, and</span>
+<span class="sd">        if specified, the predictor will be used as a prediction model for visualizations.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
@@ -419,13 +424,15 @@
 
 <div class="viewcode-block" id="Visualizer.plot_loss">
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.plot_loss">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Will plot the loss over epochs as total loss, markov loss (loss for predicted Y-t+1 (=lower) and created Y-t+1</span>
 <span class="sd">        (=upper)) and behavior loss (loss for predicted B-t+1 (=upper) and true label at t+1).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
                     <span class="p">[</span><span class="s2">&quot;$\mathcal</span><span class="si">{L}</span><span class="s2">_{{Markov}}$&quot;</span><span class="p">,</span> <span class="s2">&quot;$\mathcal</span><span class="si">{L}</span><span class="s2">_{{Behavior}}$&quot;</span><span class="p">,</span> <span class="s2">&quot;Total loss $\mathcal</span><span class="si">{L}</span><span class="s2">$&quot;</span><span class="p">]):</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_array</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
@@ -480,8 +487,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Will use the output from the attached tau-model as an input for a new Database object. This is used if the input</span>
 <span class="sd">        data of the current object could be too large or for exploratory uses</span>
-
-<span class="sd">        Parameters:</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
@@ -538,7 +543,7 @@
 <span class="sd">                Color values for the quivers.</span>
 
 <span class="sd">            - draw: bool, optional</span>
-<span class="sd">                Whether to draw the quivers on the axis.</span>
+<span class="sd">                Whether to draw the quivers on the axis. Only relevant for make_movie().</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
@@ -576,10 +581,11 @@
     <span class="k">def</span> <span class="nf">make_movie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                    <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">quivers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                   <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                   <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a movie from each frame in the imaging data. It uses the tau model or a mapping to project the data into</span>
 <span class="sd">        a 3-dimensional space.</span>
@@ -593,7 +599,7 @@
 <span class="sd">            - save: bool, optional</span>
 <span class="sd">                Whether the GIF should be saved.</span>
 
-<span class="sd">            - show_legend: bool, optional</span>
+<span class="sd">            - legend: bool, optional</span>
 <span class="sd">                Whether the legend should be shown in the movie.</span>
 
 <span class="sd">            - grid_off: bool, optional</span>
@@ -601,6 +607,11 @@
 
 <span class="sd">            - quivers: bool, optional</span>
 <span class="sd">                Whether to use quivers; otherwise, a scatterplot will be created.</span>
+
+<span class="sd">            - draw: bool, optional</span>
+<span class="sd">                Whether to draw all time-points on the axis from the start. If False, then timepoints will be plotted as</span>
+<span class="sd">                they happen.</span>
+
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
@@ -619,34 +630,41 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">interval</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_create_animation</span><span class="p">(</span><span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_animation</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
                                <span class="n">grid_off</span><span class="o">=</span><span class="n">grid_off</span><span class="p">,</span>
                                <span class="n">quivers</span><span class="o">=</span><span class="n">quivers</span><span class="p">,</span>
-                               <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+                               <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;What should the movie be called?&#39;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_animation</span><span class="p">(</span><span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_animation</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
                                    <span class="n">grid_off</span><span class="o">=</span><span class="n">grid_off</span><span class="p">,</span>
                                    <span class="n">quivers</span><span class="o">=</span><span class="n">quivers</span><span class="p">,</span>
-                                   <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+                                   <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">,</span>
+                                   <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_gif</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
     <span class="k">def</span> <span class="nf">_create_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                          <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                           <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                           <span class="n">quivers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                          <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                          <span class="n">draw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a movie from each frame in the imaging data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="p">,</span> <span class="n">legend_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_mapping</span><span class="p">(</span><span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="p">,</span> <span class="n">legend_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_mapping</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
                                                                 <span class="n">grid_off</span><span class="o">=</span><span class="n">grid_off</span><span class="p">,</span>
                                                                 <span class="n">quivers</span><span class="o">=</span><span class="n">quivers</span><span class="p">,</span>
                                                                 <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                                <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">)</span>
+                                                                <span class="n">draw</span><span class="o">=</span><span class="n">draw</span><span class="p">,</span>
+                                                                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation</span> <span class="o">=</span> <span class="n">anim</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">,</span>
                                             <span class="n">fargs</span><span class="o">=</span><span class="p">(</span><span class="n">grid_off</span><span class="p">,</span> <span class="n">legend_elements</span><span class="p">,</span> <span class="n">quivers</span><span class="p">,</span> <span class="n">draw</span><span class="p">),</span>
                                             <span class="n">frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
@@ -659,7 +677,7 @@
                 <span class="n">quivers</span><span class="p">,</span>
                 <span class="n">draw</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update function to create a frame in the movie.</span>
+<span class="sd">        Update function to create a new frame in the movie.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
@@ -698,7 +716,6 @@
 
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="p">[:,</span> <span class="n">frame</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-        <span class="c1"># self.scatter = self.movie_ax.scatter(self.x[frame], self.y[frame], self.z[frame], s=20, alpha=0.8, color=&#39;red&#39;)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">movie_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Frame: </span><span class="si">{</span><span class="n">frame</span><span class="si">}</span><span class="se">\n</span><span class="s1">Behavior: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">frame</span><span class="p">]]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">legend_elements</span><span class="p">:</span>
@@ -752,8 +769,6 @@
 <span class="sd">        Tries to use the prediction model used in plots to the Predictor of the BundDLeNet. This is normally only used</span>
 <span class="sd">        if the upon BundDLeNet creation the &quot;use_predictor&quot; parameter was set to False.</span>
 
-<span class="sd">        Parameters:</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
 <span class="sd">            - return: bool</span>
@@ -776,15 +791,16 @@
 <div class="viewcode-block" id="Visualizer.make_comparison">
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.make_comparison">[docs]</a>
     <span class="k">def</span> <span class="nf">make_comparison</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                        <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">quivers</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                        <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">quivers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a comparison plot between the true labels and the prediction model that is added or selected. The legend</span>
 <span class="sd">        created corresponds only to the actually displayed points.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
-<span class="sd">            - show_legend: bool, optional</span>
+<span class="sd">            - legend: bool, optional</span>
 <span class="sd">                Whether the legend should be shown.</span>
 
 <span class="sd">            - quivers: bool, optional</span>
@@ -828,7 +844,7 @@
                                  <span class="n">diff_predicts</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_generate_diff_label_counts</span><span class="p">(</span><span class="n">diff_predicts</span><span class="p">,</span> <span class="n">window_true_trans</span><span class="p">,</span> <span class="n">window_pred_trans</span><span class="p">)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># First subplot</span>
         <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">131</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
         <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">132</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
@@ -862,26 +878,26 @@
         <span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Predicted Label&#39;</span><span class="p">)</span>
 
         <span class="c1"># plot the legend if wanted</span>
-        <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
             <span class="n">legend_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">window_true_trans</span><span class="p">:])</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;True Labels&#39;</span><span class="p">,</span>
                        <span class="n">handles</span><span class="o">=</span><span class="n">legend_1</span><span class="p">,</span>
-                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
-                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span>
+                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
                        <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">)</span>
 
             <span class="n">legend_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">diff</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Incorrect Predictions&#39;</span><span class="p">,</span>
                        <span class="n">handles</span><span class="o">=</span><span class="n">legend_2</span><span class="p">,</span>
-                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span>
                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
                        <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">)</span>
 
             <span class="n">legend_3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">B_pred</span><span class="p">[</span><span class="n">window_pred_trans</span><span class="p">:])</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Predicted Labels&#39;</span><span class="p">,</span>
                        <span class="n">handles</span><span class="o">=</span><span class="n">legend_3</span><span class="p">,</span>
-                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
-                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span>
+                       <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
                        <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;small&#39;</span><span class="p">)</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> Frames&#39;</span><span class="p">,</span>
@@ -901,14 +917,14 @@
 <div class="viewcode-block" id="Visualizer.save_weights">
 <a class="viewcode-back" href="../../../ncmcm.ncmcm_classes.html#ncmcm.ncmcm_classes.Visualizer.Visualizer.save_weights">[docs]</a>
     <span class="k">def</span> <span class="nf">save_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                     <span class="n">path</span><span class="p">):</span>
+                     <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Saves the weights of the BundDLeNet to a given path</span>
+<span class="sd">        Saves the weights of the BundDLeNet to a given path. Weigths can be loaded in later using &quot;load_bundle_visualizer()&quot;.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            </span>
-<span class="sd">            - path: str, required</span>
-<span class="sd">                Relative path in the NeuronVisualizer directory with the file name attached.</span>
+<span class="sd">            - name: str, required</span>
+<span class="sd">                Relative path with the file name attached.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            </span>
@@ -916,7 +932,7 @@
 <span class="sd">                Boolean success indicator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No BundDLe-Net created yet.&#39;</span><span class="p">)</span>

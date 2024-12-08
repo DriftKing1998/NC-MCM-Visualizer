@@ -126,10 +126,10 @@ def make_integer_list(input_list):
         Returns:
        
         - integer_list: list
-            List of integers corresponding to input_list.
+            A list of integers corresponding to input_list.
 
         - translation_list: list
-            List of unique strings in input_list.
+            A list of unique strings in input_list.
     """
     string_to_int = {}
     integer_list = []

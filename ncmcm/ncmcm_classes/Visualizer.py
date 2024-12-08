@@ -79,7 +79,7 @@ class Visualizer():
 
     ### DIAGNOSTICS ###
     def plot_mapping(self,
-                     show_legend=False,
+                     legend=False,
                      grid_off=True,
                      quivers=False,
                      show=True,
@@ -90,7 +90,7 @@ class Visualizer():
 
         Parameters:
             
-            - show_legend: bool, optional
+            - legend: bool, optional
                 Whether the legend should be shown.
 
             - grid_off: bool, optional
@@ -101,6 +101,9 @@ class Visualizer():
 
             - show: bool, optional
                 Whether to display the plot. If False, the plot's components will be returned.
+                
+            - draw: bool, optional
+                Not to be used for normal plot_mapping(). Only relevant in make_movie().
 
         Returns:
             
@@ -127,7 +130,7 @@ class Visualizer():
                        alpha=draw)
 
         # plot the legend if wanted
-        if show_legend:
+        if legend:
             legend_elements = self._generate_legend(self.data.B)
             ax.legend(handles=legend_elements, fontsize='small', loc='lower center', bbox_to_anchor=[1, 0])
         else:
@@ -149,20 +152,23 @@ class Visualizer():
             return fig, ax, legend_elements
 
     def _transform_points(self,
-                          mapping):
+                          mapping=None):
         """
         Uses the mapping given to transform the data points (Database.neuron_traces). Also checks if the mapping is a
         neural network or any other sklearn dimensionality reduction.
 
         Parameters:
             
-            - mapping: Dimensionality reduction mapping for the data points (for visualization mapping to 3D space). Type is either a tf-neural-network or any sklearn-object with method "fit_transform"
+            - mapping: object, optional
+                Dimensionality reduction mapping for the data points (for visualization mapping to 3D space). Type is 
+                either a tf-neural-network or any sklearn-object with method "fit_transform"
 
         Returns:
             
             - return: bool
                 Boolean success indicator
         """
+        
         if mapping is None:  # This should not happen normally
             print('No mapping present. CREATING PCA MODEL ...')
             mapping = PCA(n_components=3)
@@ -178,7 +184,6 @@ class Visualizer():
         # This happens if we give some mapping which is not a NN
         elif hasattr(mapping, 'fit_transform'):
             if mapping.get_params()['n_components'] == 3:
-                # print('HAVE mapping MODEL')
                 if isinstance(mapping, NMF):
                     scaler = MinMaxScaler(feature_range=(0, np.max(self.data.neuron_traces.T)))
                     X_scaled = scaler.fit_transform(self.data.neuron_traces.T)
@@ -193,19 +198,18 @@ class Visualizer():
             return False
 
         print('Points have coordinate shape: ', transformed_points.shape)
-        # self.x, self.y, self.z = transformed_points.T
         self.transformed_points = transformed_points.T
         return True
 
     def _generate_legend(self,
-                         blabs=None,
+                         b_labs=None,
                          diff=False):
         """
         Generates legend handles from earlier created `self.diff_label_counts` or from labels given as a parameter.
 
         Parameters:
             
-            - blabs: numpy.ndarray, optional
+            - b_labs: numpy.ndarray, optional
                 Labels from which the legend handles should be created.
 
             - diff: bool, optional
@@ -214,7 +218,7 @@ class Visualizer():
         Returns:
             
             - return: list
-                List of legend handles.
+                A list of legend handles.
         """
 
         # if the legend for the difference plot is requested
@@ -240,7 +244,7 @@ class Visualizer():
         # Create custom legend handles
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=self.data.colordict[idx],
                                       markersize=10,
-                                      label=r'$\mathbf{' + lab + '}$' + f' ({list(blabs).count(idx)})')
+                                      label=r'$\mathbf{' + lab + '}$' + f' ({list(b_labs).count(idx)})')
                            for idx, lab in enumerate(self.data.states)]
 
         return legend_elements
@@ -250,13 +254,13 @@ class Visualizer():
                                     window_true_trans,
                                     window_pred_trans):
         """
-        Generates the counts of wrong predictions by the model from a numpy array where correct predictions are marked as
-        "-1" and incorrect predictions are labeled with other values.
+        Generates the counts of wrong predictions by the model from a numpy array where correct predictions are marked 
+        as "-1" and incorrect predictions are labeled with other values.
 
         Parameters:
             
             - diff_predict: numpy.ndarray, required
-                Array with correct predictions marked as "-1" and incorrect predictions marked with other values (e.g., "0", "1", ...).
+                Array with correct predictions marked as "-1" and incorrect predictions marked with other values (e.g.: 0, 1, ...).
 
             - window_true_trans: int, required
                 Size difference between true labels and the number of transformed points.
@@ -280,8 +284,8 @@ class Visualizer():
                       train=True,
                       use_predictor=True):
         """
-        Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations, and if
-        specified, the predictor will be used as a prediction model for visualizations.
+        Creates a BundDLeNet and trains it if indicated. The tau-model will be used as a mapping for visualizations, and
+        if specified, the predictor will be used as a prediction model for visualizations.
 
         Parameters:
             
@@ -340,6 +344,7 @@ class Visualizer():
         Will plot the loss over epochs as total loss, markov loss (loss for predicted Y-t+1 (=lower) and created Y-t+1
         (=upper)) and behavior loss (loss for predicted B-t+1 (=upper) and true label at t+1).
         """
+
         if self.loss_array is not None:
             plt.figure(**kwargs)
             for i, label in enumerate(
@@ -390,8 +395,6 @@ class Visualizer():
         """
         Will use the output from the attached tau-model as an input for a new Database object. This is used if the input
         data of the current object could be too large or for exploratory uses
-
-        Parameters:
 
         Returns:
             
@@ -447,7 +450,7 @@ class Visualizer():
                 Color values for the quivers.
 
             - draw: bool, optional
-                Whether to draw the quivers on the axis.
+                Whether to draw the quivers on the axis. Only relevant for make_movie().
 
         Returns:
             
@@ -483,7 +486,7 @@ class Visualizer():
     def make_movie(self,
                    interval=None,
                    save=False,
-                   show_legend=False,
+                   legend=False,
                    grid_off=True,
                    quivers=False,
                    draw=True,
@@ -501,7 +504,7 @@ class Visualizer():
             - save: bool, optional
                 Whether the GIF should be saved.
 
-            - show_legend: bool, optional
+            - legend: bool, optional
                 Whether the legend should be shown in the movie.
 
             - grid_off: bool, optional
@@ -509,6 +512,11 @@ class Visualizer():
 
             - quivers: bool, optional
                 Whether to use quivers; otherwise, a scatterplot will be created.
+
+            - draw: bool, optional
+                Whether to draw all time-points on the axis from the start. If False, then timepoints will be plotted as
+                they happen.
+
 
         Returns:
             
@@ -527,14 +535,15 @@ class Visualizer():
             else:
                 interval = 10
         self.interval = interval
-        self._create_animation(show_legend=show_legend,
+        self._create_animation(legend=legend,
                                grid_off=grid_off,
                                quivers=quivers,
-                               draw=draw)
+                               draw=draw,
+                               **kwargs)
         plt.show()
         if save:
             name = str(input('What should the movie be called?'))
-            self._create_animation(show_legend=show_legend,
+            self._create_animation(legend=legend,
                                    grid_off=grid_off,
                                    quivers=quivers,
                                    draw=draw,
@@ -544,14 +553,17 @@ class Visualizer():
         return True
 
     def _create_animation(self,
-                          show_legend=False,
+                          legend=False,
                           grid_off=True,
                           quivers=False,
                           draw=True,
                           **kwargs):
+        """
+        Creates a movie from each frame in the imaging data.
+        """
 
         self.scatter = None
-        fig, self.movie_ax, legend_elements = self.plot_mapping(show_legend=show_legend,
+        fig, self.movie_ax, legend_elements = self.plot_mapping(legend=legend,
                                                                 grid_off=grid_off,
                                                                 quivers=quivers,
                                                                 show=False,
@@ -569,7 +581,7 @@ class Visualizer():
                 quivers,
                 draw):
         """
-        Update function to create a frame in the movie.
+        Update function to create a new frame in the movie.
 
         Parameters:
             
@@ -608,7 +620,6 @@ class Visualizer():
 
         x, y, z = self.transformed_points[:, frame]
         self.scatter = self.movie_ax.scatter(x, y, z, s=20, alpha=0.8, color='red')
-        # self.scatter = self.movie_ax.scatter(self.x[frame], self.y[frame], self.z[frame], s=20, alpha=0.8, color='red')
         self.movie_ax.set_title(f'Frame: {frame}\nBehavior: {self.data.states[self.data.B[frame]]}')
 
         if legend_elements:
@@ -657,8 +668,6 @@ class Visualizer():
         Tries to use the prediction model used in plots to the Predictor of the BundDLeNet. This is normally only used
         if the upon BundDLeNet creation the "use_predictor" parameter was set to False.
 
-        Parameters:
-
         Returns:
             
             - return: bool
@@ -678,7 +687,7 @@ class Visualizer():
             return False
 
     def make_comparison(self,
-                        show_legend=True,
+                        legend=True,
                         quivers=True,
                         **kwargs):
         """
@@ -687,7 +696,7 @@ class Visualizer():
 
         Parameters:
             
-            - show_legend: bool, optional
+            - legend: bool, optional
                 Whether the legend should be shown.
 
             - quivers: bool, optional
@@ -765,7 +774,7 @@ class Visualizer():
         ax3.set_title(f'Predicted Label')
 
         # plot the legend if wanted
-        if show_legend:
+        if legend:
             legend_1 = self._generate_legend(self.data.B[window_true_trans:])
             ax1.legend(title='True Labels',
                        handles=legend_1,
@@ -801,14 +810,14 @@ class Visualizer():
         return True
 
     def save_weights(self,
-                     path):
+                     name):
         """
-        Saves the weights of the BundDLeNet to a given path
+        Saves the weights of the BundDLeNet to a given path. Weigths can be loaded in later using "load_bundle_visualizer()".
 
         Parameters:
             
-            - path: str, required
-                Relative path in the NeuronVisualizer directory with the file name attached.
+            - name: str, required
+                Relative path with the file name attached.
 
         Returns:
             
@@ -816,7 +825,7 @@ class Visualizer():
                 Boolean success indicator
         """
         if self.model is not None:
-            self.model.save_weights(path)
+            self.model.save_weights(name)
             return True
         else:
             print('No BundDLe-Net created yet.')

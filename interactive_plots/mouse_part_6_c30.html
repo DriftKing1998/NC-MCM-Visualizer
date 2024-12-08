@@ -1,0 +1,1217 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 600px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="C1:standing still">C1:standing still</option>
+                                
+                                    <option value="C17:standing still">C17:standing still</option>
+                                
+                                    <option value="C25:standing still">C25:standing still</option>
+                                
+                                    <option value="C28:standing still">C28:standing still</option>
+                                
+                                    <option value="C1:moving forward">C1:moving forward</option>
+                                
+                                    <option value="C26:moving forward">C26:moving forward</option>
+                                
+                                    <option value="C2:moving backward">C2:moving backward</option>
+                                
+                                    <option value="C8:moving backward">C8:moving backward</option>
+                                
+                                    <option value="C22:moving backward">C22:moving backward</option>
+                                
+                                    <option value="C3:standing still">C3:standing still</option>
+                                
+                                    <option value="C24:standing still">C24:standing still</option>
+                                
+                                    <option value="C4:moving forward">C4:moving forward</option>
+                                
+                                    <option value="C7:moving forward">C7:moving forward</option>
+                                
+                                    <option value="C9:moving forward">C9:moving forward</option>
+                                
+                                    <option value="C11:moving forward">C11:moving forward</option>
+                                
+                                    <option value="C15:moving forward">C15:moving forward</option>
+                                
+                                    <option value="C23:moving forward">C23:moving forward</option>
+                                
+                                    <option value="C7:standing still">C7:standing still</option>
+                                
+                                    <option value="C5:moving forward">C5:moving forward</option>
+                                
+                                    <option value="C13:moving forward">C13:moving forward</option>
+                                
+                                    <option value="C18:moving forward">C18:moving forward</option>
+                                
+                                    <option value="C27:standing still">C27:standing still</option>
+                                
+                                    <option value="C1:moving backward">C1:moving backward</option>
+                                
+                                    <option value="C1:going right">C1:going right</option>
+                                
+                                    <option value="C1:going left">C1:going left</option>
+                                
+                                    <option value="C1:invisible">C1:invisible</option>
+                                
+                                    <option value="C1:moving forward-right">C1:moving forward-right</option>
+                                
+                                    <option value="C1:moving forward-left">C1:moving forward-left</option>
+                                
+                                    <option value="C1:moving backward-right">C1:moving backward-right</option>
+                                
+                                    <option value="C1:moving backward-left">C1:moving backward-left</option>
+                                
+                                    <option value="C2:standing still">C2:standing still</option>
+                                
+                                    <option value="C2:moving forward">C2:moving forward</option>
+                                
+                                    <option value="C2:going right">C2:going right</option>
+                                
+                                    <option value="C2:going left">C2:going left</option>
+                                
+                                    <option value="C2:invisible">C2:invisible</option>
+                                
+                                    <option value="C2:moving forward-right">C2:moving forward-right</option>
+                                
+                                    <option value="C2:moving forward-left">C2:moving forward-left</option>
+                                
+                                    <option value="C2:moving backward-right">C2:moving backward-right</option>
+                                
+                                    <option value="C2:moving backward-left">C2:moving backward-left</option>
+                                
+                                    <option value="C3:moving forward">C3:moving forward</option>
+                                
+                                    <option value="C3:moving backward">C3:moving backward</option>
+                                
+                                    <option value="C3:going right">C3:going right</option>
+                                
+                                    <option value="C3:going left">C3:going left</option>
+                                
+                                    <option value="C3:invisible">C3:invisible</option>
+                                
+                                    <option value="C3:moving forward-right">C3:moving forward-right</option>
+                                
+                                    <option value="C3:moving forward-left">C3:moving forward-left</option>
+                                
+                                    <option value="C3:moving backward-right">C3:moving backward-right</option>
+                                
+                                    <option value="C3:moving backward-left">C3:moving backward-left</option>
+                                
+                                    <option value="C4:standing still">C4:standing still</option>
+                                
+                                    <option value="C4:moving backward">C4:moving backward</option>
+                                
+                                    <option value="C4:going right">C4:going right</option>
+                                
+                                    <option value="C4:going left">C4:going left</option>
+                                
+                                    <option value="C4:invisible">C4:invisible</option>
+                                
+                                    <option value="C4:moving forward-right">C4:moving forward-right</option>
+                                
+                                    <option value="C4:moving forward-left">C4:moving forward-left</option>
+                                
+                                    <option value="C4:moving backward-right">C4:moving backward-right</option>
+                                
+                                    <option value="C4:moving backward-left">C4:moving backward-left</option>
+                                
+                                    <option value="C5:standing still">C5:standing still</option>
+                                
+                                    <option value="C5:moving backward">C5:moving backward</option>
+                                
+                                    <option value="C5:going right">C5:going right</option>
+                                
+                                    <option value="C5:going left">C5:going left</option>
+                                
+                                    <option value="C5:invisible">C5:invisible</option>
+                                
+                                    <option value="C5:moving forward-right">C5:moving forward-right</option>
+                                
+                                    <option value="C5:moving forward-left">C5:moving forward-left</option>
+                                
+                                    <option value="C5:moving backward-right">C5:moving backward-right</option>
+                                
+                                    <option value="C5:moving backward-left">C5:moving backward-left</option>
+                                
+                                    <option value="C6:standing still">C6:standing still</option>
+                                
+                                    <option value="C6:moving forward">C6:moving forward</option>
+                                
+                                    <option value="C6:moving backward">C6:moving backward</option>
+                                
+                                    <option value="C6:going right">C6:going right</option>
+                                
+                                    <option value="C6:going left">C6:going left</option>
+                                
+                                    <option value="C6:invisible">C6:invisible</option>
+                                
+                                    <option value="C6:moving forward-right">C6:moving forward-right</option>
+                                
+                                    <option value="C6:moving forward-left">C6:moving forward-left</option>
+                                
+                                    <option value="C6:moving backward-right">C6:moving backward-right</option>
+                                
+                                    <option value="C6:moving backward-left">C6:moving backward-left</option>
+                                
+                                    <option value="C7:moving backward">C7:moving backward</option>
+                                
+                                    <option value="C7:going right">C7:going right</option>
+                                
+                                    <option value="C7:going left">C7:going left</option>
+                                
+                                    <option value="C7:invisible">C7:invisible</option>
+                                
+                                    <option value="C7:moving forward-right">C7:moving forward-right</option>
+                                
+                                    <option value="C7:moving forward-left">C7:moving forward-left</option>
+                                
+                                    <option value="C7:moving backward-right">C7:moving backward-right</option>
+                                
+                                    <option value="C7:moving backward-left">C7:moving backward-left</option>
+                                
+                                    <option value="C8:standing still">C8:standing still</option>
+                                
+                                    <option value="C8:moving forward">C8:moving forward</option>
+                                
+                                    <option value="C8:going right">C8:going right</option>
+                                
+                                    <option value="C8:going left">C8:going left</option>
+                                
+                                    <option value="C8:invisible">C8:invisible</option>
+                                
+                                    <option value="C8:moving forward-right">C8:moving forward-right</option>
+                                
+                                    <option value="C8:moving forward-left">C8:moving forward-left</option>
+                                
+                                    <option value="C8:moving backward-right">C8:moving backward-right</option>
+                                
+                                    <option value="C8:moving backward-left">C8:moving backward-left</option>
+                                
+                                    <option value="C9:standing still">C9:standing still</option>
+                                
+                                    <option value="C9:moving backward">C9:moving backward</option>
+                                
+                                    <option value="C9:going right">C9:going right</option>
+                                
+                                    <option value="C9:going left">C9:going left</option>
+                                
+                                    <option value="C9:invisible">C9:invisible</option>
+                                
+                                    <option value="C9:moving forward-right">C9:moving forward-right</option>
+                                
+                                    <option value="C9:moving forward-left">C9:moving forward-left</option>
+                                
+                                    <option value="C9:moving backward-right">C9:moving backward-right</option>
+                                
+                                    <option value="C9:moving backward-left">C9:moving backward-left</option>
+                                
+                                    <option value="C10:standing still">C10:standing still</option>
+                                
+                                    <option value="C10:moving forward">C10:moving forward</option>
+                                
+                                    <option value="C10:moving backward">C10:moving backward</option>
+                                
+                                    <option value="C10:going right">C10:going right</option>
+                                
+                                    <option value="C10:going left">C10:going left</option>
+                                
+                                    <option value="C10:invisible">C10:invisible</option>
+                                
+                                    <option value="C10:moving forward-right">C10:moving forward-right</option>
+                                
+                                    <option value="C10:moving forward-left">C10:moving forward-left</option>
+                                
+                                    <option value="C10:moving backward-right">C10:moving backward-right</option>
+                                
+                                    <option value="C10:moving backward-left">C10:moving backward-left</option>
+                                
+                                    <option value="C11:standing still">C11:standing still</option>
+                                
+                                    <option value="C11:moving backward">C11:moving backward</option>
+                                
+                                    <option value="C11:going right">C11:going right</option>
+                                
+                                    <option value="C11:going left">C11:going left</option>
+                                
+                                    <option value="C11:invisible">C11:invisible</option>
+                                
+                                    <option value="C11:moving forward-right">C11:moving forward-right</option>
+                                
+                                    <option value="C11:moving forward-left">C11:moving forward-left</option>
+                                
+                                    <option value="C11:moving backward-right">C11:moving backward-right</option>
+                                
+                                    <option value="C11:moving backward-left">C11:moving backward-left</option>
+                                
+                                    <option value="C12:standing still">C12:standing still</option>
+                                
+                                    <option value="C12:moving forward">C12:moving forward</option>
+                                
+                                    <option value="C12:moving backward">C12:moving backward</option>
+                                
+                                    <option value="C12:going right">C12:going right</option>
+                                
+                                    <option value="C12:going left">C12:going left</option>
+                                
+                                    <option value="C12:invisible">C12:invisible</option>
+                                
+                                    <option value="C12:moving forward-right">C12:moving forward-right</option>
+                                
+                                    <option value="C12:moving forward-left">C12:moving forward-left</option>
+                                
+                                    <option value="C12:moving backward-right">C12:moving backward-right</option>
+                                
+                                    <option value="C12:moving backward-left">C12:moving backward-left</option>
+                                
+                                    <option value="C13:standing still">C13:standing still</option>
+                                
+                                    <option value="C13:moving backward">C13:moving backward</option>
+                                
+                                    <option value="C13:going right">C13:going right</option>
+                                
+                                    <option value="C13:going left">C13:going left</option>
+                                
+                                    <option value="C13:invisible">C13:invisible</option>
+                                
+                                    <option value="C13:moving forward-right">C13:moving forward-right</option>
+                                
+                                    <option value="C13:moving forward-left">C13:moving forward-left</option>
+                                
+                                    <option value="C13:moving backward-right">C13:moving backward-right</option>
+                                
+                                    <option value="C13:moving backward-left">C13:moving backward-left</option>
+                                
+                                    <option value="C14:standing still">C14:standing still</option>
+                                
+                                    <option value="C14:moving forward">C14:moving forward</option>
+                                
+                                    <option value="C14:moving backward">C14:moving backward</option>
+                                
+                                    <option value="C14:going right">C14:going right</option>
+                                
+                                    <option value="C14:going left">C14:going left</option>
+                                
+                                    <option value="C14:invisible">C14:invisible</option>
+                                
+                                    <option value="C14:moving forward-right">C14:moving forward-right</option>
+                                
+                                    <option value="C14:moving forward-left">C14:moving forward-left</option>
+                                
+                                    <option value="C14:moving backward-right">C14:moving backward-right</option>
+                                
+                                    <option value="C14:moving backward-left">C14:moving backward-left</option>
+                                
+                                    <option value="C15:standing still">C15:standing still</option>
+                                
+                                    <option value="C15:moving backward">C15:moving backward</option>
+                                
+                                    <option value="C15:going right">C15:going right</option>
+                                
+                                    <option value="C15:going left">C15:going left</option>
+                                
+                                    <option value="C15:invisible">C15:invisible</option>
+                                
+                                    <option value="C15:moving forward-right">C15:moving forward-right</option>
+                                
+                                    <option value="C15:moving forward-left">C15:moving forward-left</option>
+                                
+                                    <option value="C15:moving backward-right">C15:moving backward-right</option>
+                                
+                                    <option value="C15:moving backward-left">C15:moving backward-left</option>
+                                
+                                    <option value="C16:standing still">C16:standing still</option>
+                                
+                                    <option value="C16:moving forward">C16:moving forward</option>
+                                
+                                    <option value="C16:moving backward">C16:moving backward</option>
+                                
+                                    <option value="C16:going right">C16:going right</option>
+                                
+                                    <option value="C16:going left">C16:going left</option>
+                                
+                                    <option value="C16:invisible">C16:invisible</option>
+                                
+                                    <option value="C16:moving forward-right">C16:moving forward-right</option>
+                                
+                                    <option value="C16:moving forward-left">C16:moving forward-left</option>
+                                
+                                    <option value="C16:moving backward-right">C16:moving backward-right</option>
+                                
+                                    <option value="C16:moving backward-left">C16:moving backward-left</option>
+                                
+                                    <option value="C17:moving forward">C17:moving forward</option>
+                                
+                                    <option value="C17:moving backward">C17:moving backward</option>
+                                
+                                    <option value="C17:going right">C17:going right</option>
+                                
+                                    <option value="C17:going left">C17:going left</option>
+                                
+                                    <option value="C17:invisible">C17:invisible</option>
+                                
+                                    <option value="C17:moving forward-right">C17:moving forward-right</option>
+                                
+                                    <option value="C17:moving forward-left">C17:moving forward-left</option>
+                                
+                                    <option value="C17:moving backward-right">C17:moving backward-right</option>
+                                
+                                    <option value="C17:moving backward-left">C17:moving backward-left</option>
+                                
+                                    <option value="C18:standing still">C18:standing still</option>
+                                
+                                    <option value="C18:moving backward">C18:moving backward</option>
+                                
+                                    <option value="C18:going right">C18:going right</option>
+                                
+                                    <option value="C18:going left">C18:going left</option>
+                                
+                                    <option value="C18:invisible">C18:invisible</option>
+                                
+                                    <option value="C18:moving forward-right">C18:moving forward-right</option>
+                                
+                                    <option value="C18:moving forward-left">C18:moving forward-left</option>
+                                
+                                    <option value="C18:moving backward-right">C18:moving backward-right</option>
+                                
+                                    <option value="C18:moving backward-left">C18:moving backward-left</option>
+                                
+                                    <option value="C19:standing still">C19:standing still</option>
+                                
+                                    <option value="C19:moving forward">C19:moving forward</option>
+                                
+                                    <option value="C19:moving backward">C19:moving backward</option>
+                                
+                                    <option value="C19:going right">C19:going right</option>
+                                
+                                    <option value="C19:going left">C19:going left</option>
+                                
+                                    <option value="C19:invisible">C19:invisible</option>
+                                
+                                    <option value="C19:moving forward-right">C19:moving forward-right</option>
+                                
+                                    <option value="C19:moving forward-left">C19:moving forward-left</option>
+                                
+                                    <option value="C19:moving backward-right">C19:moving backward-right</option>
+                                
+                                    <option value="C19:moving backward-left">C19:moving backward-left</option>
+                                
+                                    <option value="C20:standing still">C20:standing still</option>
+                                
+                                    <option value="C20:moving forward">C20:moving forward</option>
+                                
+                                    <option value="C20:moving backward">C20:moving backward</option>
+                                
+                                    <option value="C20:going right">C20:going right</option>
+                                
+                                    <option value="C20:going left">C20:going left</option>
+                                
+                                    <option value="C20:invisible">C20:invisible</option>
+                                
+                                    <option value="C20:moving forward-right">C20:moving forward-right</option>
+                                
+                                    <option value="C20:moving forward-left">C20:moving forward-left</option>
+                                
+                                    <option value="C20:moving backward-right">C20:moving backward-right</option>
+                                
+                                    <option value="C20:moving backward-left">C20:moving backward-left</option>
+                                
+                                    <option value="C21:standing still">C21:standing still</option>
+                                
+                                    <option value="C21:moving forward">C21:moving forward</option>
+                                
+                                    <option value="C21:moving backward">C21:moving backward</option>
+                                
+                                    <option value="C21:going right">C21:going right</option>
+                                
+                                    <option value="C21:going left">C21:going left</option>
+                                
+                                    <option value="C21:invisible">C21:invisible</option>
+                                
+                                    <option value="C21:moving forward-right">C21:moving forward-right</option>
+                                
+                                    <option value="C21:moving forward-left">C21:moving forward-left</option>
+                                
+                                    <option value="C21:moving backward-right">C21:moving backward-right</option>
+                                
+                                    <option value="C21:moving backward-left">C21:moving backward-left</option>
+                                
+                                    <option value="C22:standing still">C22:standing still</option>
+                                
+                                    <option value="C22:moving forward">C22:moving forward</option>
+                                
+                                    <option value="C22:going right">C22:going right</option>
+                                
+                                    <option value="C22:going left">C22:going left</option>
+                                
+                                    <option value="C22:invisible">C22:invisible</option>
+                                
+                                    <option value="C22:moving forward-right">C22:moving forward-right</option>
+                                
+                                    <option value="C22:moving forward-left">C22:moving forward-left</option>
+                                
+                                    <option value="C22:moving backward-right">C22:moving backward-right</option>
+                                
+                                    <option value="C22:moving backward-left">C22:moving backward-left</option>
+                                
+                                    <option value="C23:standing still">C23:standing still</option>
+                                
+                                    <option value="C23:moving backward">C23:moving backward</option>
+                                
+                                    <option value="C23:going right">C23:going right</option>
+                                
+                                    <option value="C23:going left">C23:going left</option>
+                                
+                                    <option value="C23:invisible">C23:invisible</option>
+                                
+                                    <option value="C23:moving forward-right">C23:moving forward-right</option>
+                                
+                                    <option value="C23:moving forward-left">C23:moving forward-left</option>
+                                
+                                    <option value="C23:moving backward-right">C23:moving backward-right</option>
+                                
+                                    <option value="C23:moving backward-left">C23:moving backward-left</option>
+                                
+                                    <option value="C24:moving forward">C24:moving forward</option>
+                                
+                                    <option value="C24:moving backward">C24:moving backward</option>
+                                
+                                    <option value="C24:going right">C24:going right</option>
+                                
+                                    <option value="C24:going left">C24:going left</option>
+                                
+                                    <option value="C24:invisible">C24:invisible</option>
+                                
+                                    <option value="C24:moving forward-right">C24:moving forward-right</option>
+                                
+                                    <option value="C24:moving forward-left">C24:moving forward-left</option>
+                                
+                                    <option value="C24:moving backward-right">C24:moving backward-right</option>
+                                
+                                    <option value="C24:moving backward-left">C24:moving backward-left</option>
+                                
+                                    <option value="C25:moving forward">C25:moving forward</option>
+                                
+                                    <option value="C25:moving backward">C25:moving backward</option>
+                                
+                                    <option value="C25:going right">C25:going right</option>
+                                
+                                    <option value="C25:going left">C25:going left</option>
+                                
+                                    <option value="C25:invisible">C25:invisible</option>
+                                
+                                    <option value="C25:moving forward-right">C25:moving forward-right</option>
+                                
+                                    <option value="C25:moving forward-left">C25:moving forward-left</option>
+                                
+                                    <option value="C25:moving backward-right">C25:moving backward-right</option>
+                                
+                                    <option value="C25:moving backward-left">C25:moving backward-left</option>
+                                
+                                    <option value="C26:standing still">C26:standing still</option>
+                                
+                                    <option value="C26:moving backward">C26:moving backward</option>
+                                
+                                    <option value="C26:going right">C26:going right</option>
+                                
+                                    <option value="C26:going left">C26:going left</option>
+                                
+                                    <option value="C26:invisible">C26:invisible</option>
+                                
+                                    <option value="C26:moving forward-right">C26:moving forward-right</option>
+                                
+                                    <option value="C26:moving forward-left">C26:moving forward-left</option>
+                                
+                                    <option value="C26:moving backward-right">C26:moving backward-right</option>
+                                
+                                    <option value="C26:moving backward-left">C26:moving backward-left</option>
+                                
+                                    <option value="C27:moving forward">C27:moving forward</option>
+                                
+                                    <option value="C27:moving backward">C27:moving backward</option>
+                                
+                                    <option value="C27:going right">C27:going right</option>
+                                
+                                    <option value="C27:going left">C27:going left</option>
+                                
+                                    <option value="C27:invisible">C27:invisible</option>
+                                
+                                    <option value="C27:moving forward-right">C27:moving forward-right</option>
+                                
+                                    <option value="C27:moving forward-left">C27:moving forward-left</option>
+                                
+                                    <option value="C27:moving backward-right">C27:moving backward-right</option>
+                                
+                                    <option value="C27:moving backward-left">C27:moving backward-left</option>
+                                
+                                    <option value="C28:moving forward">C28:moving forward</option>
+                                
+                                    <option value="C28:moving backward">C28:moving backward</option>
+                                
+                                    <option value="C28:going right">C28:going right</option>
+                                
+                                    <option value="C28:going left">C28:going left</option>
+                                
+                                    <option value="C28:invisible">C28:invisible</option>
+                                
+                                    <option value="C28:moving forward-right">C28:moving forward-right</option>
+                                
+                                    <option value="C28:moving forward-left">C28:moving forward-left</option>
+                                
+                                    <option value="C28:moving backward-right">C28:moving backward-right</option>
+                                
+                                    <option value="C28:moving backward-left">C28:moving backward-left</option>
+                                
+                                    <option value="C29:standing still">C29:standing still</option>
+                                
+                                    <option value="C29:moving forward">C29:moving forward</option>
+                                
+                                    <option value="C29:moving backward">C29:moving backward</option>
+                                
+                                    <option value="C29:going right">C29:going right</option>
+                                
+                                    <option value="C29:going left">C29:going left</option>
+                                
+                                    <option value="C29:invisible">C29:invisible</option>
+                                
+                                    <option value="C29:moving forward-right">C29:moving forward-right</option>
+                                
+                                    <option value="C29:moving forward-left">C29:moving forward-left</option>
+                                
+                                    <option value="C29:moving backward-right">C29:moving backward-right</option>
+                                
+                                    <option value="C29:moving backward-left">C29:moving backward-left</option>
+                                
+                                    <option value="C30:standing still">C30:standing still</option>
+                                
+                                    <option value="C30:moving forward">C30:moving forward</option>
+                                
+                                    <option value="C30:moving backward">C30:moving backward</option>
+                                
+                                    <option value="C30:going right">C30:going right</option>
+                                
+                                    <option value="C30:going left">C30:going left</option>
+                                
+                                    <option value="C30:invisible">C30:invisible</option>
+                                
+                                    <option value="C30:moving forward-right">C30:moving forward-right</option>
+                                
+                                    <option value="C30:moving forward-left">C30:moving forward-left</option>
+                                
+                                    <option value="C30:moving backward-right">C30:moving backward-right</option>
+                                
+                                    <option value="C30:moving backward-left">C30:moving backward-left</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"behavior": "standing still", "cog_state": "C1", "color": "rgb(255.0,0.0,0.0)", "id": "C1:standing still", "label": "C1:standing still", "shape": "dot", "size": 25.549617759894428, "title": "C1:standing still:75\nC1:moving forward:3\nC1:invisible:2\nC3:standing still:2\nC4:standing still:1\nC7:standing still:2\nC17:standing still:24\nC17:moving forward:3\nC24:standing still:2\nC25:standing still:18\nC28:standing still:136\nC28:moving forward:1\nC28:invisible:1\nC28:moving backward-left:1\n"}, {"behavior": "standing still", "cog_state": "C17", "color": "rgb(255.0,0.0,0.0)", "id": "C17:standing still", "label": "C17:standing still", "shape": "dot", "size": 36.132615949491196, "title": "C1:standing still:24\nC3:standing still:9\nC3:moving forward:1\nC7:standing still:5\nC7:moving forward:2\nC17:standing still:150\nC17:moving forward:5\nC24:standing still:21\nC24:moving forward:1\nC25:standing still:54\nC25:moving forward:3\nC27:standing still:5\nC28:standing still:64\nC28:moving forward:2\nC29:standing still:2\n"}, {"behavior": "standing still", "cog_state": "C25", "color": "rgb(255.0,0.0,0.0)", "id": "C25:standing still", "label": "C25:standing still", "shape": "dot", "size": 19.56951730890855, "title": "C1:standing still:21\nC1:moving forward:1\nC3:standing still:10\nC7:standing still:4\nC7:moving forward:1\nC8:standing still:1\nC11:standing still:2\nC17:standing still:50\nC17:moving forward:1\nC17:moving backward:1\nC23:standing still:2\nC24:standing still:28\nC25:standing still:43\nC25:moving forward:2\nC26:standing still:1\nC27:standing still:2\nC28:standing still:50\nC29:standing still:4\nC30:standing still:1\n"}, {"behavior": "standing still", "cog_state": "C28", "color": "rgb(255.0,0.0,0.0)", "id": "C28:standing still", "label": "C28:standing still", "shape": "dot", "size": 41.61791450287817, "title": "C1:standing still:132\nC1:moving forward:4\nC1:going left:3\nC1:invisible:4\nC7:standing still:9\nC7:moving forward:1\nC17:standing still:67\nC17:moving forward:2\nC17:invisible:1\nC24:standing still:12\nC24:moving forward:1\nC25:standing still:34\nC27:standing still:1\nC28:standing still:199\nC28:moving backward:1\nC28:invisible:5\n"}, {"behavior": "moving forward", "cog_state": "C1", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C1:moving forward", "label": "C1:moving forward", "shape": "dot", "size": 9.784758654454276, "title": "C1:moving forward:10\nC1:going left:3\nC1:invisible:3\nC4:moving forward:2\nC7:standing still:1\nC7:moving forward:6\nC9:moving forward:5\nC13:moving forward:6\nC13:invisible:2\nC15:moving forward:3\nC17:moving forward:2\nC18:moving forward:1\nC23:moving forward:1\nC24:moving forward:1\nC26:moving forward:21\nC26:moving backward:1\nC26:going left:1\nC26:invisible:1\nC28:moving forward:1\nC29:moving forward:1\n"}, {"behavior": "moving forward", "cog_state": "C26", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C26:moving forward", "label": "C26:moving forward", "shape": "dot", "size": 32.719475347104954, "title": "C1:moving forward:21\nC1:invisible:1\nC2:going right:1\nC4:standing still:1\nC4:moving forward:67\nC4:invisible:1\nC5:moving forward:4\nC7:moving forward:33\nC9:moving forward:36\nC9:moving backward:1\nC11:moving forward:12\nC13:moving forward:33\nC13:going right:1\nC13:invisible:1\nC15:moving forward:31\nC17:moving forward:1\nC18:moving forward:1\nC19:moving forward:3\nC23:moving forward:10\nC26:moving forward:123\nC26:going right:2\nC26:invisible:2\nC26:moving forward-left:1\nC29:moving forward:3\n"}, {"behavior": "moving backward", "cog_state": "C2", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C2:moving backward", "label": "C2:moving backward", "shape": "dot", "size": 20.43969420791554, "title": "C2:moving backward:48\nC6:moving backward:2\nC7:moving backward:1\nC8:moving forward:1\nC8:moving backward:17\nC10:moving backward:1\nC10:going right:2\nC11:going right:1\nC14:moving forward:2\nC14:moving backward:3\nC14:moving forward-right:1\nC16:standing still:1\nC16:moving forward:1\nC16:moving backward:10\nC18:moving forward:1\nC18:moving backward:2\nC20:moving backward:8\nC22:moving forward:2\nC22:moving backward:24\nC22:going right:3\nC23:moving backward:1\nC23:going right:1\nC27:standing still:1\nC27:moving backward:2\nC29:moving backward:2\n"}, {"behavior": "moving backward", "cog_state": "C8", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C8:moving backward", "label": "C8:moving backward", "shape": "dot", "size": 13.519586937087965, "title": "C2:moving forward:1\nC2:moving backward:18\nC8:standing still:1\nC8:moving forward:1\nC8:moving backward:21\nC10:moving backward:1\nC14:moving forward:2\nC14:moving backward:1\nC16:moving backward:5\nC18:moving forward:2\nC22:moving forward:1\nC22:moving backward:3\nC23:moving backward:3\nC24:moving backward:1\nC27:moving backward:1\nC29:moving forward:1\nC29:moving backward:1\n"}, {"behavior": "moving backward", "cog_state": "C22", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C22:moving backward", "label": "C22:moving backward", "shape": "dot", "size": 12.859692264777069, "title": "C2:standing still:1\nC2:moving forward:4\nC2:moving backward:25\nC5:moving backward:1\nC6:moving backward:2\nC8:moving forward:1\nC8:moving backward:3\nC10:moving forward:1\nC10:moving backward:3\nC10:going right:1\nC12:moving backward:2\nC12:going right:1\nC14:moving forward:1\nC14:moving backward:3\nC16:standing still:2\nC16:moving forward:2\nC16:moving backward:4\nC18:moving backward:1\nC20:moving backward:2\nC22:standing still:1\nC22:moving forward:1\nC22:moving backward:19\nC22:going right:2\nC23:moving backward:2\nC27:standing still:1\nC27:moving backward:1\n"}, {"behavior": "standing still", "cog_state": "C3", "color": "rgb(255.0,0.0,0.0)", "id": "C3:standing still", "label": "C3:standing still", "shape": "dot", "size": 25.033410653956928, "title": "C1:standing still:2\nC3:standing still:72\nC16:standing still:1\nC17:standing still:17\nC18:standing still:2\nC24:standing still:37\nC24:moving forward:1\nC25:standing still:17\nC27:standing still:12\nC28:standing still:4\nC29:standing still:10\nC29:moving forward:1\n"}, {"behavior": "standing still", "cog_state": "C24", "color": "rgb(255.0,0.0,0.0)", "id": "C24:standing still", "label": "C24:standing still", "shape": "dot", "size": 19.56951730890855, "title": "C1:standing still:8\nC3:standing still:39\nC7:standing still:10\nC15:standing still:2\nC16:standing still:1\nC17:standing still:28\nC24:standing still:43\nC25:standing still:29\nC27:standing still:16\nC28:standing still:16\nC29:standing still:6\n"}, {"behavior": "moving forward", "cog_state": "C4", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C4:moving forward", "label": "C4:moving forward", "shape": "dot", "size": 25.549617759894428, "title": "C1:moving forward:5\nC2:moving forward:1\nC4:moving forward:75\nC4:invisible:1\nC5:moving forward:9\nC7:moving forward:14\nC8:moving forward:2\nC9:moving forward:37\nC9:moving backward:2\nC11:moving forward:16\nC11:going right:1\nC13:moving forward:9\nC14:moving forward:5\nC14:moving backward:1\nC15:moving forward:18\nC18:moving forward:4\nC19:moving forward:2\nC21:going right:1\nC23:moving forward:14\nC26:moving forward:64\nC29:moving forward:2\nC30:moving forward:1\n"}, {"behavior": "moving forward", "cog_state": "C7", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C7:moving forward", "label": "C7:moving forward", "shape": "dot", "size": 11.800862953093672, "title": "C1:moving forward:6\nC1:invisible:1\nC2:moving backward:1\nC4:moving forward:23\nC4:invisible:1\nC5:moving forward:3\nC7:moving forward:16\nC7:invisible:1\nC8:moving forward:2\nC9:moving forward:10\nC11:moving forward:3\nC13:moving forward:8\nC14:moving forward:2\nC15:moving forward:17\nC17:moving forward:3\nC18:moving forward:6\nC23:moving forward:4\nC24:standing still:1\nC24:moving forward:1\nC25:standing still:1\nC25:moving forward:4\nC26:moving forward:33\nC26:invisible:1\nC29:moving forward:3\n"}, {"behavior": "moving forward", "cog_state": "C9", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C9:moving forward", "label": "C9:moving forward", "shape": "dot", "size": 16.426106050219, "title": "C1:moving forward:3\nC4:moving forward:43\nC5:moving forward:16\nC7:moving forward:10\nC9:moving forward:31\nC9:moving backward:1\nC9:invisible:2\nC11:moving forward:10\nC11:moving backward:1\nC13:moving forward:6\nC13:going left:1\nC14:moving forward:1\nC15:moving forward:4\nC18:moving forward:1\nC19:moving forward:3\nC19:going left:1\nC23:moving forward:12\nC25:moving forward:1\nC26:moving forward:25\nC29:moving forward:2\n"}, {"behavior": "moving forward", "cog_state": "C11", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C11:moving forward", "label": "C11:moving forward", "shape": "dot", "size": 7.226523189898239, "title": "C2:moving forward:1\nC2:moving backward:1\nC4:moving forward:10\nC5:moving forward:6\nC5:going right:1\nC7:moving forward:2\nC8:moving forward:7\nC8:moving backward:1\nC9:moving forward:9\nC9:invisible:1\nC11:moving forward:6\nC13:moving forward:1\nC14:moving forward:7\nC14:going right:1\nC15:moving forward:2\nC18:moving forward:9\nC19:moving forward:2\nC20:moving forward:1\nC23:moving forward:12\nC23:going right:1\nC25:moving forward:1\nC26:moving forward:9\n"}, {"behavior": "moving forward", "cog_state": "C15", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C15:moving forward", "label": "C15:moving forward", "shape": "dot", "size": 20.22566009826972, "title": "C1:moving forward:1\nC1:invisible:1\nC2:going right:1\nC4:moving forward:14\nC5:moving forward:1\nC7:moving forward:20\nC8:moving forward:5\nC9:moving forward:6\nC11:standing still:1\nC11:moving forward:6\nC13:moving forward:8\nC14:moving forward:6\nC15:standing still:1\nC15:moving forward:47\nC17:moving forward:2\nC18:moving forward:10\nC19:moving forward:1\nC23:moving forward:12\nC23:going right:1\nC24:moving forward:3\nC25:moving forward:1\nC25:going right:1\nC26:standing still:1\nC26:moving forward:32\nC27:moving forward:1\nC28:moving forward:2\nC29:moving forward:10\n"}, {"behavior": "moving forward", "cog_state": "C23", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C23:moving forward", "label": "C23:moving forward", "shape": "dot", "size": 13.193765878138182, "title": "C2:moving forward:1\nC4:moving forward:16\nC5:moving forward:7\nC7:moving forward:6\nC7:invisible:1\nC8:moving forward:5\nC8:going left:1\nC9:moving forward:10\nC9:moving backward:1\nC11:moving forward:10\nC13:moving forward:4\nC14:moving forward:8\nC15:moving forward:10\nC15:moving forward-left:1\nC16:moving forward:1\nC18:moving forward:7\nC19:moving forward:2\nC21:moving forward:1\nC23:moving forward:20\nC23:moving backward:1\nC24:standing still:1\nC24:moving forward:1\nC26:moving forward:12\nC27:standing still:1\n"}, {"behavior": "standing still", "cog_state": "C7", "color": "rgb(255.0,0.0,0.0)", "id": "C7:standing still", "label": "C7:standing still", "shape": "dot", "size": 2, "title": "C1:standing still:5\nC3:standing still:3\nC17:standing still:3\nC24:standing still:6\nC25:standing still:16\nC27:standing still:2\nC28:standing still:2\nC29:standing still:1\n"}, {"behavior": "moving forward", "cog_state": "C5", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C5:moving forward", "label": "C5:moving forward", "shape": "dot", "size": 11.03869650968747, "title": "C2:moving forward:3\nC4:moving forward:6\nC5:moving forward:14\nC7:moving forward:1\nC8:moving forward:2\nC8:invisible:1\nC9:moving forward:10\nC9:invisible:1\nC10:going right:2\nC11:moving forward:5\nC13:moving forward:6\nC14:moving forward:5\nC19:moving forward:4\nC19:invisible:1\nC20:moving forward:2\nC20:moving backward:3\nC21:moving forward:4\nC23:moving forward:3\nC23:invisible:1\nC26:moving forward:3\n"}, {"behavior": "moving forward", "cog_state": "C13", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C13:moving forward", "label": "C13:moving forward", "shape": "dot", "size": 11.426136422051966, "title": "C1:moving forward:1\nC4:moving forward:12\nC4:invisible:1\nC5:moving forward:2\nC7:moving forward:8\nC9:moving forward:9\nC11:moving forward:2\nC13:moving forward:14\nC13:going right:1\nC13:invisible:1\nC14:moving forward:2\nC15:moving forward:6\nC19:moving forward:2\nC23:moving forward:9\nC26:standing still:1\nC26:moving forward:36\nC28:moving forward:1\n"}, {"behavior": "moving forward", "cog_state": "C18", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C18:moving forward", "label": "C18:moving forward", "shape": "dot", "size": 16.15899709359108, "title": "C1:moving forward:1\nC3:standing still:2\nC3:moving forward:1\nC4:standing still:1\nC4:moving forward:4\nC7:moving forward:1\nC8:moving forward:3\nC9:moving forward:2\nC11:moving forward:5\nC13:moving forward:1\nC14:moving forward:9\nC15:moving forward:19\nC18:standing still:1\nC18:moving forward:29\nC18:going right:1\nC23:standing still:1\nC23:moving forward:7\nC25:moving backward:1\nC26:moving forward:1\nC27:moving forward:1\nC29:moving forward:8\n"}, {"behavior": "standing still", "cog_state": "C27", "color": "rgb(255.0,0.0,0.0)", "id": "C27:standing still", "label": "C27:standing still", "shape": "dot", "size": 19.56951730890855, "title": "C3:standing still:19\nC7:standing still:3\nC17:standing still:5\nC18:standing still:1\nC23:standing still:1\nC24:standing still:23\nC25:standing still:3\nC27:standing still:43\nC28:standing still:2\nC29:standing still:4\n"}, {"behavior": "moving backward", "cog_state": "C1", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C1:moving backward", "label": "C1:moving backward", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going right", "cog_state": "C1", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C1:going right", "label": "C1:going right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going left", "cog_state": "C1", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C1:going left", "label": "C1:going left", "shape": "dot", "size": 2, "title": "C1:moving forward:1\nC1:invisible:2\nC4:moving forward:1\nC7:invisible:2\nC13:moving forward:1\nC19:moving forward:1\nC26:invisible:2\n"}, {"behavior": "invisible", "cog_state": "C1", "color": "rgb(0.0,255.0,255.0)", "id": "C1:invisible", "label": "C1:invisible", "shape": "dot", "size": 8.344470217985643, "title": "C1:moving forward:4\nC1:invisible:8\nC7:invisible:3\nC9:moving forward:1\nC9:invisible:1\nC13:invisible:3\nC15:moving forward:1\nC19:invisible:1\nC26:moving forward:2\nC26:going left:1\nC26:invisible:4\nC28:invisible:2\nC29:going left:1\n"}, {"behavior": "moving forward-right", "cog_state": "C1", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C1:moving forward-right", "label": "C1:moving forward-right", "shape": "dot", "size": 2, "title": "C1:invisible:1\n"}, {"behavior": "moving forward-left", "cog_state": "C1", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C1:moving forward-left", "label": "C1:moving forward-left", "shape": "dot", "size": 2, "title": "C28:moving backward-left:1\n"}, {"behavior": "moving backward-right", "cog_state": "C1", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C1:moving backward-right", "label": "C1:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C1", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C1:moving backward-left", "label": "C1:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C2", "color": "rgb(255.0,0.0,0.0)", "id": "C2:standing still", "label": "C2:standing still", "shape": "dot", "size": 2, "title": "C29:standing still:1\n"}, {"behavior": "moving forward", "cog_state": "C2", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C2:moving forward", "label": "C2:moving forward", "shape": "dot", "size": 2.950215738273418, "title": "C2:moving forward:1\nC2:moving backward:1\nC7:moving forward:1\nC10:going right:2\nC14:going right:1\nC16:standing still:1\nC16:moving forward:1\nC18:moving forward:2\nC19:moving forward:1\nC21:moving forward:1\nC22:moving forward:1\nC23:moving forward:2\nC24:moving forward:1\nC29:standing still:1\n"}, {"behavior": "going right", "cog_state": "C2", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C2:going right", "label": "C2:going right", "shape": "dot", "size": 2, "title": "C8:going right:1\nC10:going right:3\nC12:going right:1\nC14:moving backward:1\nC14:going right:1\nC25:going right:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C2", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C2:going left", "label": "C2:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C2", "color": "rgb(0.0,255.0,255.0)", "id": "C2:invisible", "label": "C2:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C2", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C2:moving forward-right", "label": "C2:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C2", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C2:moving forward-left", "label": "C2:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C2", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C2:moving backward-right", "label": "C2:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C2", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C2:moving backward-left", "label": "C2:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C3", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C3:moving forward", "label": "C3:moving forward", "shape": "dot", "size": 2.950215738273418, "title": "C3:standing still:1\nC3:moving forward:1\nC15:moving forward:1\nC18:moving forward:2\n"}, {"behavior": "moving backward", "cog_state": "C3", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C3:moving backward", "label": "C3:moving backward", "shape": "dot", "size": 2.950215738273418, "title": "C3:moving backward:1\nC16:standing still:1\n"}, {"behavior": "going right", "cog_state": "C3", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C3:going right", "label": "C3:going right", "shape": "dot", "size": 2, "title": "C22:moving backward:1\nC27:going right:1\n"}, {"behavior": "going left", "cog_state": "C3", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C3:going left", "label": "C3:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C3", "color": "rgb(0.0,255.0,255.0)", "id": "C3:invisible", "label": "C3:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C3", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C3:moving forward-right", "label": "C3:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C3", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C3:moving forward-left", "label": "C3:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C3", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C3:moving backward-right", "label": "C3:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C3", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C3:moving backward-left", "label": "C3:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C4", "color": "rgb(255.0,0.0,0.0)", "id": "C4:standing still", "label": "C4:standing still", "shape": "dot", "size": 2, "title": "C13:standing still:1\nC24:standing still:1\nC28:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C4", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C4:moving backward", "label": "C4:moving backward", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going right", "cog_state": "C4", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C4:going right", "label": "C4:going right", "shape": "dot", "size": 2, "title": "C22:going right:1\n"}, {"behavior": "going left", "cog_state": "C4", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C4:going left", "label": "C4:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C4", "color": "rgb(0.0,255.0,255.0)", "id": "C4:invisible", "label": "C4:invisible", "shape": "dot", "size": 4.172235108992822, "title": "C4:invisible:2\nC9:moving forward:1\nC15:moving forward:1\nC23:invisible:1\nC29:moving forward:1\nC29:going right:1\n"}, {"behavior": "moving forward-right", "cog_state": "C4", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C4:moving forward-right", "label": "C4:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C4", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C4:moving forward-left", "label": "C4:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C4", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C4:moving backward-right", "label": "C4:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C4", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C4:moving backward-left", "label": "C4:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C5", "color": "rgb(255.0,0.0,0.0)", "id": "C5:standing still", "label": "C5:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward", "cog_state": "C5", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C5:moving backward", "label": "C5:moving backward", "shape": "dot", "size": 2, "title": "C14:moving backward:1\nC22:moving backward:2\n"}, {"behavior": "going right", "cog_state": "C5", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C5:going right", "label": "C5:going right", "shape": "dot", "size": 2, "title": "C5:moving forward:1\nC22:going right:1\nC23:going right:1\n"}, {"behavior": "going left", "cog_state": "C5", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C5:going left", "label": "C5:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C5", "color": "rgb(0.0,255.0,255.0)", "id": "C5:invisible", "label": "C5:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C5", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C5:moving forward-right", "label": "C5:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C5", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C5:moving forward-left", "label": "C5:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C5", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C5:moving backward-right", "label": "C5:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C5", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C5:moving backward-left", "label": "C5:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C6", "color": "rgb(255.0,0.0,0.0)", "id": "C6:standing still", "label": "C6:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C6", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C6:moving forward", "label": "C6:moving forward", "shape": "dot", "size": 2, "title": "C16:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C6", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C6:moving backward", "label": "C6:moving backward", "shape": "dot", "size": 5.109923551978885, "title": "C2:moving backward:2\nC6:moving backward:3\nC8:moving backward:1\nC10:moving backward:1\nC12:moving backward:1\nC16:moving backward:2\nC22:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C6", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C6:going right", "label": "C6:going right", "shape": "dot", "size": 5.900431476546836, "title": "C6:moving forward:1\nC6:moving backward:1\nC6:going right:4\nC10:going right:2\nC12:moving backward:1\nC12:going right:2\nC22:moving backward:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C6", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C6:going left", "label": "C6:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C6", "color": "rgb(0.0,255.0,255.0)", "id": "C6:invisible", "label": "C6:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C6", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C6:moving forward-right", "label": "C6:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C6", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C6:moving forward-left", "label": "C6:moving forward-left", "shape": "dot", "size": 2, "title": "C6:going right:1\n"}, {"behavior": "moving backward-right", "cog_state": "C6", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C6:moving backward-right", "label": "C6:moving backward-right", "shape": "dot", "size": 2, "title": "C10:going right:1\n"}, {"behavior": "moving backward-left", "cog_state": "C6", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C6:moving backward-left", "label": "C6:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward", "cog_state": "C7", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C7:moving backward", "label": "C7:moving backward", "shape": "dot", "size": 2, "title": "C8:moving backward:1\nC22:moving backward:1\nC27:moving forward:1\n"}, {"behavior": "going right", "cog_state": "C7", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C7:going right", "label": "C7:going right", "shape": "dot", "size": 2, "title": "C18:moving backward:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C7", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C7:going left", "label": "C7:going left", "shape": "dot", "size": 2, "title": "C7:moving forward:1\nC13:moving forward:1\n"}, {"behavior": "invisible", "cog_state": "C7", "color": "rgb(0.0,255.0,255.0)", "id": "C7:invisible", "label": "C7:invisible", "shape": "dot", "size": 2, "title": "C1:moving forward:1\nC1:invisible:1\nC7:moving forward:3\nC15:moving forward:1\nC17:going left:1\nC24:moving forward:1\nC26:moving forward:1\nC26:invisible:1\n"}, {"behavior": "moving forward-right", "cog_state": "C7", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C7:moving forward-right", "label": "C7:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C7", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C7:moving forward-left", "label": "C7:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C7", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C7:moving backward-right", "label": "C7:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C7", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C7:moving backward-left", "label": "C7:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C8", "color": "rgb(255.0,0.0,0.0)", "id": "C8:standing still", "label": "C8:standing still", "shape": "dot", "size": 2, "title": "C3:standing still:1\nC16:standing still:1\nC24:standing still:2\n"}, {"behavior": "moving forward", "cog_state": "C8", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C8:moving forward", "label": "C8:moving forward", "shape": "dot", "size": 9.329401321819192, "title": "C2:moving forward:2\nC2:moving backward:1\nC4:moving forward:1\nC4:invisible:1\nC5:moving forward:2\nC7:moving forward:4\nC8:moving forward:10\nC8:moving backward:2\nC11:moving forward:4\nC14:moving forward:5\nC14:moving backward:1\nC15:moving forward:4\nC18:standing still:1\nC18:moving forward:5\nC22:moving backward:1\nC23:moving forward:5\nC24:standing still:1\nC24:moving forward:1\nC27:standing still:2\nC29:standing still:1\n"}, {"behavior": "going right", "cog_state": "C8", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C8:going right", "label": "C8:going right", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC10:going right:1\nC14:moving backward:1\nC25:going right:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C8", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C8:going left", "label": "C8:going left", "shape": "dot", "size": 2, "title": "C23:moving forward:1\n"}, {"behavior": "invisible", "cog_state": "C8", "color": "rgb(0.0,255.0,255.0)", "id": "C8:invisible", "label": "C8:invisible", "shape": "dot", "size": 2, "title": "C4:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C8", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C8:moving forward-right", "label": "C8:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C8", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C8:moving forward-left", "label": "C8:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C8", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C8:moving backward-right", "label": "C8:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C8", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C8:moving backward-left", "label": "C8:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C9", "color": "rgb(255.0,0.0,0.0)", "id": "C9:standing still", "label": "C9:standing still", "shape": "dot", "size": 2, "title": "C1:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C9", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C9:moving backward", "label": "C9:moving backward", "shape": "dot", "size": 2, "title": "C4:moving forward:2\nC9:moving forward:1\nC11:moving forward:1\nC23:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C9", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C9:going right", "label": "C9:going right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going left", "cog_state": "C9", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C9:going left", "label": "C9:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C9", "color": "rgb(0.0,255.0,255.0)", "id": "C9:invisible", "label": "C9:invisible", "shape": "dot", "size": 2, "title": "C1:invisible:1\nC9:moving forward:1\nC14:moving forward:1\nC15:moving forward:1\nC23:moving forward:1\nC26:moving forward:2\nC26:invisible:1\nC28:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C9", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C9:moving forward-right", "label": "C9:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C9", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C9:moving forward-left", "label": "C9:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C9", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C9:moving backward-right", "label": "C9:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C9", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C9:moving backward-left", "label": "C9:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C10", "color": "rgb(255.0,0.0,0.0)", "id": "C10:standing still", "label": "C10:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C10", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C10:moving forward", "label": "C10:moving forward", "shape": "dot", "size": 2, "title": "C13:moving forward:1\nC19:moving forward:1\n"}, {"behavior": "moving backward", "cog_state": "C10", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C10:moving backward", "label": "C10:moving backward", "shape": "dot", "size": 2, "title": "C2:moving backward:3\nC6:moving backward:1\nC7:moving backward:1\nC8:moving forward:1\nC16:moving backward:1\nC18:moving backward-left:1\nC22:moving backward:1\nC29:moving backward:1\nC30:going right:2\n"}, {"behavior": "going right", "cog_state": "C10", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C10:going right", "label": "C10:going right", "shape": "dot", "size": 15.043207618764702, "title": "C2:moving backward:1\nC2:going right:1\nC4:going right:1\nC6:going right:4\nC8:going right:2\nC10:moving backward:1\nC10:going right:25\nC11:moving backward:1\nC11:going right:2\nC12:moving backward:1\nC12:going right:2\nC14:going right:6\nC16:going right:1\nC20:going right:2\nC22:moving forward:1\nC22:moving backward:3\nC22:going right:8\nC23:going right:2\nC29:going right:1\nC30:going right:10\n"}, {"behavior": "going left", "cog_state": "C10", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C10:going left", "label": "C10:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C10", "color": "rgb(0.0,255.0,255.0)", "id": "C10:invisible", "label": "C10:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C10", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C10:moving forward-right", "label": "C10:moving forward-right", "shape": "dot", "size": 2, "title": "C22:moving backward:1\n"}, {"behavior": "moving forward-left", "cog_state": "C10", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C10:moving forward-left", "label": "C10:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C10", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C10:moving backward-right", "label": "C10:moving backward-right", "shape": "dot", "size": 2, "title": "C30:moving backward:1\n"}, {"behavior": "moving backward-left", "cog_state": "C10", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C10:moving backward-left", "label": "C10:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C11", "color": "rgb(255.0,0.0,0.0)", "id": "C11:standing still", "label": "C11:standing still", "shape": "dot", "size": 2.950215738273418, "title": "C3:standing still:1\nC11:standing still:1\nC23:standing still:1\nC29:standing still:4\n"}, {"behavior": "moving backward", "cog_state": "C11", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C11:moving backward", "label": "C11:moving backward", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC4:moving forward:1\nC16:going right:1\n"}, {"behavior": "going right", "cog_state": "C11", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C11:going right", "label": "C11:going right", "shape": "dot", "size": 2.950215738273418, "title": "C2:moving backward:1\nC11:moving backward:1\nC11:going right:1\nC14:moving backward:1\nC16:moving backward:1\nC18:going right:1\nC22:moving backward:1\nC23:going right:1\nC30:moving forward-right:1\n"}, {"behavior": "going left", "cog_state": "C11", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C11:going left", "label": "C11:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C11", "color": "rgb(0.0,255.0,255.0)", "id": "C11:invisible", "label": "C11:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C11", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C11:moving forward-right", "label": "C11:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C11", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C11:moving forward-left", "label": "C11:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C11", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C11:moving backward-right", "label": "C11:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C11", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C11:moving backward-left", "label": "C11:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C12", "color": "rgb(255.0,0.0,0.0)", "id": "C12:standing still", "label": "C12:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C12", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C12:moving forward", "label": "C12:moving forward", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward", "cog_state": "C12", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C12:moving backward", "label": "C12:moving backward", "shape": "dot", "size": 4.172235108992822, "title": "C6:moving backward:1\nC12:moving backward:2\nC16:moving backward:2\nC22:moving backward:2\n"}, {"behavior": "going right", "cog_state": "C12", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C12:going right", "label": "C12:going right", "shape": "dot", "size": 6.596882939069091, "title": "C2:going right:2\nC6:going right:3\nC6:moving backward-right:1\nC8:standing still:1\nC12:going right:5\nC12:moving forward-left:1\nC22:going right:2\n"}, {"behavior": "going left", "cog_state": "C12", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C12:going left", "label": "C12:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C12", "color": "rgb(0.0,255.0,255.0)", "id": "C12:invisible", "label": "C12:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C12", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C12:moving forward-right", "label": "C12:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C12", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C12:moving forward-left", "label": "C12:moving forward-left", "shape": "dot", "size": 2.950215738273418, "title": "C6:moving forward-left:1\nC12:moving forward-left:1\n"}, {"behavior": "moving backward-right", "cog_state": "C12", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C12:moving backward-right", "label": "C12:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C12", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C12:moving backward-left", "label": "C12:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C13", "color": "rgb(255.0,0.0,0.0)", "id": "C13:standing still", "label": "C13:standing still", "shape": "dot", "size": 2, "title": "C25:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C13", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C13:moving backward", "label": "C13:moving backward", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going right", "cog_state": "C13", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C13:going right", "label": "C13:going right", "shape": "dot", "size": 2, "title": "C13:moving forward:1\nC26:moving forward:1\nC26:moving backward-left:1\n"}, {"behavior": "going left", "cog_state": "C13", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C13:going left", "label": "C13:going left", "shape": "dot", "size": 2, "title": "C19:invisible:1\n"}, {"behavior": "invisible", "cog_state": "C13", "color": "rgb(0.0,255.0,255.0)", "id": "C13:invisible", "label": "C13:invisible", "shape": "dot", "size": 4.172235108992822, "title": "C13:invisible:2\nC19:moving backward:1\nC19:invisible:1\nC25:invisible:1\nC26:going left:1\nC26:invisible:3\nC26:moving forward-left:1\n"}, {"behavior": "moving forward-right", "cog_state": "C13", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C13:moving forward-right", "label": "C13:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C13", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C13:moving forward-left", "label": "C13:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C13", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C13:moving backward-right", "label": "C13:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C13", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C13:moving backward-left", "label": "C13:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C14", "color": "rgb(255.0,0.0,0.0)", "id": "C14:standing still", "label": "C14:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C14", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C14:moving forward", "label": "C14:moving forward", "shape": "dot", "size": 12.164051107260887, "title": "C2:moving forward:3\nC2:going right:1\nC4:moving forward:4\nC5:moving forward:5\nC7:moving forward:2\nC8:standing still:1\nC8:moving forward:3\nC9:moving forward:1\nC10:moving backward:1\nC11:moving forward:6\nC14:moving forward:17\nC14:moving backward:1\nC14:going right:1\nC15:moving forward:4\nC18:moving forward:4\nC20:moving forward:1\nC20:moving backward:1\nC20:going right:1\nC21:moving forward:4\nC21:moving backward:1\nC21:going right:1\nC23:moving forward:4\nC24:standing still:2\nC24:moving forward:2\nC25:moving forward:1\nC27:standing still:1\nC29:moving forward:4\n"}, {"behavior": "moving backward", "cog_state": "C14", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C14:moving backward", "label": "C14:moving backward", "shape": "dot", "size": 5.109923551978885, "title": "C2:moving backward:6\nC5:moving backward:1\nC8:moving backward:3\nC10:going right:1\nC14:moving backward:3\nC22:moving backward:6\nC23:moving forward:1\nC30:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C14", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C14:going right", "label": "C14:going right", "shape": "dot", "size": 5.109923551978885, "title": "C2:going right:1\nC8:going right:1\nC10:moving backward:1\nC10:going right:10\nC14:going right:3\nC20:going right:1\nC22:going right:1\nC30:going right:2\n"}, {"behavior": "going left", "cog_state": "C14", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C14:going left", "label": "C14:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C14", "color": "rgb(0.0,255.0,255.0)", "id": "C14:invisible", "label": "C14:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C14", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C14:moving forward-right", "label": "C14:moving forward-right", "shape": "dot", "size": 2, "title": "C11:going right:1\n"}, {"behavior": "moving forward-left", "cog_state": "C14", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C14:moving forward-left", "label": "C14:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C14", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C14:moving backward-right", "label": "C14:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C14", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C14:moving backward-left", "label": "C14:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C15", "color": "rgb(255.0,0.0,0.0)", "id": "C15:standing still", "label": "C15:standing still", "shape": "dot", "size": 2, "title": "C17:standing still:1\nC24:standing still:1\nC25:standing still:1\nC29:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C15", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C15:moving backward", "label": "C15:moving backward", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going right", "cog_state": "C15", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C15:going right", "label": "C15:going right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going left", "cog_state": "C15", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C15:going left", "label": "C15:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C15", "color": "rgb(0.0,255.0,255.0)", "id": "C15:invisible", "label": "C15:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C15", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C15:moving forward-right", "label": "C15:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C15", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C15:moving forward-left", "label": "C15:moving forward-left", "shape": "dot", "size": 2, "title": "C15:moving forward:1\n"}, {"behavior": "moving backward-right", "cog_state": "C15", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C15:moving backward-right", "label": "C15:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C15", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C15:moving backward-left", "label": "C15:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C16", "color": "rgb(255.0,0.0,0.0)", "id": "C16:standing still", "label": "C16:standing still", "shape": "dot", "size": 5.900431476546836, "title": "C3:standing still:3\nC11:standing still:1\nC16:standing still:4\nC24:standing still:3\nC27:standing still:4\nC29:standing still:2\n"}, {"behavior": "moving forward", "cog_state": "C16", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C16:moving forward", "label": "C16:moving forward", "shape": "dot", "size": 2, "title": "C16:standing still:1\nC24:standing still:1\nC26:moving forward:1\nC27:standing still:2\nC29:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C16", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C16:moving backward", "label": "C16:moving backward", "shape": "dot", "size": 9.784758654454276, "title": "C2:moving backward:9\nC3:moving backward:1\nC7:moving backward:1\nC8:moving backward:6\nC10:moving backward:1\nC15:moving forward:1\nC16:standing still:1\nC16:moving backward:10\nC18:standing still:1\nC18:moving forward:1\nC20:moving backward:1\nC22:moving backward:2\nC23:moving backward:1\nC27:moving forward:1\nC27:moving backward:2\nC29:going right:1\nC30:moving forward:1\nC30:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C16", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C16:going right", "label": "C16:going right", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC12:going right:1\nC22:moving backward:1\nC22:going right:1\nC25:going right:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C16", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C16:going left", "label": "C16:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C16", "color": "rgb(0.0,255.0,255.0)", "id": "C16:invisible", "label": "C16:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C16", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C16:moving forward-right", "label": "C16:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C16", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C16:moving forward-left", "label": "C16:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C16", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C16:moving backward-right", "label": "C16:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C16", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C16:moving backward-left", "label": "C16:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C17", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C17:moving forward", "label": "C17:moving forward", "shape": "dot", "size": 5.900431476546836, "title": "C1:moving forward:2\nC7:moving forward:8\nC13:moving forward:2\nC15:moving forward:1\nC17:moving forward:4\nC17:moving backward:1\nC26:moving forward:8\nC28:moving forward:1\nC29:moving forward:1\n"}, {"behavior": "moving backward", "cog_state": "C17", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C17:moving backward", "label": "C17:moving backward", "shape": "dot", "size": 2, "title": "C1:moving forward:1\nC7:moving forward:1\nC7:invisible:1\nC26:moving forward:1\n"}, {"behavior": "going right", "cog_state": "C17", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C17:going right", "label": "C17:going right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going left", "cog_state": "C17", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C17:going left", "label": "C17:going left", "shape": "dot", "size": 2.950215738273418, "title": "C17:going left:1\nC26:moving forward:1\nC26:invisible:1\n"}, {"behavior": "invisible", "cog_state": "C17", "color": "rgb(0.0,255.0,255.0)", "id": "C17:invisible", "label": "C17:invisible", "shape": "dot", "size": 2, "title": "C7:going left:1\nC17:going left:1\nC28:invisible:1\n"}, {"behavior": "moving forward-right", "cog_state": "C17", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C17:moving forward-right", "label": "C17:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C17", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C17:moving forward-left", "label": "C17:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C17", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C17:moving backward-right", "label": "C17:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C17", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C17:moving backward-left", "label": "C17:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C18", "color": "rgb(255.0,0.0,0.0)", "id": "C18:standing still", "label": "C18:standing still", "shape": "dot", "size": 4.172235108992822, "title": "C3:standing still:1\nC7:standing still:1\nC18:standing still:2\nC24:standing still:2\nC27:standing still:3\nC29:standing still:3\n"}, {"behavior": "moving backward", "cog_state": "C18", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C18:moving backward", "label": "C18:moving backward", "shape": "dot", "size": 5.109923551978885, "title": "C2:moving backward:1\nC8:moving forward:2\nC18:moving backward:3\nC27:moving forward:1\n"}, {"behavior": "going right", "cog_state": "C18", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C18:going right", "label": "C18:going right", "shape": "dot", "size": 2, "title": "C16:going right:1\nC18:moving forward:1\n"}, {"behavior": "going left", "cog_state": "C18", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C18:going left", "label": "C18:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C18", "color": "rgb(0.0,255.0,255.0)", "id": "C18:invisible", "label": "C18:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C18", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C18:moving forward-right", "label": "C18:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C18", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C18:moving forward-left", "label": "C18:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C18", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C18:moving backward-right", "label": "C18:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C18", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C18:moving backward-left", "label": "C18:moving backward-left", "shape": "dot", "size": 2, "title": "C27:moving backward-left:1\n"}, {"behavior": "standing still", "cog_state": "C19", "color": "rgb(255.0,0.0,0.0)", "id": "C19:standing still", "label": "C19:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C19", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C19:moving forward", "label": "C19:moving forward", "shape": "dot", "size": 7.805537157460284, "title": "C2:going right:1\nC4:moving forward:1\nC5:moving forward:6\nC8:moving forward:1\nC9:moving forward:2\nC11:moving forward:3\nC13:moving forward:1\nC14:going right:1\nC19:moving forward:7\nC19:invisible:1\nC21:moving forward:3\nC23:moving forward:4\n"}, {"behavior": "moving backward", "cog_state": "C19", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C19:moving backward", "label": "C19:moving backward", "shape": "dot", "size": 2, "title": "C26:invisible:1\n"}, {"behavior": "going right", "cog_state": "C19", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C19:going right", "label": "C19:going right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going left", "cog_state": "C19", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C19:going left", "label": "C19:going left", "shape": "dot", "size": 2, "title": "C21:invisible:1\nC23:moving forward:1\n"}, {"behavior": "invisible", "cog_state": "C19", "color": "rgb(0.0,255.0,255.0)", "id": "C19:invisible", "label": "C19:invisible", "shape": "dot", "size": 2.950215738273418, "title": "C9:invisible:1\nC13:invisible:1\nC19:moving forward:1\nC19:going left:1\nC19:invisible:1\nC21:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C19", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C19:moving forward-right", "label": "C19:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C19", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C19:moving forward-left", "label": "C19:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C19", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C19:moving backward-right", "label": "C19:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C19", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C19:moving backward-left", "label": "C19:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C20", "color": "rgb(255.0,0.0,0.0)", "id": "C20:standing still", "label": "C20:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C20", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C20:moving forward", "label": "C20:moving forward", "shape": "dot", "size": 2.950215738273418, "title": "C14:going right:1\nC20:moving forward:1\nC20:moving backward:5\nC20:going right:1\n"}, {"behavior": "moving backward", "cog_state": "C20", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C20:moving backward", "label": "C20:moving backward", "shape": "dot", "size": 10.637154118025657, "title": "C2:moving backward:10\nC5:moving backward:1\nC14:moving backward:2\nC20:moving backward:12\nC20:going right:1\nC21:moving backward:1\nC22:moving backward:10\n"}, {"behavior": "going right", "cog_state": "C20", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C20:going right", "label": "C20:going right", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC10:going right:3\nC14:going right:1\nC22:going right:1\n"}, {"behavior": "going left", "cog_state": "C20", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C20:going left", "label": "C20:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C20", "color": "rgb(0.0,255.0,255.0)", "id": "C20:invisible", "label": "C20:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C20", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C20:moving forward-right", "label": "C20:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C20", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C20:moving forward-left", "label": "C20:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C20", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C20:moving backward-right", "label": "C20:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C20", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C20:moving backward-left", "label": "C20:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C21", "color": "rgb(255.0,0.0,0.0)", "id": "C21:standing still", "label": "C21:standing still", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C21", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C21:moving forward", "label": "C21:moving forward", "shape": "dot", "size": 5.109923551978885, "title": "C8:moving forward:1\nC10:moving forward:1\nC10:going right:1\nC14:moving forward:2\nC14:going right:2\nC20:moving forward:2\nC20:moving backward:3\nC21:moving forward:3\nC21:going left:1\nC22:going right:1\n"}, {"behavior": "moving backward", "cog_state": "C21", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C21:moving backward", "label": "C21:moving backward", "shape": "dot", "size": 2, "title": "C20:moving backward:2\n"}, {"behavior": "going right", "cog_state": "C21", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C21:going right", "label": "C21:going right", "shape": "dot", "size": 2, "title": "C10:going right:1\nC14:going right:1\n"}, {"behavior": "going left", "cog_state": "C21", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C21:going left", "label": "C21:going left", "shape": "dot", "size": 2, "title": "C20:moving forward:1\n"}, {"behavior": "invisible", "cog_state": "C21", "color": "rgb(0.0,255.0,255.0)", "id": "C21:invisible", "label": "C21:invisible", "shape": "dot", "size": 2, "title": "C14:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C21", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C21:moving forward-right", "label": "C21:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C21", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C21:moving forward-left", "label": "C21:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C21", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C21:moving backward-right", "label": "C21:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C21", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C21:moving backward-left", "label": "C21:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C22", "color": "rgb(255.0,0.0,0.0)", "id": "C22:standing still", "label": "C22:standing still", "shape": "dot", "size": 2, "title": "C27:standing still:1\n"}, {"behavior": "moving forward", "cog_state": "C22", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C22:moving forward", "label": "C22:moving forward", "shape": "dot", "size": 2, "title": "C8:moving forward:1\nC16:standing still:1\nC16:moving forward:1\nC18:standing still:1\nC22:moving backward:1\nC30:going right:1\n"}, {"behavior": "going right", "cog_state": "C22", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C22:going right", "label": "C22:going right", "shape": "dot", "size": 5.900431476546836, "title": "C2:moving backward:1\nC5:going right:1\nC6:moving backward:1\nC10:going right:7\nC10:moving forward-right:1\nC12:going right:3\nC14:moving backward:1\nC14:going right:1\nC16:moving backward:1\nC22:moving backward:3\nC22:going right:4\nC27:moving backward:1\nC27:going right:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C22", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C22:going left", "label": "C22:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C22", "color": "rgb(0.0,255.0,255.0)", "id": "C22:invisible", "label": "C22:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C22", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C22:moving forward-right", "label": "C22:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C22", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C22:moving forward-left", "label": "C22:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C22", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C22:moving backward-right", "label": "C22:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C22", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C22:moving backward-left", "label": "C22:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C23", "color": "rgb(255.0,0.0,0.0)", "id": "C23:standing still", "label": "C23:standing still", "shape": "dot", "size": 2, "title": "C1:standing still:1\nC9:standing still:1\nC24:standing still:2\nC25:standing still:1\nC29:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C23", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C23:moving backward", "label": "C23:moving backward", "shape": "dot", "size": 4.172235108992822, "title": "C2:moving backward:1\nC8:moving forward:1\nC8:moving backward:5\nC14:moving backward:2\nC22:moving backward:1\nC23:moving backward:2\n"}, {"behavior": "going right", "cog_state": "C23", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C23:going right", "label": "C23:going right", "shape": "dot", "size": 2, "title": "C5:going right:1\nC8:moving backward:1\nC10:going right:2\nC11:going right:1\nC16:going right:2\nC26:moving backward:1\n"}, {"behavior": "going left", "cog_state": "C23", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C23:going left", "label": "C23:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C23", "color": "rgb(0.0,255.0,255.0)", "id": "C23:invisible", "label": "C23:invisible", "shape": "dot", "size": 2, "title": "C7:moving forward:1\nC8:moving forward:2\n"}, {"behavior": "moving forward-right", "cog_state": "C23", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C23:moving forward-right", "label": "C23:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C23", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C23:moving forward-left", "label": "C23:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C23", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C23:moving backward-right", "label": "C23:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C23", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C23:moving backward-left", "label": "C23:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C24", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C24:moving forward", "label": "C24:moving forward", "shape": "dot", "size": 4.172235108992822, "title": "C1:moving forward:1\nC7:moving forward:2\nC7:going left:1\nC8:moving forward:1\nC13:moving forward:1\nC15:moving forward:3\nC17:moving forward:2\nC18:moving forward:1\nC23:moving forward:1\nC24:standing still:2\nC24:moving forward:2\nC26:moving forward:2\nC29:moving forward:1\n"}, {"behavior": "moving backward", "cog_state": "C24", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C24:moving backward", "label": "C24:moving backward", "shape": "dot", "size": 2, "title": "C2:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C24", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C24:going right", "label": "C24:going right", "shape": "dot", "size": 2, "title": "C30:moving backward-right:1\n"}, {"behavior": "going left", "cog_state": "C24", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C24:going left", "label": "C24:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C24", "color": "rgb(0.0,255.0,255.0)", "id": "C24:invisible", "label": "C24:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C24", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C24:moving forward-right", "label": "C24:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C24", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C24:moving forward-left", "label": "C24:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C24", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C24:moving backward-right", "label": "C24:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C24", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C24:moving backward-left", "label": "C24:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward", "cog_state": "C25", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C25:moving forward", "label": "C25:moving forward", "shape": "dot", "size": 2, "title": "C1:moving forward:1\nC7:moving forward:1\nC7:invisible:1\nC11:going right:1\nC14:moving forward:1\nC15:moving forward:2\nC17:moving forward:1\nC17:moving backward:1\nC23:moving backward:1\nC26:moving forward:3\nC28:moving forward:1\nC29:moving forward:2\n"}, {"behavior": "moving backward", "cog_state": "C25", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C25:moving backward", "label": "C25:moving backward", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC8:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C25", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C25:going right", "label": "C25:going right", "shape": "dot", "size": 2.950215738273418, "title": "C7:going right:1\nC8:moving backward:1\nC22:moving backward:1\nC22:going right:1\nC25:moving backward:1\nC25:going right:1\nC29:moving backward:1\nC30:moving backward:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C25", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C25:going left", "label": "C25:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C25", "color": "rgb(0.0,255.0,255.0)", "id": "C25:invisible", "label": "C25:invisible", "shape": "dot", "size": 2, "title": "C18:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C25", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C25:moving forward-right", "label": "C25:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C25", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C25:moving forward-left", "label": "C25:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C25", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C25:moving backward-right", "label": "C25:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C25", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C25:moving backward-left", "label": "C25:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C26", "color": "rgb(255.0,0.0,0.0)", "id": "C26:standing still", "label": "C26:standing still", "shape": "dot", "size": 2, "title": "C15:standing still:1\nC24:standing still:1\nC25:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C26", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C26:moving backward", "label": "C26:moving backward", "shape": "dot", "size": 2, "title": "C9:moving forward:1\nC24:moving forward:1\n"}, {"behavior": "going right", "cog_state": "C26", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C26:going right", "label": "C26:going right", "shape": "dot", "size": 2, "title": "C26:moving forward:2\n"}, {"behavior": "going left", "cog_state": "C26", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C26:going left", "label": "C26:going left", "shape": "dot", "size": 2, "title": "C1:invisible:1\nC1:moving forward-right:1\nC9:invisible:1\nC13:going right:1\nC15:moving forward:1\nC26:moving forward:1\n"}, {"behavior": "invisible", "cog_state": "C26", "color": "rgb(0.0,255.0,255.0)", "id": "C26:invisible", "label": "C26:invisible", "shape": "dot", "size": 2.950215738273418, "title": "C1:moving forward:2\nC1:going left:1\nC1:invisible:1\nC7:moving forward:1\nC9:invisible:1\nC13:moving forward:2\nC15:moving forward:1\nC17:moving backward:1\nC17:invisible:1\nC23:invisible:1\nC26:moving forward:3\nC26:going left:2\nC26:invisible:1\nC28:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C26", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C26:moving forward-right", "label": "C26:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C26", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C26:moving forward-left", "label": "C26:moving forward-left", "shape": "dot", "size": 2, "title": "C9:invisible:1\nC26:moving backward-left:1\n"}, {"behavior": "moving backward-right", "cog_state": "C26", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C26:moving backward-right", "label": "C26:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C26", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C26:moving backward-left", "label": "C26:moving backward-left", "shape": "dot", "size": 2, "title": "C1:moving forward-left:1\nC26:invisible:1\n"}, {"behavior": "moving forward", "cog_state": "C27", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C27:moving forward", "label": "C27:moving forward", "shape": "dot", "size": 2, "title": "C15:moving forward:1\nC17:moving forward:1\nC18:standing still:1\nC18:moving forward:1\nC24:moving forward:1\n"}, {"behavior": "moving backward", "cog_state": "C27", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C27:moving backward", "label": "C27:moving backward", "shape": "dot", "size": 2.950215738273418, "title": "C16:moving backward:3\nC18:standing still:1\nC24:standing still:1\nC24:moving forward:1\nC27:moving backward:1\nC29:moving forward:2\n"}, {"behavior": "going right", "cog_state": "C27", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C27:going right", "label": "C27:going right", "shape": "dot", "size": 2, "title": "C3:going right:1\nC16:moving backward:1\n"}, {"behavior": "going left", "cog_state": "C27", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C27:going left", "label": "C27:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C27", "color": "rgb(0.0,255.0,255.0)", "id": "C27:invisible", "label": "C27:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C27", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C27:moving forward-right", "label": "C27:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C27", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C27:moving forward-left", "label": "C27:moving forward-left", "shape": "dot", "size": 2, "title": "C30:moving backward:1\n"}, {"behavior": "moving backward-right", "cog_state": "C27", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C27:moving backward-right", "label": "C27:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C27", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C27:moving backward-left", "label": "C27:moving backward-left", "shape": "dot", "size": 2, "title": "C3:going right:1\n"}, {"behavior": "moving forward", "cog_state": "C28", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C28:moving forward", "label": "C28:moving forward", "shape": "dot", "size": 2.950215738273418, "title": "C1:going left:2\nC1:invisible:1\nC7:moving forward:3\nC9:moving forward:1\nC13:moving forward:1\nC17:moving forward:1\nC18:moving forward:1\nC26:moving forward:2\nC28:moving forward:1\n"}, {"behavior": "moving backward", "cog_state": "C28", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C28:moving backward", "label": "C28:moving backward", "shape": "dot", "size": 2, "title": "C1:moving forward:1\n"}, {"behavior": "going right", "cog_state": "C28", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C28:going right", "label": "C28:going right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "going left", "cog_state": "C28", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C28:going left", "label": "C28:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C28", "color": "rgb(0.0,255.0,255.0)", "id": "C28:invisible", "label": "C28:invisible", "shape": "dot", "size": 2, "title": "C1:moving forward:1\nC1:invisible:4\nC26:moving forward:2\nC26:going left:1\nC28:moving forward:1\n"}, {"behavior": "moving forward-right", "cog_state": "C28", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C28:moving forward-right", "label": "C28:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C28", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C28:moving forward-left", "label": "C28:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C28", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C28:moving backward-right", "label": "C28:moving backward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-left", "cog_state": "C28", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C28:moving backward-left", "label": "C28:moving backward-left", "shape": "dot", "size": 2, "title": "C1:going left:1\nC17:invisible:1\n"}, {"behavior": "standing still", "cog_state": "C29", "color": "rgb(255.0,0.0,0.0)", "id": "C29:standing still", "label": "C29:standing still", "shape": "dot", "size": 7.226523189898239, "title": "C1:standing still:1\nC3:standing still:10\nC7:standing still:3\nC11:standing still:2\nC17:standing still:2\nC18:standing still:1\nC24:standing still:7\nC25:standing still:6\nC27:standing still:7\nC28:standing still:2\nC29:standing still:6\n"}, {"behavior": "moving forward", "cog_state": "C29", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C29:moving forward", "label": "C29:moving forward", "shape": "dot", "size": 6.596882939069091, "title": "C1:moving forward:1\nC3:standing still:1\nC3:moving forward:2\nC4:moving forward:3\nC5:moving forward:1\nC7:moving forward:1\nC8:moving forward:2\nC11:moving forward:3\nC13:moving forward:1\nC15:moving forward:12\nC18:moving forward:8\nC19:moving forward:1\nC23:standing still:1\nC23:moving forward:1\nC24:moving forward:1\nC25:moving forward:3\nC29:moving forward:5\n"}, {"behavior": "moving backward", "cog_state": "C29", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C29:moving backward", "label": "C29:moving backward", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC8:moving backward:1\nC23:moving forward:1\nC27:moving backward:1\nC27:moving forward-left:1\nC30:moving backward:1\n"}, {"behavior": "going right", "cog_state": "C29", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C29:going right", "label": "C29:going right", "shape": "dot", "size": 2, "title": "C2:moving backward:1\nC10:moving backward:1\nC15:moving forward:1\nC22:moving backward:1\nC25:going right:1\nC30:going right:1\n"}, {"behavior": "going left", "cog_state": "C29", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C29:going left", "label": "C29:going left", "shape": "dot", "size": 2, "title": "C7:invisible:1\n"}, {"behavior": "invisible", "cog_state": "C29", "color": "rgb(0.0,255.0,255.0)", "id": "C29:invisible", "label": "C29:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C29", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C29:moving forward-right", "label": "C29:moving forward-right", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-left", "cog_state": "C29", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C29:moving forward-left", "label": "C29:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C29", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C29:moving backward-right", "label": "C29:moving backward-right", "shape": "dot", "size": 2, "title": "C24:going right:1\n"}, {"behavior": "moving backward-left", "cog_state": "C29", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C29:moving backward-left", "label": "C29:moving backward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "standing still", "cog_state": "C30", "color": "rgb(255.0,0.0,0.0)", "id": "C30:standing still", "label": "C30:standing still", "shape": "dot", "size": 2, "title": "C25:standing still:1\n"}, {"behavior": "moving forward", "cog_state": "C30", "color": "rgb(255.0,153.00000000000003,0.0)", "id": "C30:moving forward", "label": "C30:moving forward", "shape": "dot", "size": 2, "title": "C15:moving forward:1\nC16:standing still:1\n"}, {"behavior": "moving backward", "cog_state": "C30", "color": "rgb(203.99999999999994,255.0,0.0)", "id": "C30:moving backward", "label": "C30:moving backward", "shape": "dot", "size": 2, "title": "C10:going right:1\nC16:moving backward:2\nC22:going right:1\nC29:moving backward:1\nC29:moving backward-right:1\n"}, {"behavior": "going right", "cog_state": "C30", "color": "rgb(51.00000000000004,255.0,0.0)", "id": "C30:going right", "label": "C30:going right", "shape": "dot", "size": 7.226523189898239, "title": "C2:going right:1\nC7:going right:1\nC8:going right:1\nC10:moving backward:1\nC10:going right:10\nC11:going right:1\nC16:going right:1\nC23:going right:1\nC25:going right:3\nC29:going right:3\nC30:going right:6\n"}, {"behavior": "going left", "cog_state": "C30", "color": "rgb(0.0,255.0,102.00000000000009)", "id": "C30:going left", "label": "C30:going left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "invisible", "cog_state": "C30", "color": "rgb(0.0,255.0,255.0)", "id": "C30:invisible", "label": "C30:invisible", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving forward-right", "cog_state": "C30", "color": "rgb(0.0,102.00000000000009,255.0)", "id": "C30:moving forward-right", "label": "C30:moving forward-right", "shape": "dot", "size": 2, "title": "C10:moving backward-right:1\n"}, {"behavior": "moving forward-left", "cog_state": "C30", "color": "rgb(50.999999999999815,0.0,255.0)", "id": "C30:moving forward-left", "label": "C30:moving forward-left", "shape": "dot", "size": 2, "title": ""}, {"behavior": "moving backward-right", "cog_state": "C30", "color": "rgb(204.00000000000017,0.0,255.0)", "id": "C30:moving backward-right", "label": "C30:moving backward-right", "shape": "dot", "size": 2, "title": "C6:going right:1\n"}, {"behavior": "moving backward-left", "cog_state": "C30", "color": "rgb(255.0,0.0,152.99999999999991)", "id": "C30:moving backward-left", "label": "C30:moving backward-left", "shape": "dot", "size": 2, "title": ""}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "C1:standing still", "to": "C17:standing still", "width": 1.7647058823529413}, {"arrows": "to", "from": "C1:standing still", "to": "C25:standing still", "width": 1.323529411764706}, {"arrows": "to", "from": "C1:standing still", "to": "C28:standing still", "width": 10.0}, {"arrows": "to", "from": "C1:moving forward", "to": "C26:moving forward", "width": 1.6176470588235294}, {"arrows": "to", "from": "C2:moving backward", "to": "C8:moving backward", "width": 1.25}, {"arrows": "to", "from": "C2:moving backward", "to": "C22:moving backward", "width": 1.7647058823529413}, {"arrows": "to", "from": "C3:standing still", "to": "C17:standing still", "width": 1.25}, {"arrows": "to", "from": "C3:standing still", "to": "C24:standing still", "width": 2.7205882352941178}, {"arrows": "to", "from": "C3:standing still", "to": "C25:standing still", "width": 1.25}, {"arrows": "to", "from": "C4:moving forward", "to": "C7:moving forward", "width": 1.1029411764705883}, {"arrows": "to", "from": "C4:moving forward", "to": "C9:moving forward", "width": 2.7205882352941178}, {"arrows": "to", "from": "C4:moving forward", "to": "C11:moving forward", "width": 1.1764705882352942}, {"arrows": "to", "from": "C4:moving forward", "to": "C15:moving forward", "width": 1.323529411764706}, {"arrows": "to", "from": "C4:moving forward", "to": "C23:moving forward", "width": 1.1029411764705883}, {"arrows": "to", "from": "C4:moving forward", "to": "C26:moving forward", "width": 4.705882352941177}, {"arrows": "to", "from": "C7:standing still", "to": "C25:standing still", "width": 1.1764705882352942}, {"arrows": "to", "from": "C7:moving forward", "to": "C4:moving forward", "width": 1.6911764705882353}, {"arrows": "to", "from": "C7:moving forward", "to": "C15:moving forward", "width": 1.25}, {"arrows": "to", "from": "C7:moving forward", "to": "C26:moving forward", "width": 2.4264705882352944}, {"arrows": "to", "from": "C8:moving backward", "to": "C2:moving backward", "width": 1.323529411764706}, {"arrows": "to", "from": "C9:moving forward", "to": "C4:moving forward", "width": 3.1617647058823533}, {"arrows": "to", "from": "C9:moving forward", "to": "C5:moving forward", "width": 1.1764705882352942}, {"arrows": "to", "from": "C9:moving forward", "to": "C26:moving forward", "width": 1.8382352941176472}, {"arrows": "to", "from": "C13:moving forward", "to": "C26:moving forward", "width": 2.647058823529412}, {"arrows": "to", "from": "C15:moving forward", "to": "C4:moving forward", "width": 1.0294117647058825}, {"arrows": "to", "from": "C15:moving forward", "to": "C7:moving forward", "width": 1.4705882352941178}, {"arrows": "to", "from": "C15:moving forward", "to": "C26:moving forward", "width": 2.3529411764705883}, {"arrows": "to", "from": "C17:standing still", "to": "C1:standing still", "width": 1.7647058823529413}, {"arrows": "to", "from": "C17:standing still", "to": "C24:standing still", "width": 1.5441176470588238}, {"arrows": "to", "from": "C17:standing still", "to": "C25:standing still", "width": 3.9705882352941178}, {"arrows": "to", "from": "C17:standing still", "to": "C28:standing still", "width": 4.705882352941177}, {"arrows": "to", "from": "C18:moving forward", "to": "C15:moving forward", "width": 1.3970588235294117}, {"arrows": "to", "from": "C22:moving backward", "to": "C2:moving backward", "width": 1.8382352941176472}, {"arrows": "to", "from": "C23:moving forward", "to": "C4:moving forward", "width": 1.1764705882352942}, {"arrows": "to", "from": "C24:standing still", "to": "C3:standing still", "width": 2.8676470588235294}, {"arrows": "to", "from": "C24:standing still", "to": "C17:standing still", "width": 2.058823529411765}, {"arrows": "to", "from": "C24:standing still", "to": "C25:standing still", "width": 2.2058823529411766}, {"arrows": "to", "from": "C24:standing still", "to": "C27:standing still", "width": 1.1764705882352942}, {"arrows": "to", "from": "C24:standing still", "to": "C28:standing still", "width": 1.1764705882352942}, {"arrows": "to", "from": "C25:standing still", "to": "C1:standing still", "width": 1.6176470588235294}, {"arrows": "to", "from": "C25:standing still", "to": "C17:standing still", "width": 3.6764705882352944}, {"arrows": "to", "from": "C25:standing still", "to": "C24:standing still", "width": 2.058823529411765}, {"arrows": "to", "from": "C25:standing still", "to": "C28:standing still", "width": 3.6764705882352944}, {"arrows": "to", "from": "C26:moving forward", "to": "C1:moving forward", "width": 1.6176470588235294}, {"arrows": "to", "from": "C26:moving forward", "to": "C4:moving forward", "width": 4.926470588235294}, {"arrows": "to", "from": "C26:moving forward", "to": "C7:moving forward", "width": 2.4264705882352944}, {"arrows": "to", "from": "C26:moving forward", "to": "C9:moving forward", "width": 2.647058823529412}, {"arrows": "to", "from": "C26:moving forward", "to": "C13:moving forward", "width": 2.4264705882352944}, {"arrows": "to", "from": "C26:moving forward", "to": "C15:moving forward", "width": 2.2794117647058822}, {"arrows": "to", "from": "C27:standing still", "to": "C3:standing still", "width": 1.3970588235294117}, {"arrows": "to", "from": "C27:standing still", "to": "C24:standing still", "width": 1.6911764705882353}, {"arrows": "to", "from": "C28:standing still", "to": "C1:standing still", "width": 9.705882352941178}, {"arrows": "to", "from": "C28:standing still", "to": "C17:standing still", "width": 4.926470588235294}, {"arrows": "to", "from": "C28:standing still", "to": "C25:standing still", "width": 2.5}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"0": {"edges": {"color": {"inherit": true}, "selfReferenceSize": null, "selfReference": {"angle": 0.8}, "smooth": {"forceDirection": "none"}}, "physics": {"minVelocity": 0.75}}, "2": {"edges": {"color": {"inherit": true}, "scaling": {"max": 6}, "selfReferenceSize": null, "selfReference": {"angle": 0.5}, "smooth": {"forceDirection": "none"}}, "physics": {"barnesHut": {"theta": 0.2, "springConstant": 0.001, "centralGravity": 0.001, "springLength": 10, "nodeDistance": 10, "damping": 0.8}, "maxVelocity": 5, "minVelocity": 0.5}}, "1": {"nodes": {"physics": false}, "edges": {"color": {"inherit": true}, "selfReferenceSize": null, "selfReference": {"angle": 0.7853981633974483}, "smooth": {"forceDirection": "none"}}, "physics": {"barnesHut": {"theta": 1, "springConstant": 0.005}, "minVelocity": 0.75}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

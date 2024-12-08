@@ -75,28 +75,22 @@
 <span class="kn">from</span> <span class="nn">..ncmcm_classes.Visualizer</span> <span class="kn">import</span> <span class="n">Visualizer</span>
 
 
-<div class="viewcode-block" id="create_visualizer">
-<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.visualizer_creation.create_visualizer">[docs]</a>
-<span class="k">def</span> <span class="nf">create_visualizer</span><span class="p">(</span><span class="n">database</span><span class="p">,</span>
-                      <span class="n">mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">l_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                      <span class="n">epochs</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
-                      <span class="n">window</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
-                      <span class="n">use_predictor</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="create_bundle_visualizer">
+<a class="viewcode-back" href="../../../ncmcm.helpers.html#ncmcm.helpers.visualizer_creation.create_bundle_visualizer">[docs]</a>
+<span class="k">def</span> <span class="nf">create_bundle_visualizer</span><span class="p">(</span><span class="n">database</span><span class="p">,</span>
+                             <span class="n">l_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                             <span class="n">epochs</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+                             <span class="n">window</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                             <span class="n">use_predictor</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Takes a Database object and either a mapping to visualize the data (e.g.: PCA) or parameters for a BundDLeNet</span>
-<span class="sd">    (l_dim, epochs, window) which will be used to visualize the data. If a BundDLeNet is created, it will be used to</span>
-<span class="sd">    predict behaviors in future plots. Otherwise, the model fitted on the Database-object, will be used as a predictor,</span>
-<span class="sd">    if it exists.</span>
+<span class="sd">    Takes a Database object and parameters for a BundDLeNet (l_dim, epochs, window) which will be used to visualize the</span>
+<span class="sd">    data. If a BundDLeNet is created, it will be used to predict behaviors in future plots. Otherwise, the model fitted</span>
+<span class="sd">    on the Database-object, will be used as a predictor, if it exists.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">       </span>
 <span class="sd">        - database: Database, required</span>
 <span class="sd">            A database object from which the Visualizer will be generated</span>
-
-<span class="sd">        - mapping: object, required</span>
-<span class="sd">            A mapping (such as PCA) which is used for the projection into three dimension. It needs to have the</span>
-<span class="sd">            method &#39;fit_transform&#39;.</span>
 
 <span class="sd">        - l_dim: int, optional</span>
 <span class="sd">            Latent dimension the BundDLeNet maps to (for visualisation: 3D; For further use: XD)</span>
@@ -120,39 +114,35 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># If a mapping is provided</span>
-    <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">vs</span> <span class="o">=</span> <span class="n">Visualizer</span><span class="p">(</span><span class="n">database</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
-    <span class="c1"># otherwise a BundDLeNet is created</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">database</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Give </span><span class="se">\&#39;</span><span class="s1">self.fps</span><span class="se">\&#39;</span><span class="s1"> a value (float) first!&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">time</span><span class="p">,</span> <span class="n">newX</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
-        <span class="n">X_</span><span class="p">,</span> <span class="n">B_</span> <span class="o">=</span> <span class="n">prep_data</span><span class="p">(</span><span class="n">newX</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">win</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">BundDLeNet</span><span class="p">(</span><span class="n">latent_dim</span><span class="o">=</span><span class="n">l_dim</span><span class="p">,</span> <span class="n">behaviors</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">states</span><span class="p">))</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="n">X_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">database</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Give </span><span class="se">\&#39;</span><span class="s1">self.fps</span><span class="se">\&#39;</span><span class="s1"> a value (float) first!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">time</span><span class="p">,</span> <span class="n">newX</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">neuron_traces</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+    <span class="n">X_</span><span class="p">,</span> <span class="n">B_</span> <span class="o">=</span> <span class="n">prep_data</span><span class="p">(</span><span class="n">newX</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">win</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">BundDLeNet</span><span class="p">(</span><span class="n">latent_dim</span><span class="o">=</span><span class="n">l_dim</span><span class="p">,</span> <span class="n">behaviors</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">states</span><span class="p">))</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="n">X_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
-        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
-        <span class="n">loss_array</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
-            <span class="n">X_</span><span class="p">,</span>
-            <span class="n">B_</span><span class="p">,</span>
-            <span class="n">model</span><span class="p">,</span>
-            <span class="n">optimizer</span><span class="p">,</span>
-            <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
-            <span class="n">n_epochs</span><span class="o">=</span><span class="n">epochs</span>
-        <span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+    <span class="n">loss_array</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
+        <span class="n">X_</span><span class="p">,</span>
+        <span class="n">B_</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">n_epochs</span><span class="o">=</span><span class="n">epochs</span>
+    <span class="p">)</span>
 
-        <span class="n">vs</span> <span class="o">=</span> <span class="n">Visualizer</span><span class="p">(</span><span class="n">database</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">tau</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">X_</span> <span class="o">=</span> <span class="n">X_</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">B_</span> <span class="o">=</span> <span class="n">B_</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">loss_array</span> <span class="o">=</span> <span class="n">loss_array</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">tau_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">tau</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># I need to do this later, since X_ is not defined yet</span>
-        <span class="n">vs</span><span class="o">.</span><span class="n">_transform_points</span><span class="p">(</span><span class="n">vs</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">use_predictor</span><span class="p">:</span>
-            <span class="n">vs</span><span class="o">.</span><span class="n">use_bundle_predictor</span><span class="p">()</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">Visualizer</span><span class="p">(</span><span class="n">database</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">tau</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">X_</span> <span class="o">=</span> <span class="n">X_</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">B_</span> <span class="o">=</span> <span class="n">B_</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">loss_array</span> <span class="o">=</span> <span class="n">loss_array</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">tau_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">tau</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">bn_tau</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># I need to do this later, since X_ is not defined yet</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">_transform_points</span><span class="p">(</span><span class="n">vs</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_predictor</span><span class="p">:</span>
+        <span class="n">vs</span><span class="o">.</span><span class="n">use_bundle_predictor</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">vs</span></div>
 

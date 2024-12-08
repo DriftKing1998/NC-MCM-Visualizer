@@ -1,5 +1,4 @@
 from .CustomEnsembleModel import CustomEnsembleModel
-from ..helpers.general_functions import *
 from ..helpers.plotting_functions import *
 from ..helpers.processing_functions import *
 import numpy as np
@@ -210,25 +209,64 @@ class Database:
             raise ValueError("Invalid value for 'clustering' parameter. "
                              "It should be either 'kmeans' or 'spectral'. ")
 
-        p, _ = markovian(xctmp, sim_memoryless=sim_m)
+        p, _ = markov_property_test(xctmp, simulations=sim_m)
         self.p_memoryless[nclusters - 1, reps] = p
 
         if stationary:
-            _, p_adj_s = stationarity(xctmp, chunks=chunks, plot=False, sim_stationary=sim_s, verbose=verbose)
+            _, p_adj_s = stationary_property_test(xctmp, chunks_num=chunks, plot=False, simulations=sim_s,
+                                                  verbose=verbose)
             self.p_stationary[nclusters - 1, reps] = p_adj_s
 
         self.xc[:, nclusters - 1, reps] = xctmp
 
     def cluster_BPT_single(self,
-                           nclusters,
+                           cluster_num,
                            nrep=200,
-                           sim_m=500,
-                           sim_s=500,
+                           sim_m=200,
+                           sim_s=100,
                            chunks=None,
                            clustering='kmeans',
                            kmeans_init='auto',
                            stationary=False,
                            verbose=1):
+        """
+        Clusters behavioral probability trajectories for a given state space if a model has been fit on the data.
+
+        Parameters:
+
+            - nrep: int, optional
+                Repetitions of clustering.
+
+            - cluster_num: int, optional
+                Number of clusters. Clustering will only be done for this state space size.
+
+            - sim_m: int, optional
+                Number of simulations for the test statistics of each markov_property_test.
+
+            - sim_s: int, optional
+                Number of simulations for the test statistics of each stationary_property_test.
+
+            - chunks: int, optional
+                Number of chunks created for the stationary_property_test (Frobenius norm of the chunks is used).
+
+            - clustering: str, optional
+                The clustering algorithm to use (e.g., 'kmeans').
+
+            - kmeans_init: str or int, optional
+                Value for the "n_init" parameter of KMeans, defining how often K-means is initialized after
+                clustering (the best result is picked by the sklearn package).
+
+            - stationary: bool, optional
+                Whether to also perform a stationary_property_test.
+
+            - verbose: int, optional
+                Level of verbosity for logging information.
+
+        Returns:
+
+            - return: bool
+                Boolean success indicator
+        """
         if self.yp_map is None:
             print(f'You first need to fit a model (eg. Logistic Regression), '
                   f'which will be used to map to behavioral probability trajectories.\n'
@@ -237,24 +275,25 @@ class Database:
         M = self.yp_map.shape[0]
 
         if (self.p_memoryless is None or
-                self.p_memoryless.shape[0] < nclusters or
+                self.p_memoryless.shape[0] < cluster_num or
                 self.p_memoryless.shape[1] < nrep):
             print('Creating new')
-            self.p_memoryless = np.zeros((nclusters, nrep))
-            self.p_stationary = np.zeros((nclusters, nrep))
-            self.xc = np.zeros((M, nclusters, nrep))
+            self.p_memoryless = np.zeros((cluster_num, nrep))
+            self.p_stationary = np.zeros((cluster_num, nrep))
+            self.xc = np.zeros((M, cluster_num, nrep))
 
         for reps in range(nrep):
-            print(f'Testing markovianity for {nclusters} clusters - repetition {reps + 1}')
-            self._test_clusters(nclusters, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary,
+            if verbose == 1:
+                print(f'Testing markovianity for {cluster_num} clusters - repetition {reps + 1}')
+            self._test_clusters(cluster_num, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary,
                                 verbose=verbose)
         return True
 
     def cluster_BPT(self,
                     nrep=200,
-                    max_clusters=20,
-                    sim_m=500,
-                    sim_s=500,
+                    cluster_num=20,
+                    sim_m=200,
+                    sim_s=100,
                     chunks=None,
                     clustering='kmeans',
                     kmeans_init='auto',
@@ -270,17 +309,17 @@ class Database:
             - nrep: int, optional
                 Repetitions of repeated clustering for each number of clusters.
 
-            - max_clusters: int, optional
-                Maximal number of clusters. Clustering will be done for 1 to "max_clusters" clusters.
+            - cluster_num: int, optional
+                Maximal number of clusters. Clustering will be done for 1 to "cluster_num" clusters.
 
             - sim_m: int, optional
-                Number of simulations for the test statistics of each memory-less test.
+                Number of simulations for the test statistics of each markov_property_test.
 
             - sim_s: int, optional
-                Number of simulations for the test statistics of each stationarity test.
+                Number of simulations for the test statistics of each stationary_property_test.
 
             - chunks: int, optional
-                Number of chunks created for the stationarity test (Frobenius norm of the chunks is used).
+                Number of chunks created for the stationary_property_test (Frobenius norm of the chunks is used).
 
             - clustering: str, optional
                 The clustering algorithm to use (e.g., 'kmeans').
@@ -293,7 +332,7 @@ class Database:
                 Whether to plot the result.
 
             - stationary: bool, optional
-                Whether to also perform a stationarity test.
+                Whether to also perform a stationary_property_test.
 
             - verbose: int, optional
                 Level of verbosity for logging information.
@@ -311,14 +350,14 @@ class Database:
             return False
 
         M = self.yp_map.shape[0]
-        self.p_memoryless = np.zeros((max_clusters, nrep))
-        self.p_stationary = np.zeros((max_clusters, nrep))
-        self.xc = np.zeros((M, max_clusters, nrep))
+        self.p_memoryless = np.zeros((cluster_num, nrep))
+        self.p_stationary = np.zeros((cluster_num, nrep))
+        self.xc = np.zeros((M, cluster_num, nrep))
 
         for reps in range(nrep):
             if verbose != 0:
                 print("Testing markovianity - repetition ", reps + 1)
-            for nrclusters in range(max_clusters):
+            for nrclusters in range(cluster_num):
                 # print(f'Clusters: {nrclusters}')
                 self._test_clusters(nrclusters + 1, reps, kmeans_init, clustering, chunks, sim_m, sim_s, stationary,
                                     verbose=verbose)
@@ -329,25 +368,46 @@ class Database:
 
     def _plot_markov(self, stationary=False, **kwargs):
         """
-        Creates the markovian plot.
+        Creates the plot of Markov properties test results.
+
+        Parameters:
+
+            - stationary: bool, optional
+                If results of stationary_property_test are also plotted.
+
+        Returns:
+
+            - return: bool
+                Boolean success indicator
         """
+
         fig, ax = plt.subplots(**kwargs)
         # Plotting Memorylessness
         data_m = self.p_memoryless[:, :].T
-        boxplot_m = ax.boxplot(data_m, patch_artist=True, boxprops=dict(facecolor='lightblue', edgecolor='blue'))
-        box_label_m = 'Memoryless'
+        positions_m = np.arange(1, data_m.shape[1] + 1)  # Default positions
+        boxplot_m = ax.boxplot(data_m, positions=positions_m, patch_artist=True,
+                               medianprops=dict(color='black'),
+                               flierprops=dict(marker='x', alpha=0.5),
+                               boxprops=dict(facecolor='lightblue', edgecolor='blue'))
+        box_label_m = 'Markov Property'
         boxplot_m['boxes'][0].set_label(box_label_m)
         boxplot_m['boxes'][0].set_label(box_label_m)
         # Plotting Stationarity if wanted
         if stationary:
             data_s = self.p_stationary[:, :].T
-            boxplot_s = ax.boxplot(data_s, patch_artist=True, boxprops=dict(facecolor='salmon', edgecolor='red'))
-            box_label_s = 'not Stationary'
+            positions_s = positions_m + 0.3  # Add a small offset to the x-positions
+            boxplot_s = ax.boxplot(data_s, positions=positions_s, patch_artist=True,
+                                   medianprops=dict(color='black'),
+                                   flierprops=dict(marker='x', alpha=0.5),
+                                   boxprops=dict(facecolor='salmon', edgecolor='red'))
+            box_label_s = 'Stationary Property'
             boxplot_s['boxes'][0].set_label(box_label_s)
 
         ax.set_title(f'P-value for signs against the Markov property in the sequence of cognitive states')
         ax.set_xlabel('Number of States/Clusters')
         ax.set_ylabel('Probability')
+        ax.set_xticks(positions_m)
+        ax.set_xticklabels(positions_m)
         ax.axhline(0.05)
         plt.legend(loc='best')
         plt.tight_layout()
@@ -357,8 +417,8 @@ class Database:
     def step_plot(self,
                   clusters=5,
                   nrep=10,
-                  sim_m=300,
-                  sim_s=300,
+                  sim_m=200,
+                  sim_s=100,
                   save=False,
                   show=True,
                   png_name=None,
@@ -402,7 +462,7 @@ class Database:
         if self.p_memoryless is None or self.p_memoryless.shape[0] < clusters:
             print('There were no BPT-clusterings computed. It will be done now...')
             self.fit_model(LogisticRegression(solver='lbfgs', max_iter=1000), ensemble=True)
-            self.cluster_BPT_single(nrep=nrep, nclusters=clusters, sim_m=sim_m, sim_s=sim_s)
+            self.cluster_BPT_single(nrep=nrep, cluster_num=clusters, sim_m=sim_m, sim_s=sim_s)
 
         # Neuronal trajectories preprocessing
         f_size = kwargs.pop('figsize', (16, 8))
@@ -461,6 +521,25 @@ class Database:
     def _add_quivers2D(self, ax, x, y, colors=None):
         """
         Function to add 2D quivers of correct size to an axis.
+
+        Parameters:
+
+            - ax: matplotlib.axes.Axes, required
+                Matplotlib axis to which the quivers are added.
+
+            - x: numpy.ndarray or list, required
+                x-values.
+
+            - y: numpy.ndarray or list, required
+                y-values.
+
+            - colors: numpy.ndarray or list, optional
+                Color values for the quivers.
+
+        Returns:
+
+            - return: matplotlib.axes.Axes
+                Axis with quivers added.
         """
         if colors is None:
             colors = self.colors[:-1]
@@ -477,6 +556,7 @@ class Database:
                                  show=True,
                                  save=False,
                                  interactive=False,
+                                 xml_file=False,
                                  physics=None,
                                  weights_hist=False,
                                  bins=15,
@@ -485,7 +565,7 @@ class Database:
         """
         Creates a behavioral state diagram using the defined states as a directed graph.
 
-        Parameters:
+        Arguments:
             
             - cog_stat_num: int, optional
                 Number of cognitive states used.
@@ -495,9 +575,6 @@ class Database:
 
             - offset: float, optional
                 Distance between clusters in the plot.
-
-            - clustering_rep: int, optional
-                Specifies which clustering representation should be used.
 
             - adj_matrix: bool, optional
                 Whether to plot the adjacency matrix.
@@ -511,8 +588,21 @@ class Database:
             - interactive: bool, optional
                 Whether to save an interactive HTML plot.
 
-            - physics: str, optional
-                A path to a JSON-File with physics for the pyvis-graph.
+            - xml_file: bool, optional
+                Whether to generate a GML/XML-file.
+
+            - physics: str or int, optional
+                A path to a JSON-File with physics for the pyvis-graph or an integer [0,1] to select either static or
+                repelling nodes in the interactive graph.
+
+            - weight_hist: bool, optional
+                If a histogram of transition weights should be plotted
+
+            - bins: int, optional
+                Amount of bins in histogram if "weights_hist"=True
+
+            - clustering_rep: int, optional
+                Defines which clustering should be used (by index), otherwise best p-value is used
 
         Returns:
             
@@ -615,6 +705,7 @@ class Database:
             plt.savefig(f'{name}.png', format='png')
             print(f'Plot has been saved under: {os.getcwd()}/{name}.png')
             plt.close()
+
         # This right here will create the interactive HTML plot
         if interactive:
             net = Network(directed=True, filter_menu=True, select_menu=True, cdn_resources='remote')
@@ -635,8 +726,19 @@ class Database:
             script_dir = os.path.dirname(os.path.abspath(__file__))
 
             if physics is None:
-                with open(os.path.join(script_dir, "..", "data", "default_physic.json"), 'r') as file:
+                with open(os.path.join(script_dir, "..", "data", "default_physic_static.json"), 'r') as file:
                     physic = json.load(file)
+            elif type(physics) is int:
+                if physics == 0:
+                    with open(os.path.join(script_dir, "..", "data", "default_physic_static.json"), 'r') as file:
+                        physic = json.load(file)
+                elif physics == 1:
+                    with open(os.path.join(script_dir, "..", "data", "default_physic_bounce.json"), 'r') as file:
+                        physic = json.load(file)
+                else:
+                    print('Option not available. Static physics used.')
+                    with open(os.path.join(script_dir, "..", "data", "default_physic_static.json"), 'r') as file:
+                        physic = json.load(file)
             elif type(physics) is str:
                 with open(physics, 'r') as file:
                     physic = json.load(file)
@@ -650,13 +752,34 @@ class Database:
             name = str(input('File name for the html-plot? '))
             net.show(f'{name}.html', notebook=False)
             print(f'Plot has been saved under: {name}.html')
+
+        # xml file for cytoscape
+        if xml_file:
+            new_nodes_names = {}
+            for node, nodedata in G.nodes.items():
+                c, b = node.split(':')
+                new_node_name = c + b
+                c_int = int(c[1:]) - 1
+                b_int = np.where(np.asarray(self.states) == b)[0][0]
+                n_idx = (len(self.states) * c_int + b_int)
+                transitions = {name.replace(':', ''): int(T[n_idx, i] * (len(self.B) - 1)) for i, name in
+                               enumerate(G.nodes)}
+                nodedata['behavior'] = b
+                nodedata['cog_state'] = c
+                nodedata['transitions'] = transitions
+                new_nodes_names[node] = new_node_name
+            # Update names for XML-format
+            G = nx.relabel_nodes(G, new_nodes_names)
+            xml_name = str(input('File name for the XML-file? '))
+            nx.write_gml(G, f'{os.getcwd()}/{xml_name}.gml')
         return True
 
     def map_names(self,
                   name):
         """
-        Used to generate a state-name from a number
+        Used to generate a state-name from an integer.
         """
+
         c, b = name.split('-')
         new_name = f'C{c}:{self.states[int(b)]}'
         return new_name
@@ -676,6 +799,7 @@ class Database:
             - vmax: int, optional
                 maximal value for neuronal data values
         """
+
         f_size = kwargs.pop('figsize', (10, 4))
         fig, axs = plt.subplots(2, 1, figsize=f_size, **kwargs)
         self._neurons(ax=axs[0], vmin=vmin, vmax=vmax)
@@ -688,7 +812,13 @@ class Database:
                   **kwargs):
         """
         Plots behavioral data as a timeseries onto an axis if given one. Otherwise, a figure will be created and shown.
+
+        Parameters:
+
+            - ax: matplotlib.axes.Axes, optional
+                Axes to plot the neuronal-timeseries on.
         """
+
         show = False
         if ax is None:
             show = True
